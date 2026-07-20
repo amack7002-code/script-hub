@@ -1,3 +1,11 @@
+local Window = getgenv().RayfieldWindow
+local Rayfield = getgenv().RayfieldLib
+
+if not Window then
+    warn("RayfieldWindow not found! Make sure to run the loader first.")
+    return
+end
+
 -- prison Life
 if game.PlaceId == 155615604 then
     local RunService = game:GetService("RunService")
