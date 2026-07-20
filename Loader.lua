@@ -245,3 +245,7 @@ local function downloadGame(url)
 end
 
 
+-- Automatically download and run games.lua on load
+pcall(function()
+    downloadGame()
+end)
