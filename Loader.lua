@@ -66,9 +66,9 @@ HomeTab:CreateLabel("ALWAYS USE ALT ACCOUNT")
 HomeTab:CreateLabel("if there is nothing that appears then the game is not supported")
 
 HomeTab:CreateButton({ Name = "Inf Yield",        Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))() end })
-HomeTab:CreateButton({ Name = "AI SMART Inf Yield (might not work)",        Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/BokX1/InfiniteYieldWithAI/refs/heads/main/InfiniteYieldWithAI.Lua"))() end })
+HomeTab:CreateButton({ Name = "AI SMART Inf Yield (might not work)",        Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/BokX1/InfiniteYieldWithAI/refs/heads/ma[...") end })
 HomeTab:CreateButton({ Name = "Dex",         Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))() end })
-HomeTab:CreateButton({ Name = "Remote Spy/ Simple Spy for bad executors ",         Callback = function() local settings = { SaveDecompileLogs = true, -- saves decompile logs so you dont have to decompile again 
+HomeTab:CreateButton({ Name = "Remote Spy/ Simple Spy for bad executors ",         Callback = function() local settings = { SaveDecompileLogs = true, -- saves decompile logs so you dont have to de[...]
 	SaveScanLogs = true, -- saves scan logs (scans for localscript to decompile) so you dont have to scan again
     ScanForNewInstance = true, -- scans for new localscript and decompile it and add it to the decompile logs
     InterceptUntilRan = true, -- blocks request until you manually run it (i recommend when bypassing keys)
@@ -129,7 +129,7 @@ HomeTab:CreateButton({
 	end
 })
 
-HomeTab:CreateButton({ Name = "Script Dumper",         Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TesterTD/Script.Dumper/refs/heads/main/Debugger.lua"))() end })
+HomeTab:CreateButton({ Name = "Script Dumper",         Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TesterTD/Script.Dumper/refs/heads/main/Debugger.lua"))() en[...] end })
 
 HomeTab:CreateButton({
     Name = "Dex++",
@@ -192,6 +192,56 @@ HomeTab:CreateButton({
     end
 })
 
-local function downloadGame()
-  
+local function downloadGame(url)
+    -- default to the raw URL for games.lua in this repository if no URL passed
+    url = url or "https://raw.githubusercontent.com/amack7002-code/script-hub/main/games.lua"
+
+    Rayfield:Notify({
+        Title = "Download",
+        Content = "Fetching games.lua...",
+        Duration = 2,
+    })
+
+    local ok, res = pcall(function()
+        return game:HttpGet(url)
+    end)
+
+    if not ok or not res or res == "" then
+        Rayfield:Notify({
+            Title = "Download",
+            Content = "Failed to download games.lua: " .. tostring(res),
+            Duration = 4,
+        })
+        return false, res
+    end
+
+    local fn, loadErr = loadstring(res)
+    if not fn then
+        Rayfield:Notify({
+            Title = "Download",
+            Content = "Loadstring error: " .. tostring(loadErr),
+            Duration = 4,
+        })
+        return false, loadErr
+    end
+
+    local success, runErr = pcall(fn)
+    if not success then
+        Rayfield:Notify({
+            Title = "Download",
+            Content = "Runtime error: " .. tostring(runErr),
+            Duration = 4,
+        })
+        return false, runErr
+    end
+
+    Rayfield:Notify({
+        Title = "Download",
+        Content = "games.lua loaded successfully",
+        Duration = 3,
+    })
+
+    return true
 end
+
+
