@@ -233,15 +233,13 @@ HomeTab:CreateButton({
     end
 })
 
--- Download games.lua function
-local function downloadGame(url)
-    url = url or "https://raw.githubusercontent.com/amack7002-code/script-hub/main/games.lua"
+-- After creating Window, store it in getgenv
+getgenv().RayfieldWindow = Window
+getgenv().RayfieldLib = Rayfield
 
-    Rayfield:Notify({
-        Title = "Download",
-        Content = "Fetching games.lua...",
-        Duration = 2,
-    })
+-- Then your download function
+local function downloadGame(url)
+    url = url or "https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/games.lua"
 
     local ok, res = pcall(function()
         return game:HttpGet(url)
@@ -250,10 +248,10 @@ local function downloadGame(url)
     if not ok or not res or res == "" then
         Rayfield:Notify({
             Title = "Download",
-            Content = "Failed to download games.lua: " .. tostring(res),
+            Content = "Failed to download games.lua",
             Duration = 4,
         })
-        return false, res
+        return false
     end
 
     local fn, loadErr = loadstring(res)
@@ -263,9 +261,10 @@ local function downloadGame(url)
             Content = "Loadstring error: " .. tostring(loadErr),
             Duration = 4,
         })
-        return false, loadErr
+        return false
     end
 
+    -- Execute the downloaded script
     local success, runErr = pcall(fn)
     if not success then
         Rayfield:Notify({
@@ -273,7 +272,7 @@ local function downloadGame(url)
             Content = "Runtime error: " .. tostring(runErr),
             Duration = 4,
         })
-        return false, runErr
+        return false
     end
 
     Rayfield:Notify({
@@ -285,7 +284,6 @@ local function downloadGame(url)
     return true
 end
 
--- Automatically download and run games.lua on load
 pcall(function()
     downloadGame()
 end)
