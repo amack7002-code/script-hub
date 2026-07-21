@@ -13864,6 +13864,76 @@ if game.PlaceId == 92556658033628 then
     })
 end
 
+--Critical tower defence
+if game.PlaceId == 5543622168 then
+    local Tab = Window:CreateTab("Main", "user")
+    local TTab = Window:CreateTab("Tower", "user")
+    local shopGUI = game:GetService("Players").LocalPlayer.PlayerGui.Menu.EquipmentFrame.Mainframe.TowersFrame.ListFrame.ScrollFrame
+    local RunService = game:GetService("RunService")
+
+    local showAllTowers = false
+    local connection
+
+    local function setTowersVisible()
+        for _, v in ipairs(shopGUI:GetChildren()) do
+            if v:IsA("TextButton") then
+                v.Visible = true
+            end
+        end
+    end
+
+    -- Rayfield Toggle
+    Tab:CreateToggle({
+        Name = "Show All Towers",
+        CurrentValue = false,
+        Callback = function(Value)
+            showAllTowers = Value
+
+            if showAllTowers then
+                connection = RunService.RenderStepped:Connect(function()
+                    setTowersVisible()
+                end)
+            else
+                if connection then
+                    connection:Disconnect()
+                    connection = nil
+                end
+            end
+        end,
+    })
+
+    local duck = workspace.NPCS.Talks.THEDUCK.Model.Duck
+    Tab:CreateButton({
+        Name = "Go to Duck",
+        CurrentValue = false,
+        Callback = function()
+            hrp.CFrame = duck.CFrame
+        end
+    })
+
+    Tab:CreateButton({
+        Name = "Go to Black ordeal",
+        CurrentValue = false,
+        Callback = function()
+            hrp.CFrame = -3.49692273, 136.424927, 211.938797
+        end
+    })
+
+    Tab:CreateButton({
+        Name = "Go to Fractured Reality",
+        CurrentValue = false,
+        Callback = function()
+            hrp.CFrame = 79979.3672, 26589.5977, -125.481583
+        end
+    })
+    TTab:CreateButton({
+        Name = "Get Hot Rash",
+        CurrentValue = false,
+        Callback = function()
+            game:GetService("Players").LocalPlayer.PlayerGui.Misc.SecretLol["Hot Rash"].Value.Value.RemoteEvent:FireServer()
+        end
+    })
+end
 
 --example 
 --[[
