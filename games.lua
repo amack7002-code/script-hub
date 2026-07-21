@@ -14183,6 +14183,19 @@ Rayfield:Notify({
 })
 end
 
+--bean
+if game.PlaceId == 102028012486873 then
+    TTab:CreateButton({
+        Name = "Goto stage 50",
+        CurrentValue = false,
+        Callback = function()
+			local last = workspace.Checkpoints["50"]
+			local p = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
+			p.CFrame = last.CFrame + Vector3.new(0,10,0)
+        end
+    })
+end
+
 --example 
 --[[
 if game == 0 then
