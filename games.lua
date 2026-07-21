@@ -13926,6 +13926,25 @@ if game.PlaceId == 5543622168 then
             hrp.CFrame = 79979.3672, 26589.5977, -125.481583
         end
     })
+
+	local level = game:GetService("Players").LocalPlayer.PlayerData.Stats.Level
+
+	local Input = Tab:CreateInput({
+	    Name = "Set Level (Client)",
+	    CurrentValue = "",
+	    PlaceholderText = "Enter level",
+	    RemoveTextAfterFocusLost = false,
+	    Flag = "LevelInput",
+	
+	    Callback = function(Text)
+	        local newLevel = tonumber(Text)
+	
+	        if newLevel then
+	            level.Value = newLevel
+	        end
+	    end,
+	})
+
     TTab:CreateButton({
         Name = "Get Hot Rash",
         CurrentValue = false,
