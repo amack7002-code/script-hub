@@ -14198,113 +14198,127 @@ end
 
 --george cooper shooters
 if game.PlaceId == 134285251132058 then
-	local Tab = Window:CreateTab("Main", 4483362458)
+    local Tab = Window:CreateTab("Main", 4483362458)
 
-	local Players = game:GetService("Players")
-	local ReplicatedStorage = game:GetService("ReplicatedStorage")
-	
-	local LocalPlayer = Players.LocalPlayer
-	local Enabled = false
-	local ShootDistance = 20
-	
-	local function GetClosestTarget()
-	    local myChar = LocalPlayer.Character
-	    if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then return nil end
-	
-	    local myRoot = myChar.HumanoidRootPart
-	    local closestPlayer = nil
-	    local closestDistance = math.huge
-	
-	    for _, player in ipairs(Players:GetPlayers()) do
-	        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-	            local distance = (myRoot.Position - player.Character.HumanoidRootPart.Position).Magnitude
-	
-	            if distance < closestDistance then
-	                closestDistance = distance
-	                closestPlayer = player
-	            end
-	        end
-	    end
-	
-	    return closestPlayer
-	end
-	
-	local function FireAtClosest()
-	    local myChar = LocalPlayer.Character
-	    if not myChar then return end
-	
-	    local myRoot = myChar:FindFirstChild("HumanoidRootPart")
-	    local weapon = myChar:FindFirstChild("Sniper")
-	
-	    if not myRoot or not weapon then return end
-	
-	    local target = GetClosestTarget()
-	    if not target or not target.Character then return end
-	
-	    local char = target.Character
-	    local targetPart = char:FindFirstChild("Head") or char:FindFirstChild("HumanoidRootPart")
-	
-	    if not targetPart then return end
-	
-	    local distance = (myRoot.Position - targetPart.Position).Magnitude
-	
-	    if distance <= ShootDistance then
-	        local remote = ReplicatedStorage:FindFirstChild("WeaponsSystem", true)
-	            and ReplicatedStorage.WeaponsSystem:FindFirstChild("Network", true)
-	            and ReplicatedStorage.WeaponsSystem.Network:FindFirstChild("WeaponHit")
-	
-	        if remote then
-	            local args = {
-	                [1] = weapon,
-	                [2] = {
-	                    p = targetPart.Position,
-	                    pid = 1,
-	                    part = targetPart,
-	                    d = distance,
-	                    maxDist = distance + 0.5,
-	                    h = char:FindFirstChild("Head"),
-	                    m = targetPart.Material,
-	                    sid = 2,
-	                    t = tick() % 1,
-	                    n = (targetPart.Position - myRoot.Position).Unit
-	                }
-	            }
-	
-	            remote:FireServer(unpack(args))
-	        end
-	    end
-	end
-	
-	-- Rayfield Toggle
-	Tab:CreateToggle({
-	    Name = "Auto Shoot Closest",
-	    CurrentValue = false,
-	    Flag = "AutoShoot",
-	    Callback = function(Value)
-	        Enabled = Value
-	
-	        if Enabled then
-	            task.spawn(function()
-	                while Enabled do
-	                    FireAtClosest()
-	                    task.wait(0.1)
-	                end
-	            end)
-	        end
-	    end,
-	})
-	
-	Tab:CreateSlider({
-	    Name = "Shoot Distance",
-	    Range = {5, 200},
-	    Increment = 5,
-	    Suffix = " studs",
-	    CurrentValue = 20,
-	    Flag = "ShootDistance",
-	    Callback = function(Value)
-	        ShootDistance = Value
-	    end,
-	})
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+    local LocalPlayer = Players.LocalPlayer
+
+    local Enabled = false
+    local ShootDistance = 20
+
+    local function GetClosestTarget()
+        local char = LocalPlayer.Character
+        local root = char and char:FindFirstChild("HumanoidRootPart")
+
+        if not root then return nil end
+
+        local closest
+        local closestDistance = math.huge
+
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer then
+                local targetChar = player.Character
+                local targetRoot = targetChar and targetChar:FindFirstChild("HumanoidRootPart")
+
+                if targetRoot then
+                    local distance = (root.Position - targetRoot.Position).Magnitude
+
+                    if distance < closestDistance then
+                        closestDistance = distance
+                        closest = player
+                    end
+                end
+            end
+        end
+
+        return closest
+    end
+
+
+    local function FireAtClosest()
+        local char = LocalPlayer.Character
+        if not char then return end
+
+        local root = char:FindFirstChild("HumanoidRootPart")
+        local weapon = char:FindFirstChild("Sniper")
+
+        if not root or not weapon then return end
+
+        local target = GetClosestTarget()
+        if not target or not target.Character then return end
+
+        local targetPart = target.Character:FindFirstChild("Head") 
+            or target.Character:FindFirstChild("HumanoidRootPart")
+
+        if not targetPart then return end
+
+        local distance = (root.Position - targetPart.Position).Magnitude
+
+        if distance <= ShootDistance then
+
+            local weaponsSystem = ReplicatedStorage:FindFirstChild("WeaponsSystem")
+            if not weaponsSystem then return end
+
+            local network = weaponsSystem:FindFirstChild("Network")
+            if not network then return end
+
+            local remote = network:FindFirstChild("WeaponHit")
+            if not remote then return end
+
+
+            local args = {
+                [1] = weapon,
+                [2] = {
+                    p = targetPart.Position,
+                    pid = 1,
+                    part = targetPart,
+                    d = distance,
+                    maxDist = distance + 0.5,
+                    h = target.Character:FindFirstChild("Head"),
+                    m = targetPart.Material,
+                    sid = 2,
+                    t = tick() % 1,
+                    n = (targetPart.Position - root.Position).Unit
+                }
+            }
+
+            remote:FireServer(unpack(args))
+        end
+    end
+
+
+    Tab:CreateToggle({
+        Name = "Auto Shoot Closest",
+        CurrentValue = false,
+        Flag = "AutoShoot",
+        Callback = function(Value)
+            Enabled = Value
+
+            if Value then
+                task.spawn(function()
+                    while Enabled do
+                        FireAtClosest()
+                        task.wait(0.1)
+                    end
+                end)
+            end
+        end,
+    })
+
+
+    Tab:CreateSlider({
+        Name = "Shoot Distance",
+        Range = {5, 200},
+        Increment = 5,
+        Suffix = " studs",
+        CurrentValue = 20,
+        Flag = "ShootDistance",
+        Callback = function(Value)
+            ShootDistance = Value
+        end,
+    })
 end
 
 --example 
