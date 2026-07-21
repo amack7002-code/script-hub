@@ -13931,6 +13931,8 @@ if game.PlaceId == 5543622168 then
         CurrentValue = false,
         Callback = function()
             game:GetService("Players").LocalPlayer.PlayerGui.Misc.SecretLol["Hot Rash"].Value.Value.RemoteEvent:FireServer()
+			workspace:WaitForChild("Map"):WaitForChild("Floaty2"):WaitForChild("Decor"):WaitForChild("Sign"):WaitForChild("baseplate"):WaitForChild("RemoteEvent"):FireServer()
+
         end
     })
 end
