@@ -14276,7 +14276,7 @@ if game.PlaceId == 134285251132058 then
 	end
 	
 	-- Rayfield Toggle
-	Window:CreateToggle({
+	Tab:CreateToggle({
 	    Name = "Auto Shoot Closest",
 	    CurrentValue = false,
 	    Flag = "AutoShoot",
@@ -14294,7 +14294,7 @@ if game.PlaceId == 134285251132058 then
 	    end,
 	})
 	
-	Window:CreateSlider({
+	Tab:CreateSlider({
 	    Name = "Shoot Distance",
 	    Range = {5, 200},
 	    Increment = 5,
