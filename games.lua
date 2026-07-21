@@ -13935,6 +13935,233 @@ if game.PlaceId == 5543622168 then
     })
 end
 
+--zombie attack
+if game.PlaceId == 1240123653 then
+local MainTab = Window:CreateTab("Main")
+
+-- ================== ATTACK SETTINGS ==================
+local ATTACK_DISTANCE = 50
+local ATTACK_DELAY = 0.08
+local USE_DICTIONARY_STYLE = false
+-- ====================================================
+
+-- ================== TELEPORT SETTINGS ==================
+local TELEPORT_HEIGHT = 10
+local TELEPORT_DELAY = 0.0001
+-- =======================================================
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local LocalPlayer = Players.LocalPlayer
+local event = ReplicatedStorage:WaitForChild("forhackers")
+
+local enemiesFolder = workspace:WaitForChild("enemies")
+local bossFolder = workspace:WaitForChild("BossFolder")
+
+-- ================== AUTO ATTACK ==================
+local autoAttackEnabled = false
+local attackConnection
+
+local function getTool()
+    local backpack = LocalPlayer.Backpack
+    for _, v in ipairs(backpack:GetChildren()) do
+        if v:IsA("Tool") then return v end
+    end
+    
+    local char = LocalPlayer.Character
+    if char then
+        for _, v in ipairs(char:GetChildren()) do
+            if v:IsA("Tool") then return v end
+        end
+    end
+    return nil
+end
+
+local function equipTool()
+    local tool = getTool()
+    if tool then
+        local character = LocalPlayer.Character
+        if character and not tool.Parent == character then
+            character:EquipTool(tool)
+        end
+        return tool
+    end
+    return nil
+end
+
+local function getClosestEnemy()
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return nil end
+    
+    local root = character.HumanoidRootPart
+    local closest, shortest = nil, math.huge
+    
+    for _, enemy in ipairs(enemiesFolder:GetChildren()) do
+        local hrp = enemy:FindFirstChild("HumanoidRootPart") or enemy:FindFirstChild("humanoidRootPart")
+        if hrp then
+            local dist = (root.Position - hrp.Position).Magnitude
+            if dist < shortest and dist <= ATTACK_DISTANCE then
+                shortest = dist
+                closest = hrp
+            end
+        end
+    end
+    return closest
+end
+
+local function startAttackLoop()
+    if attackConnection then return end
+    autoAttackEnabled = true
+    
+    attackConnection = task.spawn(function()
+        while autoAttackEnabled do
+            local tool = equipTool()   -- Auto equip every loop
+            local enemyPart = getClosestEnemy()
+            
+            if tool and enemyPart then
+                local args
+                if USE_DICTIONARY_STYLE then
+                    args = { [1] = "hit", [2] = tool, [3] = enemyPart }
+                else
+                    args = { "hit", "Basic Knife", enemyPart }
+                end
+                event:InvokeServer(unpack(args))
+            end
+            task.wait(ATTACK_DELAY)
+        end
+    end)
+end
+
+local function stopAttackLoop()
+    autoAttackEnabled = false
+    if attackConnection then
+        task.cancel(attackConnection)
+        attackConnection = nil
+    end
+end
+
+-- ================== TELEPORT FUNCTIONS ==================
+local function isDead(model)
+    local hum = model:FindFirstChildOfClass("Humanoid")
+    return not hum or hum.Health <= 0
+end
+
+local enemyLoopEnabled, bossLoopEnabled = false, false
+local enemyConn, bossConn
+
+local function startEnemyTeleport()
+    if enemyConn then return end
+    enemyLoopEnabled = true
+    
+    enemyConn = task.spawn(function()
+        while enemyLoopEnabled do
+            local char = LocalPlayer.Character
+            if not char or not char:FindFirstChild("HumanoidRootPart") then task.wait(1) continue end
+            
+            local hrp = char.HumanoidRootPart
+            for _, enemy in ipairs(enemiesFolder:GetChildren()) do
+                if isDead(enemy) then continue end
+                local eHRP = enemy:FindFirstChild("HumanoidRootPart") or enemy:FindFirstChild("humanoidRootPart")
+                if not eHRP then continue end
+                
+                repeat
+                    if char:FindFirstChild("HumanoidRootPart") then
+                        hrp.CFrame = eHRP.CFrame * CFrame.new(0, TELEPORT_HEIGHT, 0)
+                        hrp.Velocity = Vector3.new(0, 25, 0)
+                    end
+                    task.wait(TELEPORT_DELAY)
+                until isDead(enemy) or not enemy.Parent
+            end
+            task.wait(0.1)
+        end
+    end)
+end
+
+local function stopEnemyTeleport()
+    enemyLoopEnabled = false
+    if enemyConn then task.cancel(enemyConn) enemyConn = nil end
+end
+
+local function startBossTeleport()
+    if bossConn then return end
+    bossLoopEnabled = true
+    
+    bossConn = task.spawn(function()
+        while bossLoopEnabled do
+            local char = LocalPlayer.Character
+            if not char or not char:FindFirstChild("HumanoidRootPart") then task.wait(1) continue end
+            
+            local hrp = char.HumanoidRootPart
+            for _, boss in ipairs(bossFolder:GetChildren()) do
+                if isDead(boss) then continue end
+                local bHRP = boss:FindFirstChild("HumanoidRootPart") or boss:FindFirstChild("humanoidRootPart")
+                if not bHRP then continue end
+                
+                repeat
+                    if char:FindFirstChild("HumanoidRootPart") then
+                        hrp.CFrame = bHRP.CFrame * CFrame.new(0, TELEPORT_HEIGHT, 0)
+                        hrp.Velocity = Vector3.new(0, 25, 0)
+                    end
+                    task.wait(TELEPORT_DELAY)
+                until isDead(boss) or not boss.Parent
+            end
+            task.wait(0.1)
+        end
+    end)
+end
+
+local function stopBossTeleport()
+    bossLoopEnabled = false
+    if bossConn then task.cancel(bossConn) bossConn = nil end
+end
+
+-- ================== UI ==================
+MainTab:CreateToggle({
+    Name = "Auto Attack (Auto Equip)",
+    CurrentValue = false,
+    Callback = function(Value)
+        if Value then 
+            startAttackLoop() 
+        else 
+            stopAttackLoop() 
+        end
+    end,
+})
+
+MainTab:CreateToggle({
+    Name = "Auto Teleport Enemies",
+    CurrentValue = false,
+    Callback = function(Value)
+        if Value then startEnemyTeleport() else stopEnemyTeleport() end
+    end,
+})
+
+MainTab:CreateToggle({
+    Name = "Auto Teleport Bosses",
+    CurrentValue = false,
+    Callback = function(Value)
+        if Value then startBossTeleport() else stopBossTeleport() end
+    end,
+})
+
+MainTab:CreateSlider({
+    Name = "Teleport Height",
+    Range = {5, 20},
+    Increment = 1,
+    CurrentValue = 10,
+    Callback = function(Value)
+        TELEPORT_HEIGHT = Value
+    end,
+})
+
+Rayfield:Notify({
+    Title = "Script Loaded",
+    Content = "Auto Equip is now enabled on the attack toggle!",
+    Duration = 6
+})
+end
+
 --example 
 --[[
 if game == 0 then
