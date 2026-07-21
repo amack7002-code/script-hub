@@ -13777,6 +13777,94 @@ if game.PlaceId == 6328880674 then
     })
 end
 
+--HIDE
+if game.PlaceId == 92556658033628 then
+    local players = workspace:WaitForChild("Players")
+
+    local PESPEnabled = false
+    local MESPEnabled = false
+
+    local function addPESP(v)
+        if v:IsA("Model") and v:FindFirstChild("Animate") then
+            if not v:FindFirstChild("Pesp") then
+                local esp = Instance.new("Highlight")
+                esp.Name = "Pesp"
+                esp.Parent = v
+                esp.FillColor = Color3.fromRGB(0, 30, 255)
+                esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+            end
+        end
+    end
+
+    local function addMESP(v)
+        if v:IsA("Model") and not v:FindFirstChild("Animate") then
+            if not v:FindFirstChild("Mesp") then
+                local esp = Instance.new("Highlight")
+                esp.Name = "Mesp"
+                esp.Parent = v
+                esp.FillColor = Color3.fromRGB(255, 0, 0)
+                esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+            end
+        end
+    end
+
+    local function removeESP(name)
+        for _, v in ipairs(players:GetChildren()) do
+            if v:FindFirstChild(name) then
+                v[name]:Destroy()
+            end
+        end
+    end
+
+    local function updateESP()
+        for _, v in ipairs(players:GetChildren()) do
+            if PESPEnabled then
+                addPESP(v)
+            end
+
+            if MESPEnabled then
+                addMESP(v)
+            end
+        end
+    end
+
+    players.ChildAdded:Connect(function(v)
+        task.wait(0.5)
+        updateESP()
+    end)
+
+    local Tab = Window:CreateTab("ESP")
+
+    Tab:CreateToggle({
+        Name = "Player ESP",
+        CurrentValue = false,
+        Callback = function(Value)
+            PESPEnabled = Value
+
+            if Value then
+                updateESP()
+            else
+                removeESP("Pesp")
+            end
+        end,
+    })
+
+    Tab:CreateToggle({
+        Name = "Monster ESP",
+        CurrentValue = false,
+        Callback = function(Value)
+            MESPEnabled = Value
+
+            if Value then
+                updateESP()
+            else
+                removeESP("Mesp")
+            end
+        end,
+    })
+end
+
+
 --example 
 --[[
 if game == 0 then
