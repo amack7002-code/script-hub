@@ -14321,6 +14321,828 @@ if game.PlaceId == 134285251132058 then
     })
 end
 
+--backrooms by red panda productions
+if game.PlaceId == 9273658706 then --level 0 spawn backrooms
+	local TweenService = game:GetService("TweenService")
+	local Tab = Window:CreateTab("Main", 4483362458)
+	Tab:CreateButton({
+    Name = "Go To Exit Door",
+    Callback = function()
+        local exit = workspace.World.MiscDeco["Exit Door"]
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = exit:IsA("BasePart") and exit.CFrame or exit:GetPivot()
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+
+Tab:CreateButton({
+    Name = "Go To Dummy",
+    Callback = function()
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = CFrame.new(914.162048, 2.99999857, 916.596863)
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+
+Tab:CreateButton({
+    Name = "Go To Vault",
+    Callback = function()
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = CFrame.new(-432.262665, 2.99999905, 911.912354)
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+
+Tab:CreateButton({
+    Name = "Go To Blue Hazmat",
+    Callback = function()
+        local Blue = workspace.Givers["Advanced Blue Hazmat"]
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = Blue:IsA("BasePart") and Blue.CFrame or Blue:GetPivot()
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+
+Tab:CreateButton({
+    Name = "Go To Security Cameras",
+    Callback = function()
+        local Cam = workspace.World.FReemodels.Model
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = Cam:IsA("BasePart") and Cam.CFrame or Cam:GetPivot()
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+
+Tab:CreateButton({
+    Name = "Go To Dummy",
+    Callback = function()
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = CFrame.new(818.812439, -2.99732208, 2287.02271)
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+
+Tab:CreateButton({
+    Name = "Go To Christmas Tree",
+    Callback = function()
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = CFrame.new(809.62146, 32.6020279, 488.549805)
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+
+Tab:CreateButton({
+    Name = "Go To Portal",
+    Callback = function()
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = CFrame.new(-21.8446636, 2.99999905, 2101.45996)
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+
+Tab:CreateButton({
+    Name = "Go To Red rooms",
+    Callback = function()
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = CFrame.new(-543.379395, 1445.46875, 1221.16809)
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+
+Tab:CreateButton({
+    Name = "Go To Trap",
+    Callback = function()
+        local Open = workspace.TheTrap.Oper
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = Open:IsA("BasePart") and Open.CFrame or Open:GetPivot()
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+
+Tab:CreateButton({
+    Name = "Go To Dead Body",
+    Callback = function()
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = CFrame.new(718.680969, 3.06997538, 2237.37329)
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+end
+
+if game.PlaceId == 92754201181799 then -- funrooms
+	local Tab = Window:CreateTab("Main", 4483362458)
+	Tab:CreateButton({
+    Name = "Go To Exit",
+    Callback = function()
+        local Exit = workspace.World.Misc["Exit Door"]
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = Exit:IsA("BasePart") and Exit.CFrame or Exit:GetPivot()
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+end
+
+if game.PlaceId == 93745236275941 then -- level ! run for your life
+	Tab:CreateButton({
+    Name = "Go To End",
+    Callback = function()
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = CFrame.new(2951.05347, 211.030426, 86.2053757)
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+end
+
+if game.PlaceId == 9620781650 then -- level 37 poolrooms
+	local Tab = Window:CreateTab("Main", 4483362458)
+	Tab:CreateButton({
+	    Name = "Go To Exit",
+	    Callback = function()
+	        local Exit = workspace.TeleportPart
+	        local TweenService = game:GetService("TweenService")
+	        local Players = game:GetService("Players")
+	
+	        local player = Players.LocalPlayer
+	        local character = player.Character or player.CharacterAdded:Wait()
+	        local hrp = character:WaitForChild("HumanoidRootPart")
+	
+	        local targetCFrame = Exit:IsA("BasePart") and Exit.CFrame or Exit:GetPivot()
+	
+	        local tween = TweenService:Create(
+	            hrp,
+	            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+	            {
+	                CFrame = targetCFrame
+	            }
+	        )
+	
+	        tween:Play()
+	    end,
+	})
+end
+
+if game.PlaceId ==  then -- level 11 empty city
+local Tab = Window:CreateTab("Main", 4483362458)
+Tab:CreateButton({
+    Name = "Go To Exit",
+    Callback = function()
+        local Exit = workspace.World.Badge.BadgeExit
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = Exit:IsA("BasePart") and Exit.CFrame or Exit:GetPivot()
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+end
+
+if game.PlaceId == 9519748053 then --level lights out
+local Tab = Window:CreateTab("Main", 4483362458)
+Tab:CreateButton({
+    Name = "Go To Exit",
+    Callback = function()
+        local Exit = workspace.World.MiscDeco["Exit Door"]
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = Exit:IsA("BasePart") and Exit.CFrame or Exit:GetPivot()
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+end
+
+if game.PlaceId == 136339385292679 then --level neighborhood
+local Tab = Window:CreateTab("Main", 4483362458)
+Tab:CreateButton({
+    Name = "Go To Exit",
+    Callback = function()
+        local Exit = workspace.World.Misc["Exit sign"]
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = Exit:IsA("BasePart") and Exit.CFrame or Exit:GetPivot()
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+end
+
+if game.PlaceId == 111722080121979 then -- level 16 cube asylum idk
+local Tab = Window:CreateTab("Main", 4483362458)
+Tab:CreateButton({
+    Name = "Go To somewhat Exit",
+    Callback = function()
+        local Exit = workspace.World.Misc["Exit Door"]
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = Exit:IsA("BasePart") and Exit.CFrame or Exit:GetPivot()
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+end
+
+if game.PlaceId == 71252510406473 then -- level 2 pipe dreams
+local Tab = Window:CreateTab("Main", 4483362458)
+	Tab:CreateButton({
+    Name = "Go To Exit",
+    Callback = function()
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = CFrame.new(-78.5245895, 71.4999847, 4395.52979)
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+end
+
+if game.PlaceIdd == 116551468963338 then --Empty Car park
+local Tab = Window:CreateTab("Main", 4483362458)
+Tab:CreateButton({
+    Name = "Go To Exit",
+    Callback = function()
+        local Exit = workspace.World.Badge.BadgeExit
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = Exit:IsA("BasePart") and Exit.CFrame or Exit:GetPivot()
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+end
+
+if game.PlaceId == 73571581348211 then --level cabe system
+	local Tab = Window:CreateTab("Main", 4483362458)
+	Tab:CreateButton({
+	    Name = "Go To Exit",
+	    Callback = function()
+	        local Exit = workspace.World.Badge.BadgeExit
+	        local TweenService = game:GetService("TweenService")
+	        local Players = game:GetService("Players")
+	
+	        local player = Players.LocalPlayer
+	        local character = player.Character or player.CharacterAdded:Wait()
+	        local hrp = character:WaitForChild("HumanoidRootPart")
+	
+	        local targetCFrame = Exit:IsA("BasePart") and Exit.CFrame or Exit:GetPivot()
+	
+	        local tween = TweenService:Create(
+	            hrp,
+	            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+	            {
+	                CFrame = targetCFrame
+	            }
+	        )
+	
+	        tween:Play()
+	    end,
+	})
+end
+
+if game.PlaceId == 9597801903 then -- level 7 thalassophobia
+local Tab = Window:CreateTab("Main", 4483362458)
+	Tab:CreateButton({
+    Name = "Go To Exit",
+    Callback = function()
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = CFrame.new(-29.856657, 76.9983826, -2719.47632)
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+end
+
+if game.PlaceId == 10481745633 then --pitfall thing
+local Tab = Window:CreateTab("Main", 4483362458)
+	Tab:CreateButton({
+	    Name = "Go To Exit",
+	    Callback = function()
+	        local Exit = workspace.World.Badge.BadgeEsc
+	        local TweenService = game:GetService("TweenService")
+	        local Players = game:GetService("Players")
+	
+	        local player = Players.LocalPlayer
+	        local character = player.Character or player.CharacterAdded:Wait()
+	        local hrp = character:WaitForChild("HumanoidRootPart")
+	
+	        local targetCFrame = Exit:IsA("BasePart") and Exit.CFrame or Exit:GetPivot()
+	
+	        local tween = TweenService:Create(
+	            hrp,
+	            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+	            {
+	                CFrame = targetCFrame
+	            }
+	        )
+	
+	        tween:Play()
+	    end,
+	})
+end
+
+if game.PlaceId == 9536927575 then --level 7.L opposite oceans
+	Tab:CreateButton({
+	    Name = "Go To Exit",
+	    Callback = function()
+	        local Exit = workspace.World.Badge.BadgeExit
+	        local TweenService = game:GetService("TweenService")
+	        local Players = game:GetService("Players")
+	
+	        local player = Players.LocalPlayer
+	        local character = player.Character or player.CharacterAdded:Wait()
+	        local hrp = character:WaitForChild("HumanoidRootPart")
+	
+	        local targetCFrame = Exit:IsA("BasePart") and Exit.CFrame or Exit:GetPivot()
+	
+	        local tween = TweenService:Create(
+	            hrp,
+	            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+	            {
+	                CFrame = targetCFrame
+	            }
+	        )
+	
+	        tween:Play()
+	    end,
+	})
+end
+
+if game.PlaceId ==  then --level inf stairway
+local Tab = Window:CreateTab("Main", 4483362458)
+	Tab:CreateButton({
+    Name = "Go To Exit",
+    Callback = function()
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = CFrame.new(-442.590424, 12251.8867, 847.270508)
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+end
+
+if gmae.PlaceId == 98147660817272 then -- level duels
+local Tab = Window:CreateTab("Main", 4483362458)
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+local Enabled = false
+local FOVRadius = 150
+local Smoothness = 0.15
+
+local Circle = Drawing.new("Circle")
+Circle.Radius = FOVRadius
+Circle.Thickness = 2
+Circle.Filled = false
+Circle.Visible = false
+
+
+Tab:CreateToggle({
+    Name = "Aimbot",
+    CurrentValue = false,
+    Flag = "AimAssist",
+    Callback = function(Value)
+        Enabled = Value
+        Circle.Visible = Value
+    end,
+})
+
+
+local function GetClosestEnemy()
+    local closest = nil
+    local shortest = FOVRadius
+
+    local mousePos = UserInputService:GetMouseLocation()
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer 
+        and player.Team ~= LocalPlayer.Team 
+        and player.Character then
+
+            local head = player.Character:FindFirstChild("Head")
+
+            if head then
+                local screenPos, visible = Camera:WorldToViewportPoint(head.Position)
+
+                if visible then
+                    local distance = (Vector2.new(screenPos.X, screenPos.Y) - mousePos).Magnitude
+
+                    if distance < shortest then
+                        shortest = distance
+                        closest = head
+                    end
+                end
+            end
+        end
+    end
+
+    return closest
+end
+
+
+RunService.RenderStepped:Connect(function()
+    local mousePos = UserInputService:GetMouseLocation()
+    Circle.Position = mousePos
+
+    if Enabled then
+        local target = GetClosestEnemy()
+
+        if target then
+            local direction = (target.Position - Camera.CFrame.Position).Unit
+            local newCFrame = CFrame.new(
+                Camera.CFrame.Position,
+                Camera.CFrame.Position + direction
+            )
+
+            Camera.CFrame = Camera.CFrame:Lerp(newCFrame, Smoothness)
+        end
+    end
+end)
+end
+
+if game.PlaceId == then -- level ???
+local Tab = Window:CreateTab("Main", 4483362458)
+Tab:CreateButton({
+    Name = "Go To Exit",
+    Callback = function()
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = CFrame.new(-783.682068, 19423.3926, 858.533508)
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+end
+
+if game.PlaceId == 121900436480558 then --
+	Tab:CreateButton({
+	    Name = "Go To Exit",
+	    Callback = function()
+	        local Exit = workspace.World.Badge.BadgeExit
+	        local TweenService = game:GetService("TweenService")
+	        local Players = game:GetService("Players")
+	
+	        local player = Players.LocalPlayer
+	        local character = player.Character or player.CharacterAdded:Wait()
+	        local hrp = character:WaitForChild("HumanoidRootPart")
+	
+	        local targetCFrame = Exit:IsA("BasePart") and Exit.CFrame or Exit:GetPivot()
+	
+	        local tween = TweenService:Create(
+	            hrp,
+	            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+	            {
+	                CFrame = targetCFrame
+	            }
+	        )
+	
+	        tween:Play()
+	    end,
+	})
+end
+
+if game.PlaceId == 71063314346913 then --level sewers
+local Tab = Window:CreateTab("Main", 4483362458)
+Tab:CreateButton({
+    Name = "Go To Exit",
+    Callback = function()
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        local targetCFrame = CFrame.new(480.933228, 158.037354, -4091.58179)
+
+        local tween = TweenService:Create(
+            hrp,
+            TweenInfo.new(.5, Enum.EasingStyle.Linear),
+            {
+                CFrame = targetCFrame
+            }
+        )
+
+        tween:Play()
+    end,
+})
+end
+
 --example 
 --[[
 if game == 0 then
