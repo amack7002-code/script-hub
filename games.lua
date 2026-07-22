@@ -15145,7 +15145,89 @@ Tab:CreateButton({
     end,
 })
 end
+--end of RP backrooms
 
+--Dress to impress
+if game.PlaceId == 110125451314286 then 
+local Tab = Window:CreateTab("Main", 4483362458)
+
+--CREDITS TO VAEHZ
+
+local mode = "spin"
+local distanceX = 10
+local distanceY = -1
+local addon = true
+local connections = {}
+
+-- Toggle
+MainTab:CreateToggle({
+    Name = "Crasher(can crash you)",
+    CurrentValue = false,
+    Flag = "SpinToggle",
+    Callback = function(Value)
+        if Value then
+            -- Start the script logic
+            local rs = game:GetService("RunService")
+            local plr = game.Players.LocalPlayer
+            local char = plr.Character or plr.CharacterAdded:Wait()
+            
+            -- Distance updater
+            if not connections.distance then
+                connections.distance = rs.Heartbeat:Connect(function()
+                    distanceX = addon and distanceX + 1 or distanceX - 1
+                    if distanceX >= 60 then
+                        addon = false
+                    elseif distanceX <= 5 then
+                        addon = true
+                    end
+                end)
+            end
+
+            -- Character setup
+            if char:FindFirstChild("Head") then
+                char.Head:Destroy()
+            end
+            char = plr.CharacterAdded:Wait()
+            local hrp = char:WaitForChild("HumanoidRootPart")
+
+            local angle = 0
+
+            -- Main spin loop (using RenderStepped properly)
+            if not connections.spin then
+                connections.spin = rs.RenderStepped:Connect(function()
+                    if mode == "spin" then
+                        angle += math.rad(15)
+                        
+                        -- VFX
+                        game:GetService('ReplicatedStorage').RemoteEvents.AddVFX:FireServer("Gassy")
+                        game:GetService('ReplicatedStorage').RemoteEvents.EmitVFX:FireServer("Gassy")
+                        game:GetService('ReplicatedStorage').RemoteEvents.AddVFX:FireServer("WaterPose")
+                        game:GetService('ReplicatedStorage').RemoteEvents.EmitVFX:FireServer("WaterPose")
+                        
+                        -- Position
+                        hrp.CFrame = CFrame.new(workspace.Locators.Runway.Camera3.Position + Vector3.new(distanceX, distanceY, 0)) *
+                                     CFrame.Angles(angle, angle, 0)
+                    end
+                end)
+            end
+        else
+            -- Stop everything
+            for _, conn in pairs(connections) do
+                if conn then
+                    conn:Disconnect()
+                end
+            end
+            connections = {}
+            Rayfield:Notify({
+                Title = "Spin Mode",
+                Content = "Disabled",
+                Duration = 2,
+                Image = 4483362458
+            })
+        end
+    end
+})
+end
 --example 
 --[[
 if game == 0 then
