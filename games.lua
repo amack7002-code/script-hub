@@ -14622,6 +14622,7 @@ if game.PlaceId == 92754201181799 then -- funrooms
 end
 
 if game.PlaceId == 93745236275941 then -- level ! run for your life
+local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateButton({
     Name = "Go To End",
     Callback = function()
@@ -14926,6 +14927,7 @@ local Tab = Window:CreateTab("Main", 4483362458)
 end
 
 if game.PlaceId == 9536927575 then --level 7.L opposite oceans
+local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateButton({
 	    Name = "Go To Exit",
 	    Callback = function()
@@ -14979,7 +14981,7 @@ local Tab = Window:CreateTab("Main", 4483362458)
 })
 end
 
-if gmae.PlaceId == 98147660817272 then -- level duels
+if game.PlaceId == 98147660817272 then -- level duels
 local Tab = Window:CreateTab("Main", 4483362458)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -15090,6 +15092,7 @@ Tab:CreateButton({
 end
 
 if game.PlaceId == 121900436480558 then --
+local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateButton({
 	    Name = "Go To Exit",
 	    Callback = function()
