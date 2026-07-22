@@ -14675,7 +14675,7 @@ if game.PlaceId == 9620781650 then -- level 37 poolrooms
 	})
 end
 
-if game.PlaceId ==  then -- level 11 empty city
+if game.PlaceId == 9756952356 then -- level 11 empty city
 local Tab = Window:CreateTab("Main", 4483362458)
 Tab:CreateButton({
     Name = "Go To Exit",
@@ -14952,7 +14952,7 @@ if game.PlaceId == 9536927575 then --level 7.L opposite oceans
 	})
 end
 
-if game.PlaceId ==  then --level inf stairway
+if game.PlaceId == 9515573665  then --level inf stairway
 local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateButton({
     Name = "Go To Exit",
@@ -15062,7 +15062,7 @@ RunService.RenderStepped:Connect(function()
 end)
 end
 
-if game.PlaceId == then -- level ???
+if game.PlaceId == 9515389204 then -- level ???
 local Tab = Window:CreateTab("Main", 4483362458)
 Tab:CreateButton({
     Name = "Go To Exit",
