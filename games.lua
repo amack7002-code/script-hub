@@ -14814,7 +14814,7 @@ local Tab = Window:CreateTab("Main", 4483362458)
 })
 end
 
-if game.PlaceIdd == 116551468963338 then --Empty Car park
+if game.PlaceId == 116551468963338 then --Empty Car park
 local Tab = Window:CreateTab("Main", 4483362458)
 Tab:CreateButton({
     Name = "Go To Exit",
