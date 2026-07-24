@@ -239,7 +239,7 @@ getgenv().RayfieldLib = Rayfield
 
 -- Then your download function
 local function downloadGame(url)
-    url = url or "https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/games.lua"
+    url = url or "https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/games/games.lua"
 
     local ok, res = pcall(function()
         return game:HttpGet(url)
