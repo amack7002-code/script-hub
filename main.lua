@@ -5025,7 +5025,7 @@ local Dropdown = SettingsTab:CreateDropdown({
     end,
 })
 
-SettingsTab:CreateButton({ Name = "Auto execute script in next game", Callback = function() 	queue_on_teleport[[loadstring(game:HttpGet("https://pastefy.app/BdslnEu5/raw"))()]] end })
+SettingsTab:CreateButton({ Name = "Auto execute script in next game", Callback = function() 	queue_on_teleport[[loadstring(game:HttpGet("https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/main.lua"))()]] end })
 SettingsTab:CreateSection("Press button below to destroy the ui ")
 SettingsTab:CreateButton({ Name = "Destroy ui", Callback = function() Rayfield:Destroy() end })
 
