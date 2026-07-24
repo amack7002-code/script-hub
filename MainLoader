@@ -1,0 +1,67 @@
+local WindUI = loadstring(game:HttpGet(
+    "https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"
+))()
+
+local Window = WindUI:CreateWindow({
+    Title = "My Super Hub",
+    Icon = "door-open",
+    Author = "by .ftgs and .ftgs",
+    Folder = "MySuperHub",
+    Size = UDim2.fromOffset(580, 460),
+    Theme = "Dark",
+})
+
+local Tab = Window:Tab({
+    Title = "Load",
+    Icon = "download"
+})
+
+Tab:Button({
+    Title = "Load Main",
+    Callback = function()
+
+        local success, err = pcall(function()
+            loadstring(game:HttpGet(
+                "https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/main.lua"
+            ))()
+        end)
+
+        if not success then
+            warn(err)
+        end
+
+        task.wait(0.2)
+
+        -- destroy WindUI
+        if Window.Destroy then
+            Window:Destroy()
+        elseif WindUI.Destroy then
+            WindUI:Destroy()
+        end
+    end
+})
+
+Tab:Button({
+    Title = "Load Games",
+    Callback = function()
+
+        local success, err = pcall(function()
+            loadstring(game:HttpGet(
+                "https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/Loader.lua"
+            ))()
+        end)
+
+        if not success then
+            warn(err)
+        end
+
+        task.wait(0.2)
+
+        -- destroy WindUI
+        if Window.Destroy then
+            Window:Destroy()
+        elseif WindUI.Destroy then
+            WindUI:Destroy()
+        end
+    end
+})
