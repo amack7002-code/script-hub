@@ -15228,6 +15228,83 @@ MainTab:CreateToggle({
     end
 })
 end
+
+--valley Prison
+if game.PlaceId == 15784744207 then
+local Tab = Window:CreateTab("Main", 4483362458)
+local Players = game:GetService("Players")
+
+local ESPEnabled = false
+local Highlights = {}
+
+local function addESP(plr)
+    if not ESPEnabled then return end
+    if plr == Players.LocalPlayer then return end
+
+    local function apply(character)
+        if not ESPEnabled then return end
+
+        if Highlights[plr] then
+            Highlights[plr]:Destroy()
+        end
+
+        local high = Instance.new("Highlight")
+        high.Name = "TeamESP"
+        high.Parent = character
+        high.FillColor = plr.TeamColor.Color
+        high.OutlineColor = Color3.new(1, 1, 1)
+
+        Highlights[plr] = high
+    end
+
+    if plr.Character then
+        apply(plr.Character)
+    end
+
+    plr.CharacterAdded:Connect(apply)
+end
+
+local function removeESP()
+    for _, highlight in pairs(Highlights) do
+        if highlight then
+            highlight:Destroy()
+        end
+    end
+    table.clear(Highlights)
+end
+
+Players.PlayerAdded:Connect(function(plr)
+    if ESPEnabled then
+        addESP(plr)
+    end
+end)
+
+Players.PlayerRemoving:Connect(function(plr)
+    if Highlights[plr] then
+        Highlights[plr]:Destroy()
+        Highlights[plr] = nil
+    end
+end)
+
+local Tab = Window:CreateTab("ESP")
+
+Tab:CreateToggle({
+    Name = "Team Color ESP",
+    CurrentValue = false,
+    Flag = "TeamESP",
+    Callback = function(Value)
+        ESPEnabled = Value
+
+        if Value then
+            for _, plr in ipairs(Players:GetPlayers()) do
+                addESP(plr)
+            end
+        else
+            removeESP()
+        end
+    end,
+})
+end
 --example 
 --[[
 if game == 0 then
