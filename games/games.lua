@@ -15305,6 +15305,79 @@ Tab:CreateToggle({
     end,
 })
 end
+
+--parkour pandemic
+if game.PlaceId == 128718867767713 then
+	local Tab = Window:CreateTab("Main", 4483362458)
+	local collecting = false
+	local antiFall = true
+	
+	local antiFallPosition = CFrame.new(0, 310, 0)
+	
+	local function getHRP()
+	    local plr = game.Players.LocalPlayer
+	    local char = plr.Character or plr.CharacterAdded:Wait()
+	    return char:WaitForChild("HumanoidRootPart")
+	end
+	
+	local function collectRemnants()
+	    task.spawn(function()
+	        local hrp = getHRP()
+	
+	        while collecting do
+	            local remnants = {}
+	
+	            for _, beacon in ipairs(workspace.ClockRemnants:GetDescendants()) do
+	                if beacon.Name == "Remanat(unactivated)" then
+	                    table.insert(remnants, beacon)
+	                end
+	            end
+	
+	            for _, remnant in ipairs(remnants) do
+	                if not collecting then break end
+	
+	                if remnant:IsA("BasePart") then
+	                    hrp.CFrame = remnant.CFrame + Vector3.new(0,5,0)
+	                elseif remnant:IsA("Model") then
+	                    hrp.CFrame = remnant:GetPivot() + Vector3.new(0,5,0)
+	                end
+	
+	                task.wait(1)
+	
+	                -- separate anti fall
+	                if antiFall then
+	                    hrp.CFrame = antiFallPosition
+	                    task.wait(0.5)
+	                end
+	            end
+	
+	            task.wait()
+	        end
+	    end)
+	end
+	
+	
+	Tab:CreateToggle({
+	    Name = "Auto Collect Remnants",
+	    CurrentValue = false,
+	    Callback = function(Value)
+	        collecting = Value
+	        
+	        if Value then
+	            collectRemnants()
+	        end
+	    end,
+	})
+	
+	Tab:CreateToggle({
+	    Name = "Anti Fall",
+	    CurrentValue = true,
+	    Callback = function(Value)
+	        antiFall = Value
+	    end,
+	})
+end
+
 --example 
 --[[
 if game == 0 then
