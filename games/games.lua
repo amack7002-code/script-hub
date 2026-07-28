@@ -15378,6 +15378,63 @@ if game.PlaceId == 128718867767713 then
 	})
 end
 
+if game.PlaceId == 12377995562 then
+	local Tab = Window:CreateTab("Main", 4483362458)
+	local Players = game:GetService("Players")
+	local plr = Players.LocalPlayer
+	
+	local Tab = Window:CreateTab("Hitbox", 4483362458)
+	
+	local XSize = 100
+	local YSize = 50
+	local ZSize = 100
+	
+	Tab:CreateInput({
+	    Name = "X Axis Hitbox",
+	    PlaceholderText = "100",
+	    RemoveTextAfterFocusLost = false,
+	    Callback = function(Value)
+	        XSize = tonumber(Value) or XSize
+	    end,
+	})
+	
+	Tab:CreateInput({
+	    Name = "Y Axis HitBox",
+	    PlaceholderText = "50",
+	    RemoveTextAfterFocusLost = false,
+	    Callback = function(Value)
+	        YSize = tonumber(Value) or YSize
+	    end,
+	})
+	
+	Tab:CreateInput({
+	    Name = "Z Axis HitBox",
+	    PlaceholderText = "100",
+	    RemoveTextAfterFocusLost = false,
+	    Callback = function(Value)
+	        ZSize = tonumber(Value) or ZSize
+	    end,
+	})
+	
+	local function resizeHitbox(container)
+	    for _, v in ipairs(container:GetDescendants()) do
+	        if v.Name == "Hitbox" and v:IsA("BasePart") and v.Parent:IsA("Tool") then
+	            v.Size = Vector3.new(XSize, YSize, ZSize)
+	        end
+	    end
+	end
+	
+	while task.wait() do
+	    local char = plr.Character
+	    
+	    if char then
+	        resizeHitbox(char)
+	    end
+	    
+	    resizeHitbox(plr.Backpack)
+	end
+end
+
 --example 
 --[[
 if game == 0 then
