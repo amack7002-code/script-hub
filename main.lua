@@ -4958,6 +4958,146 @@ setEmpty(true)
 		end,
 	})
 
+UniTab:CreateButton({
+    Name = "Boombox Hub (by me)",
+    CurrentValue = false,
+    Callback = function()
+		local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+
+		local Window = Rayfield:CreateWindow({
+		    Name = "BoomBox Hub",
+		    LoadingTitle = "BoomBox",
+		    LoadingSubtitle = "Rayfield",
+		})
+		
+		local Tab = Window:CreateTab("BoomBox", 4483362458)
+		local Label = Tab:CreateLabel("Only works on the free model boombox", 4483362458, Color3.fromRGB(255, 255, 255), false) -- Title, Icon, Color, IgnoreTheme
+		
+		Tab:CreateButton({
+		    Name = "Play neck hurt",
+		    Callback = function()
+		        local Players = game:GetService("Players")
+		        local plr = Players.LocalPlayer
+		
+		        local function findBoomBox()
+		            local containers = {}
+		
+		            if plr.Character then
+		                table.insert(containers, plr.Character)
+		            end
+		
+		            table.insert(containers, plr.Backpack)
+		
+		            for _, container in ipairs(containers) do
+		                for _, v in ipairs(container:GetDescendants()) do
+		                    if v.Name:lower():find("boombox") then
+		                        return v
+		                    end
+		                end
+		            end
+		
+		            return nil
+		        end
+		
+		        local boombox = findBoomBox()
+		
+		        if boombox then
+		            local Event = boombox:FindFirstChild("Remote")
+		
+		            if Event then
+		                Event:FireServer(
+		                    "PlaySong",
+		                    78807035549782
+		                )
+		            end
+		        end
+		    end,
+		})
+		
+		Tab:CreateButton({
+		    Name = "Play iron mouse phonk",
+		    Callback = function()
+		        local Players = game:GetService("Players")
+		        local plr = Players.LocalPlayer
+		
+		        local function findBoomBox()
+		            local containers = {}
+		
+		            if plr.Character then
+		                table.insert(containers, plr.Character)
+		            end
+		
+		            table.insert(containers, plr.Backpack)
+		
+		            for _, container in ipairs(containers) do
+		                for _, v in ipairs(container:GetDescendants()) do
+		                    if v.Name:lower():find("boombox") then
+		                        return v
+		                    end
+		                end
+		            end
+		
+		            return nil
+		        end
+		
+		        local boombox = findBoomBox()
+		
+		        if boombox then
+		            local Event = boombox:FindFirstChild("Remote")
+		
+		            if Event then
+		                Event:FireServer(
+		                    "PlaySong",
+		                    125230341990848
+		                )
+		            end
+		        end
+		    end,
+		})
+		
+		Tab:CreateButton({
+		    Name = "Play toma phonk",
+		    Callback = function()
+		        local Players = game:GetService("Players")
+		        local plr = Players.LocalPlayer
+		
+		        local function findBoomBox()
+		            local containers = {}
+		
+		            if plr.Character then
+		                table.insert(containers, plr.Character)
+		            end
+		
+		            table.insert(containers, plr.Backpack)
+		
+		            for _, container in ipairs(containers) do
+		                for _, v in ipairs(container:GetDescendants()) do
+		                    if v.Name:lower():find("boombox") then
+		                        return v
+		                    end
+		                end
+		            end
+		
+		            return nil
+		        end
+		
+		        local boombox = findBoomBox()
+		
+		        if boombox then
+		            local Event = boombox:FindFirstChild("Remote")
+		
+		            if Event then
+		                Event:FireServer(
+		                    "PlaySong",
+		                    129098116998483
+		                )
+		            end
+		        end
+		    end,
+		})
+	end
+})
+
 	-- local function ToggleBypass(active)
 	-- 	State.Bypass = active
 	-- 	if State.BypassConnection then State.BypassConnection:Disconnect() State.BypassConnection = nil end
