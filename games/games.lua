@@ -15383,14 +15383,14 @@ if game.PlaceId == 12377995562 then
 	local Players = game:GetService("Players")
 	local plr = Players.LocalPlayer
 	
-	local Tab = Window:CreateTab("Hitbox", 4483362458)
+	
 	
 	local XSize = 100
 	local YSize = 50
 	local ZSize = 100
 
 	Tab:CreateButton({
-   		Name = "Button Example",
+   		Name = "Lazy button, makes hitbox REALLY tall, good with trolls that have a axe that swing vertical",
    		Callback = function()
    			-- finds tool in backpack, get 2 hitboxes if there is, yields 2 seconds, then make hitbox fatty wompus cucumber
 			local Players = game:GetService("Players")
@@ -15507,10 +15507,116 @@ if game.PlaceId == 124597491375370 then
 			end
 	   end,
 	})
+	Tab:CreateButton({
+		Name = "Activate sell, press Y",
+		Callback = function()
+			local Players = game:GetService("Players")
+			local UserInputService = game:GetService("UserInputService")
+			
+			local player = Players.LocalPlayer
+			
+			local key = Enum.KeyCode.Y
+			
+			UserInputService.InputBegan:Connect(function(input, gameProcessed)
+				if gameProcessed then
+					return
+				end
+			
+				if input.KeyCode == key then
+					local character = player.Character or player.CharacterAdded:Wait()
+					local hrp = character:WaitForChild("HumanoidRootPart")
+			
+					local net = workspace:WaitForChild("Net"):WaitForChild("default")
+			
+					local oldCFrame = hrp.CFrame
+			
+					hrp.CFrame = net.CFrame
+					mouse1click()
+					task.wait(0.001)
+					hrp.CFrame = oldCFrame
+				end
+			end)
+		end
+	})
+	Tab:CreateButton({
+		Name = "Make Button for autofarm(hold click to auto sell)",
+		Callback = function()
+			local Players = game:GetService("Players")
+			local player = Players.LocalPlayer
+			
+			local balls = workspace:WaitForChild("ActiveGolfBalls")
+			local net = workspace.Net.default
+			
+			local char = player.Character or player.CharacterAdded:Wait()
+			local hrp = char:WaitForChild("HumanoidRootPart")
+			
+			-- GUI
+			local gui = Instance.new("ScreenGui")
+			gui.Name = "GolfFarm"
+			gui.ResetOnSpawn = false
+			gui.Parent = player.PlayerGui
+			
+			local frame = Instance.new("Frame")
+			frame.Size = UDim2.fromOffset(180, 80)
+			frame.Position = UDim2.fromScale(0.5, 0.5)
+			frame.AnchorPoint = Vector2.new(0.5, 0.5)
+			frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+			frame.Parent = gui
+			
+			Instance.new("UICorner", frame)
+			
+			-- Drag
+			local drag = Instance.new("UIDragDetector")
+			drag.Parent = frame
+			
+			-- Toggle
+			local enabled = false
+			
+			local button = Instance.new("TextButton")
+			button.Size = UDim2.new(1, -10, 1, -10)
+			button.Position = UDim2.fromOffset(5, 5)
+			button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+			button.TextColor3 = Color3.new(1, 1, 1)
+			button.Text = "Auto Collect: OFF"
+			button.Parent = frame
+			
+			Instance.new("UICorner", button)
+			
+			button.Activated:Connect(function()
+				enabled = not enabled
+				button.Text = enabled and "Auto Collect: ON" or "Auto Collect: OFF"
+			
+				if enabled then
+					task.spawn(function()
+						while enabled do
+							char = player.Character or player.CharacterAdded:Wait()
+							hrp = char:WaitForChild("HumanoidRootPart")
+			
+							for _, ball in ipairs(balls:GetChildren()) do
+								if not enabled then
+									break
+								end
+			
+								if ball:IsA("BasePart") then
+									hrp.CFrame = ball.CFrame
+									task.wait(0.04)
+									hrp.CFrame = net.CFrame
+									task.wait(0.00005)
+								end
+							end
+			
+							task.wait(0.1)
+						end
+					end)
+				end
+			end)
+		end
+	})
 end
 
 --example 
 --[[
+https://docs.sirius.menu/rayfield/elements/interactive
 if game == 0 then
     local Tab = Window:CreateTab("Main", 4483362458)
 
