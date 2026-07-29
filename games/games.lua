@@ -15478,6 +15478,37 @@ if game.PlaceId == 12377995562 then
 	end
 end
 
+--clean golf thing
+if game.PlaceId == 124597491375370 then
+	local Tab = Window:CreateTab("Main", 4483362458)
+	Tab:CreateButton({
+	   Name = "Op stats",
+	   Callback = function()
+	   		local p = game.Players.LocalPlayer
+			while task.wait() do
+			    local InstSell = p:SetAttribute("Skill_InstantSell", 5)
+			    local pullBall = p:SetAttribute("Skill_PullBalls", 10)
+			    local Backpack = p:SetAttribute("Lvl_BackPack", 100)
+			    local value = p:SetAttribute("Lvl_Value", 14)
+			    local speed = p:SetAttribute("Lvl_Speed", 5)
+			--    local cap = p:SetAttribute("BagCapacity", math.huge) 
+			    local collSpeed = p:SetAttribute("CollectCooldown", 0) 
+			    local ballCollect = p:SetAttribute("Perk_BallCollector", true)
+			    local BiggerHand = p:SetAttribute("Perk_BiggerHand", true)
+			    local caddy = p:SetAttribute("Perk_Caddy", true)
+			    local lazy = p:SetAttribute("Perk_LazyHands", true)    
+			--    local InfBackPack = p:SetAttribute("GP_InfiniteBackpack", true)
+			    local vip = p:SetAttribute("GP_VIP", true)
+			    local triPet = p:SetAttribute("GP_TriplePets", true)
+			    local supLucky = p:SetAttribute("GP_SuperLucky", true) 
+			    local roboVacum = p:SetAttribute("GP_RoboVacuumForever", true)
+			    local premNet = p:SetAttribute("GP_PremiumNets", true)
+			    local MaxSpeed = p:SetAttribute("GP_MaxSpeedStart", true)  
+			end
+	   end,
+	})
+end
+
 --example 
 --[[
 if game == 0 then
