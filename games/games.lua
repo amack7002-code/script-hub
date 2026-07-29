@@ -15377,7 +15377,7 @@ if game.PlaceId == 128718867767713 then
 	    end,
 	})
 end
-
+-- trollge Incident Fights Reborn TIF:R -- 
 if game.PlaceId == 12377995562 then
 	local Tab = Window:CreateTab("Main", 4483362458)
 	local Players = game:GetService("Players")
@@ -15388,6 +15388,49 @@ if game.PlaceId == 12377995562 then
 	local XSize = 100
 	local YSize = 50
 	local ZSize = 100
+
+	Tab:CreateButton({
+   		Name = "Button Example",
+   		Callback = function()
+   			-- finds tool in backpack, get 2 hitboxes if there is, yields 2 seconds, then make hitbox fatty wompus cucumber
+			local Players = game:GetService("Players")
+			local player = Players.LocalPlayer
+			local tool = player.Backpack:FindFirstChildOfClass("Tool")
+			
+			if not tool then
+			    warn("No tool found in Backpack.")
+			    return
+			end
+			
+			local hitboxes = {}
+			local startTime = tick()
+			
+			while tick() - startTime < 2 and #hitboxes < 2 do
+			    table.clear(hitboxes)
+			
+			    for _, obj in ipairs(tool:GetDescendants()) do
+			        if obj:IsA("BasePart") and obj.Name:lower():find("hitbox") then
+			            table.insert(hitboxes, obj)
+			            if #hitboxes >= 2 then
+			                break
+			            end
+			        end
+			    end
+			
+			    if #hitboxes < 2 then
+			        task.wait(0.1)
+			    end
+			end
+			
+			for _, hitbox in ipairs(hitboxes) do
+			    hitbox.Size = Vector3.new(20, 100, 20)
+			    hitbox.Transparency = 0.9
+			    hitbox.BrickColor = BrickColor.new("New Yeller")
+			end
+			
+			print(("Modified %d hitbox(es)."):format(#hitboxes))
+		end,
+	})
 	
 	Tab:CreateInput({
 	    Name = "X Axis Hitbox",
