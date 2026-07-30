@@ -15675,6 +15675,42 @@ if game.PlaceId == 3554092380 then
 	})
 end
 
+--rob it
+if game.PlaceId == 83907398368798 then
+	local Tab = Window:CreateTab("Main", 4483362458)
+	local ETab = Window:CreateTab("Esp", 4483362458)
+		Tab:CreateButton({
+		Name = "Remove Door",
+		Callback = function()
+			local workspace = game.Workspace
+			local door = workspace.Map.Doors
+			
+			while task.wait() do
+			    for i,v in pairs (door:GetChildren()) do
+			        v:SetAttribute("Locked", false)
+			        v:Destroy()
+			    end
+			end
+		end
+	})
+
+	ETab:CreateButton({
+		Name = "NPC esp",
+		Callback = function()
+			local work = game.Workspace
+			local npc = work.Map.NPCS
+			
+			for i, v in pairs(npc:GetChildren()) do
+			    if v:IsA("Model") then
+					local esp = Instance.new("Highlight")
+					esp.Parent = v
+				end
+			end
+		end
+	})
+
+end
+
 --example 
 --[[
 https://docs.sirius.menu/rayfield/elements/interactive
