@@ -15614,6 +15614,67 @@ if game.PlaceId == 124597491375370 then
 	})
 end
 
+--reminiscence zombies
+if game.PlaceId == 3554092380 then
+	for _, v in ipairs(game:GetDescendants()) do
+	    if v.Name:find("AC") then
+	        v:Destroy()
+	    end
+	end
+	
+	local Tab = Window:CreateTab("Main", 4483362458)
+	local zombies = workspace.Zombies
+	local espEnabled = false
+	
+	local function addEsp(zombie)
+	    if espEnabled and not zombie:FindFirstChild("esp") then
+	        local esp = Instance.new("Highlight")
+	        esp.Name = "esp"
+	        esp.Parent = zombie
+	        esp.FillColor = Color3.fromRGB(255, 0, 0)
+	        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+	        esp.OutlineTransparency = 0.6
+	    end
+	end
+	
+	local function removeEsp()
+	    for _, zombie in ipairs(zombies:GetChildren()) do
+	        local esp = zombie:FindFirstChild("esp")
+	        if esp then
+	            esp:Destroy()
+	        end
+	    end
+	end
+	
+	for _, v in ipairs(zombies:GetChildren()) do
+	    addEsp(v)
+	end
+	
+	zombies.ChildAdded:Connect(function(v)
+	    if espEnabled then
+	        addEsp(v)
+	    end
+	end)
+	
+	-- Rayfield Toggle
+	MainTab:CreateToggle({
+	    Name = "Zombie ESP",
+	    CurrentValue = false,
+	    Flag = "ZombieESP",
+	    Callback = function(Value)
+	        espEnabled = Value
+	
+	        if Value then
+	            for _, v in ipairs(zombies:GetChildren()) do
+	                addEsp(v)
+	            end
+	        else
+	            removeEsp()
+	        end
+	    end,
+	})
+end
+
 --example 
 --[[
 https://docs.sirius.menu/rayfield/elements/interactive
