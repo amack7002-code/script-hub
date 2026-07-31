@@ -15694,6 +15694,20 @@ if game.PlaceId == 83907398368798 then
 		end
 	})
 
+	Tab:CreateButton({
+		Name = "Remove Window",
+		Callback = function()
+			local workspace = game.Workspace
+			local glass = workspace.Map.BreakableGlass
+			
+			while task.wait() do
+			    for i,v in pairs (glass:GetChildren()) do
+			    v:Destroy()
+			    end
+			end
+		end
+	})
+
 	ETab:CreateButton({
 		Name = "NPC esp",
 		Callback = function()
@@ -15705,6 +15719,19 @@ if game.PlaceId == 83907398368798 then
 					local esp = Instance.new("Highlight")
 					esp.Parent = v
 				end
+			end
+		end
+	})
+
+	ETab:CreateButton({
+		Name = "Item esp",
+		Callback = function()
+			local workspace = game.Workspace
+			local steal = workspace.Map.StealableItems
+			for i,v in pairs (steal:GetDescendants()) do
+			    local esp = Instance.new("Highlight")
+			    esp.Parent = v
+			    esp.FillColor = Color3.fromRGB(255,255,255)
 			end
 		end
 	})
