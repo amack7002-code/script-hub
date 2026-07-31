@@ -15738,6 +15738,113 @@ if game.PlaceId == 83907398368798 then
 
 end
 
+--briskit survival idk
+if game.PlaceId == 100428687810944 then
+	local MTab = Window:CreateTab("Main", 4483362458)
+	local Tab = Window:CreateTab("Esp", 4483362458)
+
+	MTab:CreateButton({
+		Name = "Go to safe area",
+		Callback = function()
+			local Players = game:GetService("Players")
+
+			local part = workspace:FindFirstChild("Part")
+			
+			if not part then
+			    part = Instance.new("Part")
+			    part.Parent = workspace
+			    part.Name = "Part"
+			    part.Anchored = true
+			    part.Size = Vector3.new(9e9, 1, 9e9)
+			    part.CFrame = CFrame.new(0, 1000, 0)
+			end
+			
+			local player = Players.LocalPlayer
+			local character = player.Character or player.CharacterAdded:Wait()
+			local hrp = character:WaitForChild("HumanoidRootPart")
+			
+			hrp.CFrame = part.CFrame + Vector3.new(0, 3, 0)
+		end
+	})
+
+	local Players = game:GetService("Players")
+	
+	local GeorgeESP = false
+	local BriskitESP = false
+	
+	local function updateESP()
+	    for _, player in ipairs(Players:GetPlayers()) do
+	        local character = player.Character
+	        if character then
+	            local george = character:FindFirstChild("GeorgeESP")
+	            local briskit = character:FindFirstChild("BriskitESP")
+	
+	            if george then
+	                george:Destroy()
+	            end
+	
+	            if briskit then
+	                briskit:Destroy()
+	            end
+	
+	            if character:GetAttribute("IsGeorge") then
+	                if GeorgeESP then
+	                    local esp = Instance.new("Highlight")
+	                    esp.Name = "GeorgeESP"
+	                    esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	                    esp.FillColor = Color3.fromRGB(255, 0, 0)
+	                    esp.OutlineColor = Color3.new(1, 1, 1)
+	                    esp.Parent = character
+	                end
+	            else
+	                if BriskitESP then
+	                    local esp = Instance.new("Highlight")
+	                    esp.Name = "BriskitESP"
+	                    esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	                    esp.FillColor = Color3.fromRGB(0, 255, 0)
+	                    esp.OutlineColor = Color3.new(1, 1, 1)
+	                    esp.Parent = character
+	                end
+	            end
+	        end
+	    end
+	end
+	
+	Players.PlayerAdded:Connect(function(player)
+	    player.CharacterAdded:Connect(function()
+	        task.wait(0.2)
+	        updateESP()
+	    end)
+	end)
+	
+	for _, player in ipairs(Players:GetPlayers()) do
+	    player.CharacterAdded:Connect(function()
+	        task.wait(0.2)
+	        updateESP()
+	    end)
+	end
+	
+	Tab:CreateToggle({
+	    Name = "George ESP",
+	    CurrentValue = false,
+	    Flag = "GeorgeESP",
+	    Callback = function(Value)
+	        GeorgeESP = Value
+	        updateESP()
+	    end,
+	})
+	
+	Tab:CreateToggle({
+	    Name = "Briskit ESP",
+	    CurrentValue = false,
+	    Flag = "BriskitESP",
+	    Callback = function(Value)
+	        BriskitESP = Value
+	        updateESP()
+	    end,
+	})
+end
+
 --example 
 --[[
 https://docs.sirius.menu/rayfield/elements/interactive
