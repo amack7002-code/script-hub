@@ -15845,6 +15845,75 @@ if game.PlaceId == 100428687810944 then
 	})
 end
 
+--mid east confict sim
+if game.PlaceId == 9531918774 then
+	local Tab = Window:CreateTab("Main", 4483362458)
+	local Players = game:GetService("Players")
+	local Teams = game:GetService("Teams")
+	
+	local TeamESPEnabled = false
+	
+	local function updateESP(player)
+	    local character = player.Character
+	    if not character then return end
+	
+	    local old = character:FindFirstChild("TeamESP")
+	    if old then
+	        old:Destroy()
+	    end
+	
+	    if not TeamESPEnabled then
+	        return
+	    end
+	
+	    local esp = Instance.new("Highlight")
+	    esp.Name = "TeamESP"
+	    esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	    esp.OutlineColor = Color3.new(1, 1, 1)
+	
+	    if player.Team == Teams.Invaders then
+	        esp.FillColor = Color3.fromRGB(46, 139, 87)
+	    elseif player.Team == Teams.Natives then
+	        esp.FillColor = Color3.fromRGB(215, 197, 154)
+	    else
+	        esp:Destroy()
+	        return
+	    end
+	
+	    esp.Parent = character
+	end
+	
+	local function refreshESP()
+	    for _, player in ipairs(Players:GetPlayers()) do
+	        updateESP(player)
+	    end
+	end
+	
+	Players.PlayerAdded:Connect(function(player)
+	    player.CharacterAdded:Connect(function()
+	        task.wait(0.1)
+	        updateESP(player)
+	    end)
+	end)
+	
+	for _, player in ipairs(Players:GetPlayers()) do
+	    player.CharacterAdded:Connect(function()
+	        task.wait(0.1)
+	        updateESP(player)
+	    end)
+	end
+	
+	Tab:CreateToggle({
+	    Name = "ESP",
+	    CurrentValue = false,
+	    Flag = "TeamESP",
+	    Callback = function(Value)
+	        TeamESPEnabled = Value
+	        refreshESP()
+	    end,
+	})
+end
+
 --example 
 --[[
 https://docs.sirius.menu/rayfield/elements/interactive
