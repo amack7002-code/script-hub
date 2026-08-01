@@ -3569,181 +3569,191 @@ UniTab:CreateSlider({
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-
 local WalkSpeedSpoof = getgenv().WalkSpeedSpoof or {}
 local setspeed = 100
 
-UniTab:CreateToggle({
-    Name = "Enable WalkSpeed Spoof",
-    CurrentValue = true,
-    Flag = "SpoofToggle",
-    Callback = function(Value)
-        if Value then
-            WalkSpeedSpoof:Enable()
-            print("✅ WalkSpeed Spoof Enabled")
-        else
-            WalkSpeedSpoof:Disable()
-            print("❌ WalkSpeed Spoof Disabled")
-        end
-    end,
+local SpoofToggle -- forward declare so the slider can access it
+
+SpoofToggle = UniTab:CreateToggle({
+	Name = "Enable WalkSpeed Spoof",
+	CurrentValue = true,
+	Flag = "SpoofToggle",
+	Callback = function(Value)
+		if Value then
+			WalkSpeedSpoof:SetWalkSpeed(setspeed) -- make sure it applies the current slider value
+			WalkSpeedSpoof:Enable()
+			print("✅ WalkSpeed Spoof Enabled")
+		else
+			WalkSpeedSpoof:Disable()
+			print("❌ WalkSpeed Spoof Disabled")
+		end
+	end,
 })
 
 UniTab:CreateSlider({
-    Name = "WalkSpeed Value",
-    Range = {16, 500},
-    Increment = 1,
-    CurrentValue = setspeed,
-    Flag = "SpeedSlider",
-    Callback = function(Value)
-        setspeed = Value
-        if Toggle.CurrentValue then
-            WalkSpeedSpoof:SetWalkSpeed(Value)
-        end
-    end,
+	Name = "WalkSpeed Value",
+	Range = {16, 500},
+	Increment = 1,
+	CurrentValue = setspeed,
+	Flag = "SpeedSlider",
+	Callback = function(Value)
+		setspeed = Value
+		if SpoofToggle.CurrentValue then
+			WalkSpeedSpoof:SetWalkSpeed(Value)
+		end
+	end,
 })
 
 -- ==================== CORE SPOOF LOGIC ====================
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
 local cloneref = cloneref or function(obj) return obj end
 
+local WalkSpeedSpoof = {}
 local cachedhumanoids = {}
 local CurrentHumanoid
 local indexhook, newindexhook
-local GetDebugIdHandler = Instance.new("BindableFunction")
-local TempHumanoid = Instance.new("Humanoid")
+local setspeed = 16 -- default speed (change this or set it externally)
 
+local GetDebugIdHandler = Instance.new("BindableFunction")
 function GetDebugIdHandler.OnInvoke(obj)
-    return obj:GetDebugId()
+	return obj:GetDebugId()
 end
 
 local function GetDebugId(obj)
-    return GetDebugIdHandler:Invoke(obj)
+	return GetDebugIdHandler:Invoke(obj)
 end
 
-local function GetWalkSpeed(obj)
-    TempHumanoid.WalkSpeed = obj
-    return TempHumanoid.WalkSpeed
+local TempHumanoid = Instance.new("Humanoid")
+local function GetWalkSpeed(value)
+	TempHumanoid.WalkSpeed = value
+	return TempHumanoid.WalkSpeed
 end
 
 function cachedhumanoids:cacheHumanoid(DebugId, Humanoid)
-    cachedhumanoids[DebugId] = {
-        currentindex = indexhook(Humanoid, "WalkSpeed"),
-        lastnewindex = nil
-    }
-    return cachedhumanoids[DebugId]
+	cachedhumanoids[DebugId] = {
+		currentindex = indexhook(Humanoid, "WalkSpeed"),
+		lastnewindex = nil
+	}
+	return cachedhumanoids[DebugId]
 end
 
 -- Index Hook
 indexhook = hookmetamethod(game, "__index", function(self, index)
-    if not checkcaller() and typeof(self) == "Instance" and self:IsA("Humanoid") then
-        local DebugId = GetDebugId(self)
-        local cached = cachedhumanoids[DebugId]
+	if not checkcaller() and typeof(self) == "Instance" and self:IsA("Humanoid") then
+		local DebugId = GetDebugId(self)
+		local cached = cachedhumanoids[DebugId]
 
-        if (self:IsDescendantOf(LocalPlayer.Character) or cached) then
-            if type(index) == "string" then
-                local cleanindex = string.split(index, "\0")[1]
-                if cleanindex == "WalkSpeed" then
-                    if not cached then
-                        cached = cachedhumanoids:cacheHumanoid(DebugId, self)
-                    end
-                    if not (CurrentHumanoid and CurrentHumanoid:IsDescendantOf(game)) then
-                        CurrentHumanoid = cloneref(self)
-                    end
-                    return cached.lastnewindex or cached.currentindex
-                end
-            end
-        end
-    end
-    return indexhook(self, index)
+		if self:IsDescendantOf(LocalPlayer.Character) or cached then
+			if type(index) == "string" then
+				local cleanindex = string.split(index, "\0")[1]
+				if cleanindex == "WalkSpeed" then
+					if not cached then
+						cached = cachedhumanoids:cacheHumanoid(DebugId, self)
+					end
+					if not (CurrentHumanoid and CurrentHumanoid:IsDescendantOf(game)) then
+						CurrentHumanoid = cloneref(self)
+					end
+					return cached.lastnewindex or cached.currentindex
+				end
+			end
+		end
+	end
+	return indexhook(self, index)
 end)
 
 -- NewIndex Hook
 newindexhook = hookmetamethod(game, "__newindex", function(self, index, newvalue)
-    if not checkcaller() and typeof(self) == "Instance" and self:IsA("Humanoid") then
-        local DebugId = GetDebugId(self)
-        local cached = cachedhumanoids[DebugId]
+	if not checkcaller() and typeof(self) == "Instance" and self:IsA("Humanoid") then
+		local DebugId = GetDebugId(self)
+		local cached = cachedhumanoids[DebugId]
 
-        if (self:IsDescendantOf(LocalPlayer.Character) or cached) then
-            if type(index) == "string" then
-                local cleanindex = string.split(index, "\0")[1]
-                if cleanindex == "WalkSpeed" then
-                    if not cached then
-                        cached = cachedhumanoids:cacheHumanoid(DebugId, self)
-                    end
-                    if not (CurrentHumanoid and CurrentHumanoid:IsDescendantOf(game)) then
-                        CurrentHumanoid = cloneref(self)
-                    end
-                    cached.lastnewindex = GetWalkSpeed(newvalue)
-                    return
-                end
-            end
-        end
-    end
-    return newindexhook(self, index, newvalue)
+		if self:IsDescendantOf(LocalPlayer.Character) or cached then
+			if type(index) == "string" then
+				local cleanindex = string.split(index, "\0")[1]
+				if cleanindex == "WalkSpeed" then
+					if not cached then
+						cached = cachedhumanoids:cacheHumanoid(DebugId, self)
+					end
+					if not (CurrentHumanoid and CurrentHumanoid:IsDescendantOf(game)) then
+						CurrentHumanoid = cloneref(self)
+					end
+					cached.lastnewindex = GetWalkSpeed(newvalue)
+					return -- block the real write
+				end
+			end
+		end
+	end
+	return newindexhook(self, index, newvalue)
 end)
 
-function WalkSpeedSpoof:Enable()
-    if indexhook and newindexhook then
-        WalkSpeedSpoof:SetWalkSpeed(setspeed)
-    end
-end
-
-function WalkSpeedSpoof:Disable()
-    WalkSpeedSpoof:RestoreWalkSpeed()
-end
-
 function WalkSpeedSpoof:SetWalkSpeed(speed)
-    local Humanoid = CurrentHumanoid or LocalPlayer.Character and LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")
-    if Humanoid then
-        CurrentHumanoid = cloneref(Humanoid)
-        local connections = {}
-        
-        local function disableConnections(Signal)
-            for _, v in ipairs(getconnections(Signal)) do
-                if v.State then
-                    v:Disable()
-                    table.insert(connections, v)
-                end
-            end
-        end
-        
-        disableConnections(Humanoid.Changed)
-        disableConnections(Humanoid:GetPropertyChangedSignal("WalkSpeed"))
-        
-        Humanoid.WalkSpeed = speed
-        
-        for _, v in ipairs(connections) do
-            v:Enable()
-        end
-    end
+	setspeed = speed
+
+	local Humanoid = CurrentHumanoid
+		or (LocalPlayer.Character and LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid"))
+
+	if not Humanoid then return end
+
+	CurrentHumanoid = cloneref(Humanoid)
+
+	local connections = {}
+
+	local function disableConnections(signal)
+		for _, v in ipairs(getconnections(signal)) do
+			if v.State then
+				v:Disable()
+				table.insert(connections, v)
+			end
+		end
+	end
+
+	disableConnections(Humanoid.Changed)
+	disableConnections(Humanoid:GetPropertyChangedSignal("WalkSpeed"))
+
+	Humanoid.WalkSpeed = speed
+
+	for _, v in ipairs(connections) do
+		v:Enable()
+	end
 end
 
 function WalkSpeedSpoof:RestoreWalkSpeed()
-    local Humanoid = CurrentHumanoid or LocalPlayer.Character and LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")
-    if Humanoid then
-        local cached = cachedhumanoids[Humanoid:GetDebugId()]
-        if cached then
-            WalkSpeedSpoof:SetWalkSpeed(cached.currentindex or 16)
-        end
-    end
+	local Humanoid = CurrentHumanoid
+		or (LocalPlayer.Character and LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid"))
+
+	if not Humanoid then return end
+
+	local cached = cachedhumanoids[GetDebugId(Humanoid)]
+	if cached then
+		self:SetWalkSpeed(cached.currentindex or 16)
+	else
+		self:SetWalkSpeed(16)
+	end
+end
+
+function WalkSpeedSpoof:Enable()
+	self:SetWalkSpeed(setspeed)
+end
+
+function WalkSpeedSpoof:Disable()
+	self:RestoreWalkSpeed()
 end
 
 getgenv().WalkSpeedSpoof = WalkSpeedSpoof
 
--- Initial Setup
-task.wait(1)
-if Toggle.CurrentValue then
-    WalkSpeedSpoof:Enable()
-end
-
-
--- Auto-setup on respawn (add this if not already in your script)
-player.CharacterAdded:Connect(function()
-   task.wait(0.5)
-   if BetterSpeedEnabled then
-      SetupBodyVelocity()
-   end
+-- Auto re-apply on respawn
+LocalPlayer.CharacterAdded:Connect(function()
+	task.wait(0.3)
+	if CurrentHumanoid then
+		WalkSpeedSpoof:SetWalkSpeed(setspeed)
+	end
 end)
+
+-- Optional: enable immediately
+-- WalkSpeedSpoof:SetWalkSpeed(50)
 
 
 	-- Optimized LocalScript: Makes ALL ProximityPrompts instantly clickable & visible from ANYWHERE
