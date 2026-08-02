@@ -15914,6 +15914,59 @@ if game.PlaceId == 9531918774 then
 	})
 end
 
+--backrooms motion
+if game.PlaceId == 17511909357 then
+local Tab = Window:CreateTab("Main", 4483362458)
+
+    getgenv().blur = false
+    local blur = game:GetService("Lighting").Blur
+    local blurScript = game:GetService("Players").LocalPlayer.PlayerScripts.Gameplay.MotionBlur
+    workspace.Players.LocalPlayer.JumpDebouncer:Destory()
+
+    Tab:CreateToggle({
+        Name = "Remove Blur",
+        CurrentValue = false,
+        Callback = function(v)
+            if v then
+                while task.wait() do
+                    if getgenv().blur then
+                        blur:Destroy()
+                        blurScript:Disable()
+                    end
+                end
+            end
+        end
+    })
+    local RunService = game:GetService("RunService")
+
+    Tab:CreateToggle({
+        Name = "Unlock 3rd person",
+        CurrentValue = false,
+        Callback = function(v)
+            if v then
+                while task.wait() do
+                    RunService.Heartbeat:Connect(function()
+                        game.Players.LocalPlayer.CameraMode = "Classic"
+                    end)
+                end
+            end
+        end
+    })
+
+    Tab:CreateInput({
+        Name = "Set WalkSpeed Multiplier",
+        CurrentValue = "",
+        PlaceholderText = "",
+        RemoveTextAfterFocusLost = true,
+        Flag = "Input1",
+        Callback = function(Text)
+            game.Players.LocalPlayer:SetAttribute("WalkspeedMultiplier", tonumber(test))
+        end,
+    })
+
+    local tools = workspace.ToolModelFolder --i got p ban so i cant continue
+end
+
 --example 
 --[[
 https://docs.sirius.menu/rayfield/elements/interactive
