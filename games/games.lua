@@ -15916,7 +15916,7 @@ end
 
 --backrooms motion
 if game.PlaceId == 17511909357 then
-local Tab = Window:CreateTab("Main", 4483362458)
+	local Tab = Window:CreateTab("Main", 4483362458)
 
     getgenv().blur = false
     local blur = game:GetService("Lighting").Blur
@@ -15965,6 +15965,179 @@ local Tab = Window:CreateTab("Main", 4483362458)
     })
 
     local tools = workspace.ToolModelFolder --i got p ban so i cant continue
+end
+
+-- PIGGY WORKS FOR BOOK 1 AND 2 -- 
+
+if game.PlaceId == 4623386862 then
+	local Tab = Window:CreateTab("Main", 4483362458)
+
+	Tab:CreateButton({
+		Name = "Create ItemEsp gun and ammo are red and gold (Y to toggle,)",
+		Callback = function()
+			local UIS = game:GetService("UserInputService")
+
+			local enabled = true
+			
+			local function findMatchFolder()
+				for _, obj in ipairs(workspace:GetChildren()) do
+					if obj:IsA("Folder") and obj.Name:match("^%-?%d+$") then
+						return obj
+					end
+				end
+			end
+			
+			local folder = findMatchFolder()
+			
+			if not folder then
+				error("Couldn't find the numbered folder!")
+			end
+			
+			print("Found folder:", folder.Name)
+			
+			local function isSpecial(part)
+				local name = part.Name:lower()
+				return name:find("gun") or name:find("ammo")
+			end
+			
+			local function removeESP(part)
+				local esp = part:FindFirstChild("MyESP")
+				if esp then
+					esp:Destroy()
+				end
+			end
+			
+			local function applyESP(part)
+				if not enabled then return end
+				if not part:IsA("BasePart") then return end
+			
+				local esp = part:FindFirstChild("MyESP")
+				if esp then
+					-- Update colors in case the part changed
+					if isSpecial(part) then
+						esp.FillTransparency = 0.25
+						esp.FillColor = Color3.fromRGB(255, 215, 0)
+						esp.OutlineColor = Color3.fromRGB(255, 0, 0)
+					else
+						esp.FillTransparency = 1
+						esp.OutlineColor = part.BrickColor.Color
+					end
+					return
+				end
+			
+				-- Remove any other highlights
+				for _, child in ipairs(part:GetChildren()) do
+					if child:IsA("Highlight") then
+						child:Destroy()
+					end
+				end
+			
+				esp = Instance.new("Highlight")
+				esp.Name = "MyESP"
+				esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			
+				if isSpecial(part) then
+					esp.FillTransparency = 0.25
+					esp.FillColor = Color3.fromRGB(255, 215, 0)
+					esp.OutlineColor = Color3.fromRGB(255, 0, 0)
+				else
+					esp.FillTransparency = 1
+					esp.OutlineColor = part.BrickColor.Color
+				end
+			
+				esp.Parent = part
+			end
+			
+			local function updateESP()
+				for _, obj in ipairs(folder:GetDescendants()) do
+					if obj:IsA("BasePart") then
+						if enabled then
+							applyESP(obj)
+						else
+							removeESP(obj)
+						end
+					end
+				end
+			end
+			
+			-- Initial ESP
+			updateESP()
+			
+			-- Highlight newly added parts
+			folder.DescendantAdded:Connect(function(obj)
+				if enabled and obj:IsA("BasePart") then
+					applyESP(obj)
+				end
+			end)
+			
+			-- Toggle with Y
+			UIS.InputBegan:Connect(function(input, processed)
+				if processed then return end
+			
+				if input.KeyCode == Enum.KeyCode.Y then
+					enabled = not enabled
+					updateESP()
+					print("Item ESP:", enabled and "ON" or "OFF")
+				end
+			end)
+		end,
+	})
+	-- end of piggy item
+	Tab:CreateButton({
+		Name = "Esp For Piggy, auto detects (DOES NOT WORK FOR PLAYER PIGGYS)",
+		Callback = function()
+			local piggys = workspace.PiggyNPC
+			
+			function makePigEsp()
+			    for _,piggy in ipairs(piggys:GetChildren()) do
+			        print(piggy)
+			        local highlight = Instance.new("Highlight", piggy)
+			    end
+			end			
+			
+			piggys.ChildAdded:Connect(makePigEsp)
+		end,
+	})
+	Tab:CreateButton({
+		Name = "Esp for Players, auto detects (good for helping friends)",
+		Callback = function()
+			local plrs = cloneref(game:GetService("Players"))
+			local runService = game:GetService("RunService")
+			
+			local function applyHighlight(player)
+				local function onCharacterAdded(character)
+					-- Wait for the character model to load
+					task.wait(0.5)
+					if not character:FindFirstChild("PlayerHighlight") then
+						local esp = Instance.new("Highlight")
+						esp.Name = "PlayerHighlight"
+						esp.Parent = character
+						
+						-- Optional properties
+						esp.FillColor = player.TeamColor.Color -- Red fill
+						esp.OutlineColor = Color3.fromRGB(255, 255, 255) -- White outline
+						esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+					end
+				end
+			
+				-- Apply to current character if it exists
+				if player.Character then
+					onCharacterAdded(player.Character)
+				end
+			
+				-- Listen for respawns
+				player.CharacterAdded:Connect(onCharacterAdded)
+			end
+			
+			-- Apply to all players currently in the server
+			for _, v in ipairs(plrs:GetPlayers()) do
+				applyHighlight(v)
+			end
+			
+			-- Apply to any players that join later
+			plrs.PlayerAdded:Connect(applyHighlight)
+		end,
+	})
 end
 
 --example 
