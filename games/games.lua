@@ -15969,7 +15969,7 @@ end
 
 -- PIGGY WORKS FOR BOOK 1 AND 2 -- 
 
-if game.PlaceId == 4623386862 then
+if game.PlaceId == 1516533665 then
 	local Tab = Window:CreateTab("Main", 4483362458)
 
 	Tab:CreateButton({
