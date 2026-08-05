@@ -4248,7 +4248,7 @@ if game.PlaceId == 428375933 then
 	})
 end
 
---piggy
+--[[piggy
 if game.GameId == 1516533665 then
 	local ITab = Window:CreateTab("items", "eye")
 	local LPTab = Window:CreateTab("character", "eye")
@@ -4647,7 +4647,7 @@ if game.GameId == 1516533665 then
 			})
 		end
 	})	
-end
+end ]]
 
 -- The Prison Thing
 if game.PlaceId == 73510530738011 then
