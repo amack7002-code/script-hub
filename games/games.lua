@@ -16188,6 +16188,15 @@ if game.PlaceId == 1818 then
 
     local Tab = Window:CreateTab("Main", 4483362458)
 
+    -- Speed in studs per second (adjustable via slider)
+    local TWEEN_SPEED = 50
+
+    -- Distance to stay in front of the player
+    local FRONT_DISTANCE = 3
+
+    -- Track running state so we can stop it
+    local running = false
+
     local function targetPlayers()
 
         local TweenService = game:GetService("TweenService")
@@ -16197,141 +16206,76 @@ if game.PlaceId == 1818 then
         local char = p.Character or p.CharacterAdded:Wait()
         local hrp = char:WaitForChild("HumanoidRootPart")
 
-        -- Speed in studs per second
-        local TWEEN_SPEED = 50
+        running = true
 
-        -- Distance to stay in front of the player
-        local FRONT_DISTANCE = 3
+        -- Keep looping through players until stopped
+        while running do
+            for _, player in pairs(Players:GetPlayers()) do
 
-        -- Go through players one at a time
-        for _, player in pairs(Players:GetPlayers()) do
-
-            if player ~= p then
+                if not running then break end
+                if player == p then continue end
 
                 local targetChar = player.Character
-                local targetHumanoid = targetChar
-                    and targetChar:FindFirstChildOfClass("Humanoid")
-                local targetHRP = targetChar
-                    and targetChar:FindFirstChild("HumanoidRootPart")
+                if not targetChar then continue end
 
-                if targetHumanoid
-                    and targetHRP
-                    and targetHumanoid.Health > 0 then
-
-                    -- Stay on this player until they die
-                    while targetHumanoid
-                        and targetHumanoid.Parent
-                        and targetHumanoid.Health > 0 do
-
-                        -- Refresh character/root in case they change
-                        targetChar = player.Character
-
-                        targetHumanoid = targetChar
-                            and targetChar:FindFirstChildOfClass("Humanoid")
-
-                        targetHRP = targetChar
-                            and targetChar:FindFirstChild("HumanoidRootPart")
-
-                        if not targetHumanoid
-                            or not targetHRP
-                            or targetHumanoid.Health <= 0 then
-
-                            break
-                        end
-
-                        -- Calculate position in front of target
-                        local targetPosition =
-                            targetHRP.Position
-                            + (targetHRP.CFrame.LookVector * FRONT_DISTANCE)
-
-                        -- Face the target
-                        local targetCFrame = CFrame.lookAt(
-                            targetPosition,
-                            targetHRP.Position
-                        )
-
-                        -- Calculate distance
-                        local distance =
-                            (targetPosition - hrp.Position).Magnitude
-
-                        -- Keep constant tween speed
-                        local tweenTime =
-                            math.max(distance / TWEEN_SPEED, 0.05)
-
-                        local tweenInfo = TweenInfo.new(
-                            tweenTime,
-                            Enum.EasingStyle.Linear,
-                            Enum.EasingDirection.Out
-                        )
-
-                        -- Tween to the position in front of them
-                        local tween = TweenService:Create(
-                            hrp,
-                            tweenInfo,
-                            {
-                                CFrame = targetCFrame
-                            }
-                        )
-
-                        tween:Play()
-
-                        -- Keep following the target
-                        task.wait()
-
-                    end
+                local targetHumanoid = targetChar:FindFirstChildOfClass("Humanoid")
+                local targetHrp = targetChar:FindFirstChild("HumanoidRootPart")
+                if not targetHumanoid or not targetHrp or targetHumanoid.Health <= 0 then
+                    continue
                 end
+
+                -- Re-fetch local HRP in case character respawned
+                char = p.Character or p.CharacterAdded:Wait()
+                hrp = char:FindFirstChild("HumanoidRootPart") or char:WaitForChild("HumanoidRootPart")
+                if not hrp then continue end
+
+                -- Calculate a position in front of the target
+                local targetPos = targetHrp.Position
+                local targetLook = targetHrp.CFrame.LookVector
+                local goalPos = targetPos + (targetLook * FRONT_DISTANCE) + Vector3.new(0, 3, 0)
+
+                -- Distance-based tween duration using live speed value
+                local distance = (goalPos - hrp.Position).Magnitude
+                local duration = math.max(distance / TWEEN_SPEED, 0.05)
+
+                local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear)
+                local tween = TweenService:Create(hrp, tweenInfo, { CFrame = CFrame.new(goalPos) })
+                tween:Play()
+                tween.Completed:Wait()
             end
         end
     end
 
-    Tab:CreateToggle({
-        Name = "Target Players",
-        CurrentValue = false,
-
-        Callback = function(v)
-
-            if v then
-                task.spawn(function()
-                    targetPlayers()
-                end)
-            end
-
-        end
+    -- Speed slider
+    Tab:CreateSlider({
+        Name = "Speed",
+        Range = {10, 300},
+        Increment = 1,
+        Suffix = "studs/s",
+        CurrentValue = TWEEN_SPEED,
+        Flag = "TargetSpeed",
+        Callback = function(value)
+            TWEEN_SPEED = value
+        end,
     })
 
-local rs = game:GetService("RunService")
-local player = game.Players.LocalPlayer
-
-local speedConnection
-
-local Slider = Tab:CreateSlider({
-    Name = "Speed",
-    Range = {0, 100},
-    Increment = 10,
-    Suffix = "Speed",
-    CurrentValue = 10,
-    Flag = "speed",
-
-    Callback = function(Value)
-
-        if speedConnection then
-            speedConnection:Disconnect()
-        end
-
-        speedConnection = rs.RenderStepped:Connect(function()
-            local character = player.Character
-            local humanoid = character
-                and character:FindFirstChildOfClass("Humanoid")
-
-            if humanoid then
-                humanoid.WalkSpeed = Value
+    -- Start button
+    Tab:CreateButton({
+        Name = "Start Targeting",
+        Callback = function()
+            if not running then
+                task.spawn(targetPlayers)
             end
-        end)
+        end,
+    })
 
-    end,
-})
-
-
+    -- Stop button
+    Tab:CreateButton({
+        Name = "Stop Targeting",
+        Callback = function()
+            running = false
+        end,
+    })
 end
 
 
