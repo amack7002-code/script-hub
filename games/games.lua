@@ -16186,81 +16186,116 @@ end
 --crossroad
 if game.PlaceId == 1818 then
 
-    local Players = game:GetService("Players")
-    local RunService = game:GetService("RunService")
-    local LocalPlayer = Players.LocalPlayer
-
     local Tab = Window:CreateTab("Main", 4483362458)
 
-    Tab:CreateButton({
-        Name = "Target Players",
+    local function targetPlayers()
 
-        Callback = function()
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
 
-            local character = LocalPlayer.Character
-                or LocalPlayer.CharacterAdded:Wait()
+        local p = Players.LocalPlayer
+        local char = p.Character or p.CharacterAdded:Wait()
+        local hrp = char:WaitForChild("HumanoidRootPart")
 
-            local root = character:FindFirstChild("HumanoidRootPart")
+        -- Speed in studs per second
+        local TWEEN_SPEED = 50
 
-            if not root then
-                return
-            end
+        -- Distance to stay in front of the player
+        local FRONT_DISTANCE = 3
 
-            for _, player in ipairs(Players:GetPlayers()) do
+        -- Go through players one at a time
+        for _, player in pairs(Players:GetPlayers()) do
 
-                if player ~= LocalPlayer then
+            if player ~= p then
 
-                    local targetCharacter = player.Character
-                    local targetHumanoid = targetCharacter
-                        and targetCharacter:FindFirstChildOfClass("Humanoid")
-                    local targetRoot = targetCharacter
-                        and targetCharacter:FindFirstChild("HumanoidRootPart")
+                local targetChar = player.Character
+                local targetHumanoid = targetChar
+                    and targetChar:FindFirstChildOfClass("Humanoid")
+                local targetHRP = targetChar
+                    and targetChar:FindFirstChild("HumanoidRootPart")
 
-                    if targetHumanoid
-                        and targetRoot
-                        and targetHumanoid.Health > 0 then
+                if targetHumanoid
+                    and targetHRP
+                    and targetHumanoid.Health > 0 then
 
-                        -- Stay on this player until they die
-                        while targetHumanoid
-                            and targetHumanoid.Parent
-                            and targetHumanoid.Health > 0 do
+                    -- Stay on this player until they die
+                    while targetHumanoid
+                        and targetHumanoid.Parent
+                        and targetHumanoid.Health > 0 do
 
-                            targetCharacter = player.Character
+                        -- Refresh character/root in case they change
+                        targetChar = player.Character
 
-                            targetHumanoid = targetCharacter
-                                and targetCharacter:FindFirstChildOfClass("Humanoid")
+                        targetHumanoid = targetChar
+                            and targetChar:FindFirstChildOfClass("Humanoid")
 
-                            targetRoot = targetCharacter
-                                and targetCharacter:FindFirstChild("HumanoidRootPart")
+                        targetHRP = targetChar
+                            and targetChar:FindFirstChild("HumanoidRootPart")
 
-                            if not targetHumanoid
-                                or not targetRoot
-                                or targetHumanoid.Health <= 0 then
-                                break
-                            end
+                        if not targetHumanoid
+                            or not targetHRP
+                            or targetHumanoid.Health <= 0 then
 
-                            -- 3 studs in front
-                            local position =
-                                targetRoot.Position
-                                + targetRoot.CFrame.LookVector * 3
-
-                            -- Face target
-                            local targetCFrame = CFrame.lookAt(
-                                position,
-                                targetRoot.Position
-                            )
-
-                            -- Smoothly move toward target
-                            root.CFrame = root.CFrame:Lerp(
-                                targetCFrame,
-                                0.15
-                            )
-
-                            RunService.Heartbeat:Wait()
+                            break
                         end
+
+                        -- Calculate position in front of target
+                        local targetPosition =
+                            targetHRP.Position
+                            + (targetHRP.CFrame.LookVector * FRONT_DISTANCE)
+
+                        -- Face the target
+                        local targetCFrame = CFrame.lookAt(
+                            targetPosition,
+                            targetHRP.Position
+                        )
+
+                        -- Calculate distance
+                        local distance =
+                            (targetPosition - hrp.Position).Magnitude
+
+                        -- Keep constant tween speed
+                        local tweenTime =
+                            math.max(distance / TWEEN_SPEED, 0.05)
+
+                        local tweenInfo = TweenInfo.new(
+                            tweenTime,
+                            Enum.EasingStyle.Linear,
+                            Enum.EasingDirection.Out
+                        )
+
+                        -- Tween to the position in front of them
+                        local tween = TweenService:Create(
+                            hrp,
+                            tweenInfo,
+                            {
+                                CFrame = targetCFrame
+                            }
+                        )
+
+                        tween:Play()
+
+                        -- Keep following the target
+                        task.wait()
+
                     end
                 end
             end
+        end
+    end
+
+    Tab:CreateToggle({
+        Name = "Target Players",
+        CurrentValue = false,
+
+        Callback = function(v)
+
+            if v then
+                task.spawn(function()
+                    targetPlayers()
+                end)
+            end
+
         end
     })
 
