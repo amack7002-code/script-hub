@@ -16195,8 +16195,11 @@ if game.PlaceId == 1818 then
 
     local p = Players.LocalPlayer
 
-    -- Walk speed value (adjustable via slider)
+    -- Walk speed value (adjustable via slider) - affects Humanoid only
     local WALK_SPEED = 16
+
+    -- Tween speed (fixed, separate from walkspeed)
+    local TWEEN_SPEED = 50
 
     -- Distance to stay in front of the player
     local FRONT_DISTANCE = 3
@@ -16244,8 +16247,9 @@ if game.PlaceId == 1818 then
             local targetLook = targetHrp.CFrame.LookVector
             local goalPos = targetPos + (targetLook * FRONT_DISTANCE) + Vector3.new(0, 3, 0)
 
+            -- Uses TWEEN_SPEED, NOT WALK_SPEED
             local distance = (goalPos - hrp.Position).Magnitude
-            local duration = math.max(distance / math.max(WALK_SPEED, 1), 0.05)
+            local duration = math.max(distance / TWEEN_SPEED, 0.05)
 
             local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear)
             local tween = TweenService:Create(hrp, tweenInfo, { CFrame = CFrame.new(goalPos) })
@@ -16254,7 +16258,7 @@ if game.PlaceId == 1818 then
         end
     end
 
-    -- Speed slider -> just stores the value
+    -- Speed slider -> Humanoid.WalkSpeed only
     Tab:CreateSlider({
         Name = "Speed",
         Range = {16, 300},
