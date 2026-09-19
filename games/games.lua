@@ -16183,6 +16183,36 @@ end
 -- --
 -- end
 
+--crossroad
+if game.PlaceId == 1818 then
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+
+    local function getPlayers()
+        local playerList = {}
+
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer then
+                table.insert(playerList, player)
+            end
+        end
+
+        return playerList
+    end
+
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local hum = char:WaitForChild("Humanoid")
+
+    for _, player in ipairs(getPlayers()) do
+        local targetChar = player.Character
+        local targetHum = targetChar and targetChar:FindFirstChildOfClass("Humanoid")
+
+        if targetChar and targetHum and targetHum.Health > 0 then
+            local pivot = targetChar:GetPivot()
+        end
+    end
+end
+
 --rblx event hunt 20
 if game.PlaceId == 74205509034203 then
     local Tab = Window:CreateTab("Main", 4483362458)
