@@ -16292,300 +16292,301 @@ end
 --rblx event hunt 20
 if game.PlaceId == 74205509034203 then
     local Tab = Window:CreateTab("Main", 4483362458)
-	local Remotes = game:GetService("ReplicatedStorage"):WaitForChild("Remotes")
 
-	local function teleport(pos, settle)
-		local char = LocalPlayer.Character
-		if not char then
-			return false
-		end
-		char:PivotTo(CFrame.new(pos + Vector3.new(0, 5, 0)))
-		local t0 = os.clock()
-		repeat
-			task.wait(0.2)
-			local hrp = hrpNow()
-			if hrp then
-				if (hrp.Position - pos).Magnitude <= 25 then
-					if settle then
-						task.wait(settle)
-					end
-					return true
-				end
-				char:PivotTo(CFrame.new(pos + Vector3.new(0, 5, 0)))
-			end
-		until os.clock() - t0 > 5 or G.HUNT_STOP
-		return true
-	end
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local CollectionService = game:GetService("CollectionService")
+    local TweenService = game:GetService("TweenService")
 
+    local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
     local function lol()
-        local TweenService = game:GetService("TweenService")
-        local p = game.Players.LocalPlayer
+        local p = Players.LocalPlayer
         local char = p.Character or p.CharacterAdded:Wait()
         local hrp = char:WaitForChild("HumanoidRootPart")
 
-		local Event = workspace.YearFolders.Year_01.DialogNPCSpawn.Interact
-		Event:FireServer(
-		    "start"
-		)
+        local Event = workspace.YearFolders.Year_01.DialogNPCSpawn.Interact
+        Event:FireServer("start")
 
-        -- Speed configuration (Studs per second)
-        local TWEEN_SPEED = 50 
+        local TWEEN_SPEED = 50
 
-        local parts = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}
+        local parts = {
+            "1", "2", "3", "4", "5",
+            "6", "7", "8", "9", "10"
+        }
 
-        -- Loop directly through your list of names
-        for _, partName in pairs(parts) do
-            local targetPart = workspace:FindFirstChild(partName)
-            
-            if targetPart and targetPart:IsA("BasePart") then
-                -- 1. Calculate the distance to the next part
-                local distance = (targetPart.Position - hrp.Position).Magnitude
-                
-                -- 2. Calculate time based on distance so speed stays smooth and constant
-                local tweenTime = distance / TWEEN_SPEED
-                
-                -- 3. Set up the tween information
-                local tweenInfo = TweenInfo.new(
-                    tweenTime,
-                    Enum.EasingStyle.Linear, -- Smooth, constant speed
-                    Enum.EasingDirection.Out
-                )
-                
-                -- 4. Create and play the tween targeting the CFrame
-                local tween = TweenService:Create(hrp, tweenInfo, {CFrame = targetPart.CFrame})
-                tween:Play()
-                
-                -- 5. Wait for this specific tween to finish before moving to the next number
-                tween.Completed:Wait()
-            end
-        end
-
-
-		local Event = workspace.YearFolders.Year_01.DialogNPCSpawn.Interact
-		Event:FireServer(
-		    "turnin"
-		)
-    end
-
-local function lol2()
-    local Event = workspace.YearFolders.Year_02.DialogNPCSpawn.Interact
-
-    Event:FireServer("start")
-
-    local ev = Remotes:FindFirstChild("Island2ButtonPress")
-    if not ev then
-        return
-    end
-
-    for pass = 1, 3 do
-        if attr(isl.progressFlag) >= isl.count or G.HUNT_STOP then
-            return
-        end
-
-        for _, pt in CollectionService:GetTagged("Island2Button") do
+        for _, partName in ipairs(parts) do
             if G.HUNT_STOP then
                 return
             end
 
-            teleport(taggedPos(pt), 0.2)
-            ev:FireServer(pt)
+            local targetPart = workspace:FindFirstChild(partName)
 
-            task.wait(0.3)
-        end
-    end
+            if targetPart and targetPart:IsA("BasePart") then
+                local distance = (targetPart.Position - hrp.Position).Magnitude
+                local tweenTime = distance / TWEEN_SPEED
 
-	    local Event = workspace.YearFolders.Year_02.DialogNPCSpawn.Interact
+                local tweenInfo = TweenInfo.new(
+                    tweenTime,
+                    Enum.EasingStyle.Linear,
+                    Enum.EasingDirection.Out
+                )
 
-    Event:FireServer("turnin")
-end
+                local tween = TweenService:Create(
+                    hrp,
+                    tweenInfo,
+                    {
+                        CFrame = targetPart.CFrame
+                    }
+                )
 
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CollectionService = game:GetService("CollectionService")
-
-local function lol3()
-	task.spawn(function()
-            local lp = Players.LocalPlayer
-            local char = lp.Character or lp.CharacterAdded:Wait()
-            local humanoid = char:WaitForChild("Humanoid")
-            local hrp = char:WaitForChild("HumanoidRootPart")
-
-            local Remotes = ReplicatedStorage:WaitForChild("Remotes")
-            local ev = Remotes:FindFirstChild("PaintballMinigame")
-            local Event = workspace.YearFolders.Year_03.DialogNPCSpawn.Interact
-
-            if not ev then
-                Rayfield:Notify({
-                    Title = "Paint Eggs",
-                    Content = "PaintballMinigame remote was not found.",
-                    Duration = 3
-                })
-                return
-            end
-
-            -- Equip Toon Paintball
-            local paint = lp.Backpack:FindFirstChild("Toon Paintball")
-
-            if paint then
-                humanoid:EquipTool(paint)
-                task.wait(0.2)
-            end
-
-            -- Start minigame
-            Event:FireServer("start")
-            task.wait(0.5)
-
-            for pass = 1, 4 do
-                for _, egg in ipairs(CollectionService:GetTagged("PaintableEgg")) do
-                    local id = egg:GetAttribute("Id")
-
-                    if id ~= nil then
-                        local painted = egg:GetAttribute("Painted")
-
-                        if not painted then
-                            local position
-
-                            if egg:IsA("BasePart") then
-                                position = egg.Position
-                            elseif egg:IsA("Model") then
-                                position = egg:GetPivot().Position
-                            end
-
-                            if position then
-                                hrp.CFrame = CFrame.new(position)
-
-                                task.wait(0.2)
-
-                                ev:FireServer(tostring(id))
-
-                                task.wait(0.3)
-                            end
-                        end
-                    end
-                end
-
-                task.wait(0.3)
-            end
-
-            Rayfield:Notify({
-                Title = "Paint Eggs",
-                Content = "Finished checking the eggs.",
-                Duration = 3
-            })
-
-			Event:FireServer("turnin")
-        end)
-end
-
-local function lol4()
-
-local Event = workspace.YearFolders.Year_04.DialogNPCSpawn.Interact
-Event:FireServer(
-    "start"
-)
-end
-
-local function lol5()
-    local Event = workspace.YearFolders.Year_05.DialogNPCSpawn.Interact
-
-    Event:FireServer("start")
-    task.wait(0.3)
-
-    local targets = {}
-
-    -- Find every Model containing a ProximityPrompt and
-    -- ParticleEmitters matching the sparkle effects.
-    for _, model in ipairs(workspace:GetDescendants()) do
-        if model:IsA("Model") then
-            local prompt = model:FindFirstChildWhichIsA("ProximityPrompt", true)
-
-            if prompt then
-                local burst = false
-                local constant = false
-
-                for _, obj in ipairs(model:GetDescendants()) do
-                    if obj:IsA("ParticleEmitter") then
-                        local name = obj.Name:lower()
-
-                        if name:find("burst") then
-                            burst = true
-                        elseif name:find("constant") then
-                            constant = true
-                        end
-                    end
-                end
-
-                if burst and constant then
-                    table.insert(targets, {
-                        model = model,
-                        prompt = prompt
-                    })
-                end
+                tween:Play()
+                tween.Completed:Wait()
             end
         end
+
+        Event:FireServer("turnin")
     end
 
-    -- Visit every matching model
-    for _, target in ipairs(targets) do
-        if G.HUNT_STOP then
+
+    local function lol2()
+        local Event = workspace.YearFolders.Year_02.DialogNPCSpawn.Interact
+
+        Event:FireServer("start")
+
+        local ev = Remotes:FindFirstChild("Island2ButtonPress")
+
+        if not ev then
             return
         end
 
-        local model = target.model
-        local prompt = target.prompt
+        for pass = 1, 3 do
+            if G.HUNT_STOP then
+                return
+            end
 
-        teleport(model:GetPivot().Position, 0.2)
+            for _, pt in ipairs(CollectionService:GetTagged("Island2Button")) do
+                if G.HUNT_STOP then
+                    return
+                end
 
-        task.wait(0.2)
+                teleport(taggedPos(pt), 0.2)
+                ev:FireServer(pt)
 
-        fireproximityprompt(prompt)
+                task.wait(0.3)
+            end
+        end
 
-        task.wait(0.4)
+        Event:FireServer("turnin")
     end
 
-    Event:FireServer("turnin")
-end
+
+    local function lol3()
+        local lp = Players.LocalPlayer
+        local char = lp.Character or lp.CharacterAdded:Wait()
+        local humanoid = char:WaitForChild("Humanoid")
+        local hrp = char:WaitForChild("HumanoidRootPart")
+
+        local ev = Remotes:FindFirstChild("PaintballMinigame")
+        local Event = workspace.YearFolders.Year_03.DialogNPCSpawn.Interact
+
+        if not ev then
+            Rayfield:Notify({
+                Title = "Paint Eggs",
+                Content = "PaintballMinigame remote was not found.",
+                Duration = 3
+            })
+            return
+        end
+
+        local paint = lp.Backpack:FindFirstChild("Toon Paintball")
+
+        if paint then
+            humanoid:EquipTool(paint)
+            task.wait(0.2)
+        end
+
+        Event:FireServer("start")
+        task.wait(0.5)
+
+        for pass = 1, 4 do
+            if G.HUNT_STOP then
+                return
+            end
+
+            for _, egg in ipairs(CollectionService:GetTagged("PaintableEgg")) do
+                if G.HUNT_STOP then
+                    return
+                end
+
+                local id = egg:GetAttribute("Id")
+
+                if id ~= nil and not egg:GetAttribute("Painted") then
+                    local position
+
+                    if egg:IsA("BasePart") then
+                        position = egg.Position
+                    elseif egg:IsA("Model") then
+                        position = egg:GetPivot().Position
+                    end
+
+                    if position then
+                        hrp.CFrame = CFrame.new(position)
+
+                        task.wait(0.2)
+
+                        ev:FireServer(tostring(id))
+
+                        task.wait(0.3)
+                    end
+                end
+            end
+
+            task.wait(0.3)
+        end
+
+        Event:FireServer("turnin")
+
+        Rayfield:Notify({
+            Title = "Paint Eggs",
+            Content = "Finished checking the eggs.",
+            Duration = 3
+        })
+    end
+
+
+    local function lol4()
+        local Event = workspace.YearFolders.Year_04.DialogNPCSpawn.Interact
+
+        Event:FireServer("start")
+
+        -- Add the Year 04 objective here.
+        -- Currently this only starts the event.
+    end
+
+
+    local function lol5()
+        local Event = workspace.YearFolders.Year_05.DialogNPCSpawn.Interact
+
+        Event:FireServer("start")
+        task.wait(0.3)
+
+        local targets = {}
+
+        for _, model in ipairs(workspace:GetDescendants()) do
+            if model:IsA("Model") then
+                local prompt = model:FindFirstChildWhichIsA(
+                    "ProximityPrompt",
+                    true
+                )
+
+                if prompt then
+                    local burst = false
+                    local constant = false
+
+                    for _, obj in ipairs(model:GetDescendants()) do
+                        if obj:IsA("ParticleEmitter") then
+                            local name = obj.Name:lower()
+
+                            if name:find("burst") then
+                                burst = true
+                            end
+
+                            if name:find("constant") then
+                                constant = true
+                            end
+                        end
+                    end
+
+                    if burst and constant then
+                        table.insert(targets, {
+                            model = model,
+                            prompt = prompt
+                        })
+                    end
+                end
+            end
+        end
+
+        for _, target in ipairs(targets) do
+            if G.HUNT_STOP then
+                return
+            end
+
+            local model = target.model
+            local prompt = target.prompt
+
+            teleport(model:GetPivot().Position, 0.2)
+
+            task.wait(0.2)
+
+            fireproximityprompt(prompt)
+
+            task.wait(0.4)
+        end
+
+        Event:FireServer("turnin")
+    end
+
 
     Tab:CreateToggle({
         Name = "do 2006",
         CurrentValue = false,
+
         Callback = function(v)
-            lol()
+            if v then
+                task.spawn(lol)
+            end
         end
     })
 
-	Tab:CreateToggle({
+
+    Tab:CreateToggle({
         Name = "do 2007",
         CurrentValue = false,
+
         Callback = function(v)
-            lol2()
+            if v then
+                task.spawn(lol2)
+            end
         end
     })
 
-	Tab:CreateToggle({
+
+    Tab:CreateToggle({
         Name = "do 2008",
         CurrentValue = false,
+
         Callback = function(v)
-            lol3()
+            if v then
+                task.spawn(lol3)
+            end
         end
     })
 
-	Tab:CreateToggle({
+
+    Tab:CreateToggle({
         Name = "do 2009",
         CurrentValue = false,
+
         Callback = function(v)
-            lol4()
-        end
-    })
-	Tab:CreateToggle({
-        Name = "do 2010",
-        CurrentValue = false,
-        Callback = function(v)
-            lol5()
+            if v then
+                task.spawn(lol4)
+            end
         end
     })
 
+
+    Tab:CreateToggle({
+        Name = "do 2010",
+        CurrentValue = false,
+
+        Callback = function(v)
+            if v then
+                task.spawn(lol5)
+            end
+        end
+    })
 end
 
 
