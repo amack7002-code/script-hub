@@ -16339,6 +16339,13 @@ if game.PlaceId == 74205509034203 then
 
 	local function lol2()
 	    local Players = game:GetService("Players")
+
+
+	
+		local Event = workspace.YearFolders.Year_02.DialogNPCSpawn.Interact
+		Event:FireServer(
+		    "start"
+		)
 	
 	    local lp = Players.LocalPlayer
 	    local char = lp.Character or lp.CharacterAdded:Wait()
