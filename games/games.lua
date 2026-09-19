@@ -16299,6 +16299,11 @@ if game.PlaceId == 74205509034203 then
         local char = p.Character or p.CharacterAdded:Wait()
         local hrp = char:WaitForChild("HumanoidRootPart")
 
+		local Event = workspace.YearFolders.Year_01.DialogNPCSpawn.Interact
+		Event:FireServer(
+		    "start"
+		)
+
         -- Speed configuration (Studs per second)
         local TWEEN_SPEED = 50 
 
