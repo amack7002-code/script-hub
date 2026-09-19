@@ -16377,7 +16377,7 @@ end
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-CollectionService = game:GetService("CollectionService")
+local CollectionService = game:GetService("CollectionService")
 
 local function lol3()
 	task.spawn(function()
