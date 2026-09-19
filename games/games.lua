@@ -16292,6 +16292,7 @@ end
 --rblx event hunt 20
 if game.PlaceId == 74205509034203 then
     local Tab = Window:CreateTab("Main", 4483362458)
+	local Remotes = game:GetService("ReplicatedStorage"):WaitForChild("Remotes")
 
     local function lol()
         local TweenService = game:GetService("TweenService")
