@@ -16335,6 +16335,12 @@ if game.PlaceId == 74205509034203 then
                 tween.Completed:Wait()
             end
         end
+
+
+		local Event = workspace.YearFolders.Year_01.DialogNPCSpawn.Interact
+		Event:FireServer(
+		    "turnin"
+		)
     end
 
 local function lol2()
@@ -16363,6 +16369,10 @@ local function lol2()
             task.wait(0.3)
         end
     end
+
+	    local Event = workspace.YearFolders.Year_02.DialogNPCSpawn.Interact
+
+    Event:FireServer("turnin")
 end
 
 local Players = game:GetService("Players")
@@ -16438,6 +16448,8 @@ local function lol3()
                 Content = "Finished checking the eggs.",
                 Duration = 3
             })
+
+			Event:FireServer("turnin")
         end)
 end
 
