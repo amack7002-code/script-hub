@@ -16377,7 +16377,7 @@ end
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CollectionService = game:GetService("CollectionService")
+CollectionService = game:GetService("CollectionService")
 
 local function lol3()
 	task.spawn(function()
@@ -16463,6 +16463,8 @@ end
 
 local function lol5()
 
+	local CollectionService = game:GetService("CollectionService")
+
 	local Event = workspace.YearFolders.Year_05.DialogNPCSpawn.Interact
 	Event:FireServer(
 	    "start"
@@ -16547,7 +16549,7 @@ end
         end
     })
 	Tab:CreateToggle({
-        Name = "do 2009",
+        Name = "do 2010",
         CurrentValue = false,
         Callback = function(v)
             lol5()
