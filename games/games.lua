@@ -16338,54 +16338,30 @@ if game.PlaceId == 74205509034203 then
     end
 
 local function lol2()
-    local Players = game:GetService("Players")
-    local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local CollectionService = game:GetService("CollectionService")
-
-    local lp = Players.LocalPlayer
-    local char = lp.Character or lp.CharacterAdded:Wait()
-    local hrp = char:WaitForChild("HumanoidRootPart")
-
-    -- Start Island 2
     local Event = workspace.YearFolders.Year_02.DialogNPCSpawn.Interact
+
     Event:FireServer("start")
 
-    task.wait(0.5)
-
-    -- Get the button remote
-    local Remotes = ReplicatedStorage:WaitForChild("Remotes")
     local ev = Remotes:FindFirstChild("Island2ButtonPress")
-
     if not ev then
-        warn("Island2ButtonPress remote not found")
         return
     end
 
-    -- Go through the tagged Island 2 buttons
     for pass = 1, 3 do
-        for _, pt in ipairs(CollectionService:GetTagged("Island2Button")) do
-            local position
-
-            if pt:IsA("BasePart") then
-                position = pt.Position
-            elseif pt:IsA("Model") then
-                position = pt:GetPivot().Position
-            end
-
-            if position then
-                -- Teleport to the button
-                hrp.CFrame = CFrame.new(position)
-
-                task.wait(0.2)
-
-                -- Press the button
-                ev:FireServer(pt)
-
-                task.wait(0.3)
-            end
+        if attr(isl.progressFlag) >= isl.count or G.HUNT_STOP then
+            return
         end
 
-        task.wait(0.3)
+        for _, pt in CollectionService:GetTagged("Island2Button") do
+            if G.HUNT_STOP then
+                return
+            end
+
+            teleport(taggedPos(pt), 0.2)
+            ev:FireServer(pt)
+
+            task.wait(0.3)
+        end
     end
 end
 
