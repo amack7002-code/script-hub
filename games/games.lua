@@ -16332,8 +16332,44 @@ if game.PlaceId == 74205509034203 then
         end
     end
 
+	local function lol2()
+	    local Players = game:GetService("Players")
+	
+	    local lp = Players.LocalPlayer
+	    local char = lp.Character or lp.CharacterAdded:Wait()
+	    local hrp = char:WaitForChild("HumanoidRootPart")
+	
+	    local buttons = workspace.Gimmicks.Island2.Buttons
+	
+	    for _, v in ipairs(buttons:GetDescendants()) do
+	        if v:IsA("ProximityPrompt") and v.Parent then
+	            if v.Parent.Name:find("Clicker") then
+	                hrp.CFrame = v.Parent.CFrame
+	                task.wait(0.1)
+	                fireproximityprompt(v)
+	            end
+	        end
+	    end
+	end
+
     Tab:CreateToggle({
         Name = "do 2006",
+        CurrentValue = false,
+        Callback = function(v)
+            lol()
+        end
+    })
+
+	Tab:CreateToggle({
+        Name = "do 2007",
+        CurrentValue = false,
+        Callback = function(v)
+            lol2()
+        end
+    })
+
+	Tab:CreateToggle({
+        Name = "do 2008",
         CurrentValue = false,
         Callback = function(v)
             lol()
