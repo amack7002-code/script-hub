@@ -16185,6 +16185,7 @@ end
 
 --crossroad
 if game.PlaceId == 1818 then
+    local Tab = Window:CreateTab("Main", 4483362458)
 
     local Players = game:GetService("Players")
     local RunService = game:GetService("RunService")
