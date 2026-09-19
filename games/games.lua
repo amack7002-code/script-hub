@@ -16453,6 +16453,68 @@ local function lol3()
         end)
 end
 
+local function lol4()
+
+local Event = workspace.YearFolders.Year_04.DialogNPCSpawn.Interact
+Event:FireServer(
+    "start"
+)
+end
+
+local function lol5()
+
+	local Event = workspace.YearFolders.Year_05.DialogNPCSpawn.Interact
+	Event:FireServer(
+	    "start"
+	)
+	
+	local collectEv = Remotes:FindFirstChild("Island5PizzaCollect")
+	local placeEv = Remotes:FindFirstChild("Island5PizzaPlace")
+	
+	if not collectEv or not placeEv then
+	    return
+	end
+	
+	local session = getSession()
+	
+	if not session or not session.Pieces then
+	    return
+	end
+	
+	for id in pairs(session.Pieces) do
+	    if G.HUNT_STOP then
+	        return
+	    end
+	
+	    local pos = parsePos(id)
+	
+	    if pos then
+	        gotoPos(pos)
+	
+	        collectEv:FireServer(id)
+	
+	        task.wait(0.3)
+	    end
+	end
+	
+	task.wait(0.2)
+	
+	local podium = CollectionService:GetTagged("PizzaPodium")[1]
+	
+	if podium then
+	    teleport(taggedPos(podium), 0.2)
+	end
+	
+	placeEv:FireServer()
+	
+	task.wait(0.4)
+	
+	Event:FireServer(
+	    "turnin"
+	)
+	
+end
+
     Tab:CreateToggle({
         Name = "do 2006",
         CurrentValue = false,
@@ -16474,6 +16536,21 @@ end
         CurrentValue = false,
         Callback = function(v)
             lol3()
+        end
+    })
+
+	Tab:CreateToggle({
+        Name = "do 2009",
+        CurrentValue = false,
+        Callback = function(v)
+            lol4()
+        end
+    })
+	Tab:CreateToggle({
+        Name = "do 2009",
+        CurrentValue = false,
+        Callback = function(v)
+            lol5()
         end
     })
 
