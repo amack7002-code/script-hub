@@ -16462,59 +16462,59 @@ Event:FireServer(
 end
 
 local function lol5()
+    local CollectionService = game:GetService("CollectionService")
 
-	local CollectionService = game:GetService("CollectionService")
+    local Event = workspace.YearFolders.Year_05.DialogNPCSpawn.Interact
 
-	local Event = workspace.YearFolders.Year_05.DialogNPCSpawn.Interact
-	Event:FireServer(
-	    "start"
-	)
-	
-	local collectEv = Remotes:FindFirstChild("Island5PizzaCollect")
-	local placeEv = Remotes:FindFirstChild("Island5PizzaPlace")
-	
-	if not collectEv or not placeEv then
-	    return
-	end
-	
-	local session = getSession()
-	
-	if not session or not session.Pieces then
-	    return
-	end
-	
-	for id in pairs(session.Pieces) do
-	    if G.HUNT_STOP then
-	        return
-	    end
-	
-	    local pos = parsePos(id)
-	
-	    if pos then
-	        gotoPos(pos)
-	
-	        collectEv:FireServer(id)
-	
-	        task.wait(0.3)
-	    end
-	end
-	
-	task.wait(0.2)
-	
-	local podium = CollectionService:GetTagged("PizzaPodium")[1]
-	
-	if podium then
-	    teleport(taggedPos(podium), 0.2)
-	end
-	
-	placeEv:FireServer()
-	
-	task.wait(0.4)
-	
-	Event:FireServer(
-	    "turnin"
-	)
-	
+    -- Start Island 5
+    Event:FireServer("start")
+
+    local collectEv = Remotes:FindFirstChild("Island5PizzaCollect")
+    local placeEv = Remotes:FindFirstChild("Island5PizzaPlace")
+
+    if not collectEv or not placeEv then
+        return
+    end
+
+    local session = getSession()
+
+    if not session or not session.Pieces then
+        return
+    end
+
+    -- Collect every pizza piece
+    for id in pairs(session.Pieces) do
+        if G.HUNT_STOP then
+            return
+        end
+
+        local pos = parsePos(id)
+
+        if pos then
+            gotoPos(pos)
+
+            collectEv:FireServer(id)
+
+            task.wait(0.3)
+        end
+    end
+
+    task.wait(0.2)
+
+    -- Go to podium
+    local podium = CollectionService:GetTagged("PizzaPodium")[1]
+
+    if podium then
+        teleport(taggedPos(podium), 0.2)
+    end
+
+    -- Place pizza
+    placeEv:FireServer()
+
+    task.wait(0.4)
+
+    -- Turn in
+    Event:FireServer("turnin")
 end
 
     Tab:CreateToggle({
