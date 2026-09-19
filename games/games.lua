@@ -16612,6 +16612,35 @@ local function lol8()
     Event:FireServer("turnin")
 end
 
+local function lol9()
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+    local player = Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+
+    -- Teleport to Year 09
+    hrp.CFrame = CFrame.new(-5572.46, 31.94, 108.75)
+    task.wait(0.3)
+
+    local Event = workspace.YearFolders.Year_09.DialogNPCSpawn.Interact
+
+    -- Start
+    Event:FireServer("start")
+    task.wait(0.3)
+
+    local speedrunEvent = ReplicatedStorage.Remotes.SpeedrunMinigame
+
+    -- Complete speedrun
+    speedrunEvent:FireServer(workspace.Part)
+
+    task.wait(0.3)
+
+    -- Turn in
+    Event:FireServer("turnin")
+end
+
     Tab:CreateToggle({
         Name = "do 2006",
         CurrentValue = false,
@@ -16700,6 +16729,17 @@ end
         Callback = function(v)
             if v then
                 task.spawn(lol8)
+            end
+        end
+    })
+
+    Tab:CreateToggle({
+        Name = "do 2014",
+        CurrentValue = false,
+
+        Callback = function(v)
+            if v then
+                task.spawn(lol9)
             end
         end
     })
