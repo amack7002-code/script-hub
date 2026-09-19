@@ -16299,6 +16299,39 @@ if game.PlaceId == 1818 then
         end
     })
 
+local rs = game:GetService("RunService")
+local player = game.Players.LocalPlayer
+
+local speedConnection
+
+local Slider = Tab:CreateSlider({
+    Name = "Speed",
+    Range = {0, 100},
+    Increment = 10,
+    Suffix = "Speed",
+    CurrentValue = 10,
+    Flag = "speed",
+
+    Callback = function(Value)
+
+        if speedConnection then
+            speedConnection:Disconnect()
+        end
+
+        speedConnection = rs.RenderStepped:Connect(function()
+            local character = player.Character
+            local humanoid = character
+                and character:FindFirstChildOfClass("Humanoid")
+
+            if humanoid then
+                humanoid.WalkSpeed = Value
+            end
+        end)
+
+    end,
+})
+
+
 end
 
 
