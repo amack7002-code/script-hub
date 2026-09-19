@@ -16528,6 +16528,21 @@ if game.PlaceId == 74205509034203 then
         Event:FireServer("turnin")
     end
 
+	local function lol6()
+		local char = game.Players.LocalPlayer.Character
+		if not char then return end
+		
+		char:PivotTo(CFrame.new(-3597.94, 5.44, 127.18))
+		
+		local Event = workspace.YearFolders.Year_06.Model.DialogNPCSpawn.Interact
+		
+		Event:FireServer("start")
+		
+		task.wait(30)
+		
+		Event:FireServer("turnin")
+	end
+
 
     Tab:CreateToggle({
         Name = "do 2006",
@@ -16584,6 +16599,17 @@ if game.PlaceId == 74205509034203 then
         Callback = function(v)
             if v then
                 task.spawn(lol5)
+            end
+        end
+    })
+
+    Tab:CreateToggle({
+        Name = "do 2011",
+        CurrentValue = false,
+
+        Callback = function(v)
+            if v then
+                task.spawn(lol6)
             end
         end
     })
