@@ -16187,25 +16187,22 @@ end
 if game.PlaceId == 1818 then
 
     local Players = game:GetService("Players")
-    local TweenService = game:GetService("TweenService")
+    local RunService = game:GetService("RunService")
     local LocalPlayer = Players.LocalPlayer
 
     Tab:CreateButton({
-        Name = "Tween To Players",
+        Name = "Target Players",
         Callback = function()
 
             local character = LocalPlayer.Character
                 or LocalPlayer.CharacterAdded:Wait()
 
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            local root = character:FindFirstChild("HumanoidRootPart")
 
-            if not humanoid then
+            if not root then
                 return
             end
 
-            local targets = {}
-
-            -- Get all living players
             for _, player in ipairs(Players:GetPlayers()) do
                 if player ~= LocalPlayer then
 
@@ -16215,116 +16212,48 @@ if game.PlaceId == 1818 then
                     local targetRoot = targetCharacter
                         and targetCharacter:FindFirstChild("HumanoidRootPart")
 
-                    if targetCharacter
-                        and targetHumanoid
+                    if targetHumanoid
                         and targetRoot
                         and targetHumanoid.Health > 0 then
 
-                        table.insert(targets, player)
-                    end
-                end
-            end
+                        -- Stay targeting this player until they die
+                        while targetHumanoid.Parent
+                            and targetHumanoid.Health > 0 do
 
-            -- Go through players one at a time
-            for _, player in ipairs(targets) do
+                            targetCharacter = player.Character
+                            targetHumanoid = targetCharacter
+                                and targetCharacter:FindFirstChildOfClass("Humanoid")
+                            targetRoot = targetCharacter
+                                and targetCharacter:FindFirstChild("HumanoidRootPart")
 
-                local targetCharacter = player.Character
-                local targetHumanoid = targetCharacter
-                    and targetCharacter:FindFirstChildOfClass("Humanoid")
-                local targetRoot = targetCharacter
-                    and targetCharacter:FindFirstChild("HumanoidRootPart")
+                            if not targetHumanoid
+                                or not targetRoot
+                                or targetHumanoid.Health <= 0 then
+                                break
+                            end
 
-                if not targetCharacter
-                    or not targetHumanoid
-                    or not targetRoot
-                    or targetHumanoid.Health <= 0 then
+                            -- 3 studs in front of the target
+                            local position =
+                                targetRoot.Position
+                                + targetRoot.CFrame.LookVector * 3
 
-                    continue
-                end
+                            -- Face the target
+                            local targetCFrame = CFrame.lookAt(
+                                position,
+                                targetRoot.Position
+                            )
 
-                -- Keep tweening toward this player until they die
-                while targetHumanoid
-                    and targetHumanoid.Parent
-                    and targetHumanoid.Health > 0 do
+                            -- Smoothly move toward them
+                            root.CFrame = root.CFrame:Lerp(
+                                targetCFrame,
+                                0.15
+                            )
 
-                    -- Refresh the character/root in case they respawn or move
-                    targetCharacter = player.Character
-                    targetHumanoid = targetCharacter
-                        and targetCharacter:FindFirstChildOfClass("Humanoid")
-                    targetRoot = targetCharacter
-                        and targetCharacter:FindFirstChild("HumanoidRootPart")
-
-                    if not targetHumanoid
-                        or not targetRoot
-                        or targetHumanoid.Health <= 0 then
-
-                        break
-                    end
-
-                    local distance = 3
-
-                    -- Position in front of the target
-                    local position =
-                        targetRoot.Position
-                        + (targetRoot.CFrame.LookVector * distance)
-
-                    -- Face the target
-                    local targetCFrame = CFrame.lookAt(
-                        position,
-                        targetRoot.Position
-                    )
-
-                    -- Calculate distance to target position
-                    local currentPosition = character:GetPivot().Position
-                    local distanceToTarget =
-                        (currentPosition - position).Magnitude
-
-                    -- Tween speed
-                    local speed = 25
-                    local tweenTime = math.max(
-                        distanceToTarget / speed,
-                        0.05
-                    )
-
-                    local tween = TweenService:Create(
-                        character.PrimaryPart or character:FindFirstChild("HumanoidRootPart"),
-                        TweenInfo.new(
-                            tweenTime,
-                            Enum.EasingStyle.Linear,
-                            Enum.EasingDirection.InOut
-                        ),
-                        {
-                            CFrame = targetCFrame
-                        }
-                    )
-
-                    tween:Play()
-
-                    -- Wait for this tween to finish or the target to die
-                    while tween.PlaybackState == Enum.PlaybackState.Playing do
-
-                        if not targetHumanoid
-                            or not targetHumanoid.Parent
-                            or targetHumanoid.Health <= 0 then
-
-                            tween:Cancel()
-                            break
+                            RunService.Heartbeat:Wait()
                         end
-
-                        task.wait()
                     end
-
-                    if targetHumanoid.Health <= 0 then
-                        break
-                    end
-
-                    task.wait()
                 end
-
-                -- Small delay before moving to the next player
-                task.wait(0.1)
             end
-
         end
     })
 
