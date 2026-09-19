@@ -16140,6 +16140,102 @@ if game.PlaceId == 1516533665 then
 	})
 end
 
+-- --roblox event idk
+-- if game.PlaceId == 74205509034203 then
+--     --2006
+--     local TweenService = game:GetService("TweenService")
+--     local p = game.Players.LocalPlayer
+--     local char = p.Character or p.CharacterAdded:Wait()
+--     local hrp = char:WaitForChild("HumanoidRootPart")
+
+--     -- Speed configuration (Studs per second)
+--     local TWEEN_SPEED = 50 
+
+--     local parts = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}
+
+--     -- Loop directly through your list of names
+--     for _, partName in pairs(parts) do
+--         local targetPart = workspace:FindFirstChild(partName)
+        
+--         if targetPart and targetPart:IsA("BasePart") then
+--             -- 1. Calculate the distance to the next part
+--             local distance = (targetPart.Position - hrp.Position).Magnitude
+            
+--             -- 2. Calculate time based on distance so speed stays smooth and constant
+--             local tweenTime = distance / TWEEN_SPEED
+            
+--             -- 3. Set up the tween information
+--             local tweenInfo = TweenInfo.new(
+--                 tweenTime,
+--                 Enum.EasingStyle.Linear, -- Smooth, constant speed
+--                 Enum.EasingDirection.Out
+--             )
+            
+--             -- 4. Create and play the tween targeting the CFrame
+--             local tween = TweenService:Create(hrp, tweenInfo, {CFrame = targetPart.CFrame})
+--             tween:Play()
+            
+--             -- 5. Wait for this specific tween to finish before moving to the next number
+--             tween.Completed:Wait()
+--         end
+--     end
+
+-- --
+-- end
+
+--rblx event hunt 20
+if game.PlaceId == 74205509034203 then
+    local Tab = Window:CreateTab("Main", 4483362458)
+
+    local function lol()
+        local TweenService = game:GetService("TweenService")
+        local p = game.Players.LocalPlayer
+        local char = p.Character or p.CharacterAdded:Wait()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+
+        -- Speed configuration (Studs per second)
+        local TWEEN_SPEED = 50 
+
+        local parts = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}
+
+        -- Loop directly through your list of names
+        for _, partName in pairs(parts) do
+            local targetPart = workspace:FindFirstChild(partName)
+            
+            if targetPart and targetPart:IsA("BasePart") then
+                -- 1. Calculate the distance to the next part
+                local distance = (targetPart.Position - hrp.Position).Magnitude
+                
+                -- 2. Calculate time based on distance so speed stays smooth and constant
+                local tweenTime = distance / TWEEN_SPEED
+                
+                -- 3. Set up the tween information
+                local tweenInfo = TweenInfo.new(
+                    tweenTime,
+                    Enum.EasingStyle.Linear, -- Smooth, constant speed
+                    Enum.EasingDirection.Out
+                )
+                
+                -- 4. Create and play the tween targeting the CFrame
+                local tween = TweenService:Create(hrp, tweenInfo, {CFrame = targetPart.CFrame})
+                tween:Play()
+                
+                -- 5. Wait for this specific tween to finish before moving to the next number
+                tween.Completed:Wait()
+            end
+        end
+    end
+
+    Tab:CreateToggle({
+        Name = "do 2006",
+        CurrentValue = false,
+        Callback = function(v)
+            lol()
+        end
+    })
+
+end
+
 --example 
 --[[
 https://docs.sirius.menu/rayfield/elements/interactive
