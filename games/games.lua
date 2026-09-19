@@ -16294,6 +16294,30 @@ if game.PlaceId == 74205509034203 then
     local Tab = Window:CreateTab("Main", 4483362458)
 	local Remotes = game:GetService("ReplicatedStorage"):WaitForChild("Remotes")
 
+	local function teleport(pos, settle)
+		local char = LocalPlayer.Character
+		if not char then
+			return false
+		end
+		char:PivotTo(CFrame.new(pos + Vector3.new(0, 5, 0)))
+		local t0 = os.clock()
+		repeat
+			task.wait(0.2)
+			local hrp = hrpNow()
+			if hrp then
+				if (hrp.Position - pos).Magnitude <= 25 then
+					if settle then
+						task.wait(settle)
+					end
+					return true
+				end
+				char:PivotTo(CFrame.new(pos + Vector3.new(0, 5, 0)))
+			end
+		until os.clock() - t0 > 5 or G.HUNT_STOP
+		return true
+	end
+
+
     local function lol()
         local TweenService = game:GetService("TweenService")
         local p = game.Players.LocalPlayer
@@ -16468,26 +16492,56 @@ local function lol5()
     Event:FireServer("start")
     task.wait(0.3)
 
-    for _, model in ipairs(workspace:GetDescendants()) do
-        if G.HUNT_STOP then
-            return
-        end
+    local targets = {}
 
+    -- Find every Model containing a ProximityPrompt and
+    -- ParticleEmitters matching the sparkle effects.
+    for _, model in ipairs(workspace:GetDescendants()) do
         if model:IsA("Model") then
             local prompt = model:FindFirstChildWhichIsA("ProximityPrompt", true)
 
             if prompt then
-                -- Teleport to the model
-                teleport(model:GetPivot().Position, 0.2)
+                local burst = false
+                local constant = false
 
-                task.wait(0.2)
+                for _, obj in ipairs(model:GetDescendants()) do
+                    if obj:IsA("ParticleEmitter") then
+                        local name = obj.Name:lower()
 
-                -- Activate the prompt
-                fireproximityprompt(prompt)
+                        if name:find("burst") then
+                            burst = true
+                        elseif name:find("constant") then
+                            constant = true
+                        end
+                    end
+                end
 
-                task.wait(0.4)
+                if burst and constant then
+                    table.insert(targets, {
+                        model = model,
+                        prompt = prompt
+                    })
+                end
             end
         end
+    end
+
+    -- Visit every matching model
+    for _, target in ipairs(targets) do
+        if G.HUNT_STOP then
+            return
+        end
+
+        local model = target.model
+        local prompt = target.prompt
+
+        teleport(model:GetPivot().Position, 0.2)
+
+        task.wait(0.2)
+
+        fireproximityprompt(prompt)
+
+        task.wait(0.4)
     end
 
     Event:FireServer("turnin")
