@@ -16186,11 +16186,11 @@ end
 --crossroad
 if game.PlaceId == 1818 then
 
-    local Tab = Window:CreateTab("Main", 4483362458)
-
     local Players = game:GetService("Players")
     local RunService = game:GetService("RunService")
     local LocalPlayer = Players.LocalPlayer
+
+    local Tab = Window:CreateTab("Main", 4483362458)
 
     Tab:CreateButton({
         Name = "Target Players",
@@ -16220,12 +16220,11 @@ if game.PlaceId == 1818 then
                         and targetRoot
                         and targetHumanoid.Health > 0 then
 
-                        -- Keep targeting this player until they die
+                        -- Stay on this player until they die
                         while targetHumanoid
                             and targetHumanoid.Parent
                             and targetHumanoid.Health > 0 do
 
-                            -- Refresh target character
                             targetCharacter = player.Character
 
                             targetHumanoid = targetCharacter
@@ -16237,22 +16236,21 @@ if game.PlaceId == 1818 then
                             if not targetHumanoid
                                 or not targetRoot
                                 or targetHumanoid.Health <= 0 then
-
                                 break
                             end
 
-                            -- Stay 3 studs in front of the target
+                            -- 3 studs in front
                             local position =
                                 targetRoot.Position
-                                + (targetRoot.CFrame.LookVector * 3)
+                                + targetRoot.CFrame.LookVector * 3
 
-                            -- Face the target
+                            -- Face target
                             local targetCFrame = CFrame.lookAt(
                                 position,
                                 targetRoot.Position
                             )
 
-                            -- Smooth movement
+                            -- Smoothly move toward target
                             root.CFrame = root.CFrame:Lerp(
                                 targetCFrame,
                                 0.15
@@ -16265,6 +16263,7 @@ if game.PlaceId == 1818 then
             end
         end
     })
+
 end
 
 
