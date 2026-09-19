@@ -16463,58 +16463,33 @@ Event:FireServer(
 end
 
 local function lol5()
-    local CollectionService = game:GetService("CollectionService")
-
     local Event = workspace.YearFolders.Year_05.DialogNPCSpawn.Interact
 
-    -- Start Island 5
     Event:FireServer("start")
+    task.wait(0.3)
 
-    local collectEv = Remotes:FindFirstChild("Island5PizzaCollect")
-    local placeEv = Remotes:FindFirstChild("Island5PizzaPlace")
-
-    if not collectEv or not placeEv then
-        return
-    end
-
-    local session = getSession()
-
-    if not session or not session.Pieces then
-        return
-    end
-
-    -- Collect every pizza piece
-    for id in pairs(session.Pieces) do
+    for _, model in ipairs(workspace:GetDescendants()) do
         if G.HUNT_STOP then
             return
         end
 
-        local pos = parsePos(id)
+        if model:IsA("Model") then
+            local prompt = model:FindFirstChildWhichIsA("ProximityPrompt", true)
 
-        if pos then
-            gotoPos(pos)
+            if prompt then
+                -- Teleport to the model
+                teleport(model:GetPivot().Position, 0.2)
 
-            collectEv:FireServer(id)
+                task.wait(0.2)
 
-            task.wait(0.3)
+                -- Activate the prompt
+                fireproximityprompt(prompt)
+
+                task.wait(0.4)
+            end
         end
     end
 
-    task.wait(0.2)
-
-    -- Go to podium
-    local podium = CollectionService:GetTagged("PizzaPodium")[1]
-
-    if podium then
-        teleport(taggedPos(podium), 0.2)
-    end
-
-    -- Place pizza
-    placeEv:FireServer()
-
-    task.wait(0.4)
-
-    -- Turn in
     Event:FireServer("turnin")
 end
 
