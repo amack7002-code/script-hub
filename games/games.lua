@@ -16543,6 +16543,36 @@ if game.PlaceId == 74205509034203 then
 		Event:FireServer("turnin")
 	end
 
+local function lol7()
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+    local player = Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+
+    -- Teleport to Year 07 NPC
+    hrp.CFrame = CFrame.new(-4272.20, 20.41, 405.45)
+
+    local Event = workspace.YearFolders.Year_07.DialogNPCSpawn.Interact
+
+    -- Start
+    Event:FireServer("start")
+    task.wait(0.3)
+
+    -- Teleport to the blue flag
+    hrp.CFrame = workspace.Gimmicks.Island7.BlueFlagSet.BlueFlagStand.CFrame
+    task.wait(0.3)
+
+    -- Grab flag
+    local flagEvent = ReplicatedStorage.Remotes.Island7FlagGrab
+    flagEvent:FireServer()
+    task.wait(0.3)
+
+    -- Turn in
+    Event:FireServer("turnin")
+end
+
 
     Tab:CreateToggle({
         Name = "do 2006",
@@ -16610,6 +16640,17 @@ if game.PlaceId == 74205509034203 then
         Callback = function(v)
             if v then
                 task.spawn(lol6)
+            end
+        end
+    })
+
+    Tab:CreateToggle({
+        Name = "do 2012",
+        CurrentValue = false,
+
+        Callback = function(v)
+            if v then
+                task.spawn(lol7)
             end
         end
     })
