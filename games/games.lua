@@ -16573,6 +16573,44 @@ local function lol7()
     Event:FireServer("turnin")
 end
 
+local function lol8()
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+    local player = Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+
+    -- Teleport to Year 08
+    hrp.CFrame = CFrame.new(-4942.14, -22.10, 521.78)
+    task.wait(0.3)
+
+    local Event = workspace.YearFolders.Year_08.DialogNPCSpawn.Interact
+
+    -- Start
+    Event:FireServer("start")
+    task.wait(0.3)
+
+    local Event1 = ReplicatedStorage.Remotes.SurvivalKitMinigame
+
+    -- Collect Survival Kit items
+    Event1:FireServer(
+        workspace.YearFolders.Year_08["Survival Kit"].BloxyCola
+    )
+
+    Event1:FireServer(
+        workspace.YearFolders.Year_08["Survival Kit"].MedKit
+    )
+
+    Event1:FireServer(
+        workspace.YearFolders.Year_08["Survival Kit"].Beans
+    )
+
+    task.wait(0.3)
+
+    -- Turn in
+    Event:FireServer("turnin")
+end
 
     Tab:CreateToggle({
         Name = "do 2006",
@@ -16651,6 +16689,17 @@ end
         Callback = function(v)
             if v then
                 task.spawn(lol7)
+            end
+        end
+    })
+
+    Tab:CreateToggle({
+        Name = "do 2013",
+        CurrentValue = false,
+
+        Callback = function(v)
+            if v then
+                task.spawn(lol8)
             end
         end
     })
