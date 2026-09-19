@@ -16337,32 +16337,57 @@ if game.PlaceId == 74205509034203 then
         end
     end
 
-	local function lol2()
-	    local Players = game:GetService("Players")
+local function lol2()
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local CollectionService = game:GetService("CollectionService")
 
+    local lp = Players.LocalPlayer
+    local char = lp.Character or lp.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
 
-	
-		local Event = workspace.YearFolders.Year_02.DialogNPCSpawn.Interact
-		Event:FireServer(
-		    "start"
-		)
-	
-	    local lp = Players.LocalPlayer
-	    local char = lp.Character or lp.CharacterAdded:Wait()
-	    local hrp = char:WaitForChild("HumanoidRootPart")
-	
-	    local buttons = workspace.Gimmicks.Island2.Buttons
-	
-	    for _, v in ipairs(buttons:GetDescendants()) do
-	        if v:IsA("ProximityPrompt") and v.Parent then
-	            if v.Parent.Name:find("Clicker") then
-	                hrp.CFrame = v.Parent.CFrame
-	                task.wait(0.1)
-	                fireproximityprompt(v)
-	            end
-	        end
-	    end
-	end
+    -- Start Island 2
+    local Event = workspace.YearFolders.Year_02.DialogNPCSpawn.Interact
+    Event:FireServer("start")
+
+    task.wait(0.5)
+
+    -- Get the button remote
+    local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+    local ev = Remotes:FindFirstChild("Island2ButtonPress")
+
+    if not ev then
+        warn("Island2ButtonPress remote not found")
+        return
+    end
+
+    -- Go through the tagged Island 2 buttons
+    for pass = 1, 3 do
+        for _, pt in ipairs(CollectionService:GetTagged("Island2Button")) do
+            local position
+
+            if pt:IsA("BasePart") then
+                position = pt.Position
+            elseif pt:IsA("Model") then
+                position = pt:GetPivot().Position
+            end
+
+            if position then
+                -- Teleport to the button
+                hrp.CFrame = CFrame.new(position)
+
+                task.wait(0.2)
+
+                -- Press the button
+                ev:FireServer(pt)
+
+                task.wait(0.3)
+            end
+        end
+
+        task.wait(0.3)
+    end
+end
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
