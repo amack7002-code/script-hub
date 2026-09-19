@@ -16188,8 +16188,8 @@ if game.PlaceId == 1818 then
 
     local Tab = Window:CreateTab("Main", 4483362458)
 
-    -- Speed in studs per second (adjustable via slider)
-    local TWEEN_SPEED = 50
+    -- Walk speed value (adjustable via slider)
+    local WALK_SPEED = 16
 
     -- Distance to stay in front of the player
     local FRONT_DISTANCE = 3
@@ -16205,10 +16205,13 @@ if game.PlaceId == 1818 then
         local p = Players.LocalPlayer
         local char = p.Character or p.CharacterAdded:Wait()
         local hrp = char:WaitForChild("HumanoidRootPart")
+        local hum = char:WaitForChild("Humanoid")
+
+        -- Apply slider speed to the humanoid
+        hum.WalkSpeed = WALK_SPEED
 
         running = true
 
-        -- Keep looping through players until stopped
         while running do
             for _, player in pairs(Players:GetPlayers()) do
 
@@ -16224,19 +16227,23 @@ if game.PlaceId == 1818 then
                     continue
                 end
 
-                -- Re-fetch local HRP in case character respawned
+                -- Re-fetch in case of respawn
                 char = p.Character or p.CharacterAdded:Wait()
                 hrp = char:FindFirstChild("HumanoidRootPart") or char:WaitForChild("HumanoidRootPart")
-                if not hrp then continue end
+                hum = char:FindFirstChildOfClass("Humanoid") or char:WaitForChild("Humanoid")
+                if not hrp or not hum then continue end
+
+                -- Keep walkspeed synced to slider
+                hum.WalkSpeed = WALK_SPEED
 
                 -- Calculate a position in front of the target
                 local targetPos = targetHrp.Position
                 local targetLook = targetHrp.CFrame.LookVector
                 local goalPos = targetPos + (targetLook * FRONT_DISTANCE) + Vector3.new(0, 3, 0)
 
-                -- Distance-based tween duration using live speed value
+                -- Duration based on distance / current walkspeed
                 local distance = (goalPos - hrp.Position).Magnitude
-                local duration = math.max(distance / TWEEN_SPEED, 0.05)
+                local duration = math.max(distance / math.max(WALK_SPEED, 1), 0.05)
 
                 local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear)
                 local tween = TweenService:Create(hrp, tweenInfo, { CFrame = CFrame.new(goalPos) })
@@ -16246,16 +16253,23 @@ if game.PlaceId == 1818 then
         end
     end
 
-    -- Speed slider
+    -- Speed slider -> Humanoid.WalkSpeed
     Tab:CreateSlider({
         Name = "Speed",
-        Range = {10, 300},
+        Range = {16, 300},
         Increment = 1,
         Suffix = "studs/s",
-        CurrentValue = TWEEN_SPEED,
-        Flag = "TargetSpeed",
+        CurrentValue = WALK_SPEED,
+        Flag = "WalkSpeed",
         Callback = function(value)
-            TWEEN_SPEED = value
+            WALK_SPEED = value
+
+            -- Apply immediately to current character
+            local char = game.Players.LocalPlayer.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.WalkSpeed = value
+            end
         end,
     })
 
