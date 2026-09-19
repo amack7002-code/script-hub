@@ -16342,6 +16342,13 @@ if game.PlaceId == 74205509034203 then
 
 end
 
+
+if game.PlaceId == 67 then 
+    for i = 1, 67 do
+    print("lol")
+    warn("bruh")
+end
+end
 --example 
 --[[
 https://docs.sirius.menu/rayfield/elements/interactive
