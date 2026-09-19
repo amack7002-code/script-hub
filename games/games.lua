@@ -16352,6 +16352,82 @@ if game.PlaceId == 74205509034203 then
 	    end
 	end
 
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CollectionService = game:GetService("CollectionService")
+
+local function lol3()
+	task.spawn(function()
+            local lp = Players.LocalPlayer
+            local char = lp.Character or lp.CharacterAdded:Wait()
+            local humanoid = char:WaitForChild("Humanoid")
+            local hrp = char:WaitForChild("HumanoidRootPart")
+
+            local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+            local ev = Remotes:FindFirstChild("PaintballMinigame")
+            local Event = workspace.YearFolders.Year_03.DialogNPCSpawn.Interact
+
+            if not ev then
+                Rayfield:Notify({
+                    Title = "Paint Eggs",
+                    Content = "PaintballMinigame remote was not found.",
+                    Duration = 3
+                })
+                return
+            end
+
+            -- Equip Toon Paintball
+            local paint = lp.Backpack:FindFirstChild("Toon Paintball")
+
+            if paint then
+                humanoid:EquipTool(paint)
+                task.wait(0.2)
+            end
+
+            -- Start minigame
+            Event:FireServer("start")
+            task.wait(0.5)
+
+            for pass = 1, 4 do
+                for _, egg in ipairs(CollectionService:GetTagged("PaintableEgg")) do
+                    local id = egg:GetAttribute("Id")
+
+                    if id ~= nil then
+                        local painted = egg:GetAttribute("Painted")
+
+                        if not painted then
+                            local position
+
+                            if egg:IsA("BasePart") then
+                                position = egg.Position
+                            elseif egg:IsA("Model") then
+                                position = egg:GetPivot().Position
+                            end
+
+                            if position then
+                                hrp.CFrame = CFrame.new(position)
+
+                                task.wait(0.2)
+
+                                ev:FireServer(tostring(id))
+
+                                task.wait(0.3)
+                            end
+                        end
+                    end
+                end
+
+                task.wait(0.3)
+            end
+
+            Rayfield:Notify({
+                Title = "Paint Eggs",
+                Content = "Finished checking the eggs.",
+                Duration = 3
+            })
+        end)
+end
+
     Tab:CreateToggle({
         Name = "do 2006",
         CurrentValue = false,
@@ -16372,7 +16448,7 @@ if game.PlaceId == 74205509034203 then
         Name = "do 2008",
         CurrentValue = false,
         Callback = function(v)
-            lol()
+            lol3()
         end
     })
 
