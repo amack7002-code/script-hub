@@ -16771,6 +16771,56 @@ local function lol14()
     Event:FireServer("turnIn")
 end
 
+local function lol15()
+    local Players = game:GetService("Players")
+
+    local player = Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+    local backpack = player:WaitForChild("Backpack")
+
+    -- Teleport to Year 15
+    hrp.CFrame = CFrame.new(-9632.56, 0.04, 216.32)
+    task.wait(0.3)
+
+    local Event = workspace.YearFolders.Year_15.DialogNPCSpawn.Interact
+
+    -- Start
+    Event:FireServer("start")
+    task.wait(0.3)
+
+    -- Equip shovel
+    local shovel = backpack:FindFirstChild("Shovel")
+
+    if shovel then
+        char.Humanoid:EquipTool(shovel)
+        task.wait(0.3)
+    end
+
+    -- Find treasure prompts
+    local treasureSpawns = workspace.Gimmicks.Island15.Island15TreasureSpawns
+
+    for _, v in ipairs(treasureSpawns:GetDescendants()) do
+        if v:IsA("ProximityPrompt") and v.Parent then
+            hrp.CFrame = v.Parent.CFrame
+            task.wait(0.2)
+
+            -- Dig/collect each treasure 6 times
+            for i = 1, 6 do
+                fireproximityprompt(v)
+                task.wait(0.05)
+            end
+        end
+    end
+
+    -- Return to Year 15 NPC
+    hrp.CFrame = CFrame.new(-9632.56, 0.04, 216.32)
+    task.wait(0.3)
+
+    -- Turn in
+    Event:FireServer("turnIn")
+end
+
     Tab:CreateToggle({
     Name = "do 2006",
     CurrentValue = false,
@@ -16907,6 +16957,16 @@ Tab:CreateToggle({
     Callback = function(v)
         if v then
             task.spawn(lol14)
+        end
+    end
+})
+
+Tab:CreateToggle({
+    Name = "do 2020",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then
+            task.spawn(lol15)
         end
     end
 })
