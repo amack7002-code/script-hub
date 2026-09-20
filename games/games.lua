@@ -16641,6 +16641,64 @@ local function lol9()
     Event:FireServer("turnin")
 end
 
+local function lol10()
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+    local player = Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+
+    -- Teleport to Year 10
+    hrp.CFrame = CFrame.new(-6203.74, 14.80, 252.16)
+    task.wait(0.3)
+
+    local Event = workspace.YearFolders.Year_10.DialogNPCSpawn.Interact
+
+    -- Start
+    Event:FireServer("start")
+    task.wait(0.3)
+
+    -- Drop item
+    local dropEvent = ReplicatedStorage.Remotes.Island10Drop
+    dropEvent:FireServer()
+
+    task.wait(0.3)
+
+    -- Turn in
+    Event:FireServer("turnin")
+end
+
+local function lol11()
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+    local player = Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+
+    -- Teleport to Year 11
+    hrp.CFrame = CFrame.new(-7043.42, 3.85, 41.80)
+    task.wait(0.3)
+
+    local Event = workspace.YearFolders.Year_11.DialogNPCSpawn.Interact
+
+    -- Start
+    Event:FireServer("start")
+    task.wait(0.3)
+
+    -- Press buttons
+    local buttonEvent = ReplicatedStorage.Remotes.Island11ButtonPress
+
+    for i = 1, 100 do
+        buttonEvent:FireServer()
+        task.wait(0.05)
+    end
+
+    -- Turn in
+    Event:FireServer("turnIn")
+end
+
     Tab:CreateToggle({
         Name = "do 2006",
         CurrentValue = false,
@@ -16740,6 +16798,28 @@ end
         Callback = function(v)
             if v then
                 task.spawn(lol9)
+            end
+        end
+    })
+
+    Tab:CreateToggle({
+        Name = "do 2015",
+        CurrentValue = false,
+
+        Callback = function(v)
+            if v then
+                task.spawn(lol10)
+            end
+        end
+    })
+
+    Tab:CreateToggle({
+        Name = "do 2016",
+        CurrentValue = false,
+
+        Callback = function(v)
+            if v then
+                task.spawn(lol11)
             end
         end
     })
