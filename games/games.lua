@@ -16699,7 +16699,7 @@ local function lol11()
     Event:FireServer("turnIn")
 end
 
-local function lol12()
+local function lol13()
     local Players = game:GetService("Players")
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -16772,150 +16772,144 @@ local function lol14()
 end
 
     Tab:CreateToggle({
-        Name = "do 2006",
-        CurrentValue = false,
-
-        Callback = function(v)
-            if v then
-                task.spawn(lol)
-            end
+    Name = "do 2006",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then
+            task.spawn(lol)
         end
-    })
+    end
+})
 
-
-    Tab:CreateToggle({
-        Name = "do 2007",
-        CurrentValue = false,
-
-        Callback = function(v)
-            if v then
-                task.spawn(lol2)
-            end
+Tab:CreateToggle({
+    Name = "do 2007",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then
+            task.spawn(lol2)
         end
-    })
+    end
+})
 
-
-    Tab:CreateToggle({
-        Name = "do 2008",
-        CurrentValue = false,
-
-        Callback = function(v)
-            if v then
-                task.spawn(lol3)
-            end
+Tab:CreateToggle({
+    Name = "do 2008",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then
+            task.spawn(lol3)
         end
-    })
+    end
+})
 
-
-    Tab:CreateToggle({
-        Name = "do 2009",
-        CurrentValue = false,
-
-        Callback = function(v)
-            if v then
-                task.spawn(lol4)
-            end
+Tab:CreateToggle({
+    Name = "do 2009",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then
+            task.spawn(lol4)
         end
-    })
+    end
+})
 
-
-    Tab:CreateToggle({
-        Name = "do 2010",
-        CurrentValue = false,
-
-        Callback = function(v)
-            if v then
-                task.spawn(lol5)
-            end
+Tab:CreateToggle({
+    Name = "do 2010",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then
+            task.spawn(lol5)
         end
-    })
+    end
+})
 
-    Tab:CreateToggle({
-        Name = "do 2011",
-        CurrentValue = false,
-
-        Callback = function(v)
-            if v then
-                task.spawn(lol6)
-            end
+Tab:CreateToggle({
+    Name = "do 2011",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then
+            task.spawn(lol6)
         end
-    })
+    end
+})
 
-    Tab:CreateToggle({
-        Name = "do 2012",
-        CurrentValue = false,
-
-        Callback = function(v)
-            if v then
-                task.spawn(lol7)
-            end
+Tab:CreateToggle({
+    Name = "do 2012",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then
+            task.spawn(lol7)
         end
-    })
+    end
+})
 
-    Tab:CreateToggle({
-        Name = "do 2013",
-        CurrentValue = false,
-
-        Callback = function(v)
-            if v then
-                task.spawn(lol8)
-            end
+Tab:CreateToggle({
+    Name = "do 2013",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then
+            task.spawn(lol8)
         end
-    })
+    end
+})
 
-    Tab:CreateToggle({
-        Name = "do 2014",
-        CurrentValue = false,
-
-        Callback = function(v)
-            if v then
-                task.spawn(lol9)
-            end
+Tab:CreateToggle({
+    Name = "do 2014",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then
+            task.spawn(lol9)
         end
-    })
+    end
+})
 
-    Tab:CreateToggle({
-        Name = "do 2015",
-        CurrentValue = false,
-
-        Callback = function(v)
-            if v then
-                task.spawn(lol10)
-            end
+Tab:CreateToggle({
+    Name = "do 2015",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then
+            task.spawn(lol10)
         end
-    })
+    end
+})
 
-    Tab:CreateToggle({
-        Name = "do 2016",
-        CurrentValue = false,
-
-        Callback = function(v)
-            if v then
-                task.spawn(lol11)
-            end
+Tab:CreateToggle({
+    Name = "do 2016",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then
+            task.spawn(lol11)
         end
-    })
-    Tab:CreateToggle({
-        Name = "do 2017",
-        CurrentValue = false,
+    end
+})
 
-        Callback = function(v)
-            if v then
-                task.spawn(lol12)
-            end
+Tab:CreateToggle({
+    Name = "do 2017",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then
+            task.spawn(lol12)
         end
-    })
+    end
+})
 
-    Tab:CreateToggle({
-        Name = "do 2018",
-        CurrentValue = false,
-
-        Callback = function(v)
-            if v then
-                task.spawn(lol13)
-            end
+Tab:CreateToggle({
+    Name = "do 2018",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then
+            task.spawn(lol13)
         end
-    })
+    end
+})
+
+Tab:CreateToggle({
+    Name = "do 2019",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then
+            task.spawn(lol14)
+        end
+    end
+})
 end
 
 
