@@ -16741,6 +16741,36 @@ local function lol12()
     Event:FireServer("turnIn")
 end
 
+local function lol14()
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+    local player = Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+
+    -- Teleport to Year 14
+    hrp.CFrame = CFrame.new(-9088.94, 1.81, 367.74)
+    task.wait(0.3)
+
+    local Event = workspace.YearFolders.Year_14.DialogNPCSpawn.Interact
+
+    -- Start
+    Event:FireServer("start")
+    task.wait(0.3)
+
+    local eggEvent = ReplicatedStorage.Remotes.PetEggMinigame
+
+    -- Collect eggs
+    for i = 1, 5 do
+        eggEvent:FireServer("Collect", tostring(i))
+        task.wait(0.1)
+    end
+
+    -- Turn in
+    Event:FireServer("turnIn")
+end
+
     Tab:CreateToggle({
         Name = "do 2006",
         CurrentValue = false,
@@ -16872,6 +16902,17 @@ end
         Callback = function(v)
             if v then
                 task.spawn(lol12)
+            end
+        end
+    })
+
+    Tab:CreateToggle({
+        Name = "do 2018",
+        CurrentValue = false,
+
+        Callback = function(v)
+            if v then
+                task.spawn(lol13)
             end
         end
     })
