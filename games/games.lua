@@ -16699,6 +16699,48 @@ local function lol11()
     Event:FireServer("turnIn")
 end
 
+local function lol12()
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+    local player = Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+
+    -- Teleport to Year 13
+    hrp.CFrame = CFrame.new(-8491.43, 3.04, -28.13)
+    task.wait(0.3)
+
+    local Event = workspace.YearFolders.Year_13.DialogNPCSpawn.Interact
+
+    -- Start
+    Event:FireServer("start")
+    task.wait(0.3)
+
+    local hitEvent = ReplicatedStorage.Remotes.Island13Hit
+
+    -- Hit 1 fifteen times
+    for i = 1, 15 do
+        hitEvent:FireServer("1")
+        task.wait(0.05)
+    end
+
+    -- Hit 2 thirty times
+    for i = 1, 30 do
+        hitEvent:FireServer("2")
+        task.wait(0.05)
+    end
+
+    -- Hit 3 sixty times
+    for i = 1, 60 do
+        hitEvent:FireServer("3")
+        task.wait(0.05)
+    end
+
+    -- Turn in
+    Event:FireServer("turnIn")
+end
+
     Tab:CreateToggle({
         Name = "do 2006",
         CurrentValue = false,
@@ -16820,6 +16862,16 @@ end
         Callback = function(v)
             if v then
                 task.spawn(lol11)
+            end
+        end
+    })
+    Tab:CreateToggle({
+        Name = "do 2017",
+        CurrentValue = false,
+
+        Callback = function(v)
+            if v then
+                task.spawn(lol12)
             end
         end
     })
