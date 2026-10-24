@@ -17603,6 +17603,9 @@ Tab:CreateButton({
         if removeChase then
             task.spawn(function()
                 while removeChase do
+					Lighting.ColorShift_Bottom = Color3.new(255, 255, 255)
+					Lighting.ColorShift_Top = Color3.new(255, 255, 255)
+					Lighting.Ambient = Color3.new(255, 255, 255)
                     local chase = Lighting:FindFirstChild("HollowEnemyChaseCorrection")
 
                     if chase then
