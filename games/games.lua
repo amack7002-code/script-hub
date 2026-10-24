@@ -17347,7 +17347,7 @@ Tab:CreateButton({
 -- Three Pillars Remote
 ------------------------------
 local remoteSuccess, RemoteUtils = pcall(function()
-    return _G.require("RemoteUtils")
+    return game:GetService("ReplicatedStorage").SharedModules.RemoteUtils.require("RemoteUtils")
 end)
 
 local ThreePillars
