@@ -16974,78 +16974,137 @@ end
 
 --the hollow
 if game.PlaceId == 116463962153167 then
-	local Tab = Window:CreateTab("Main", 4483362458)
-	local player = game:GetService("Players").LocalPlayer
-	local mobs = workspace.Mobs
+    local Tab = Window:CreateTab("Main", 4483362458)
+    local player = game:GetService("Players").LocalPlayer
+    local mobs = workspace:WaitForChild("Mobs")
 
-	Tab:CreateButton({
-		Name = "unlock camera",
-		Callback = function()
-			player.CameraMaxZoomDistance = 1000
-			player.CameraMinZoomDistance = 0.5
-			player.CameraMode = Enum.CameraMode.Classic
-		end,
-	})
+    Tab:CreateButton({
+        Name = "unlock camera",
+        Callback = function()
+            player.CameraMaxZoomDistance = 1000
+            player.CameraMinZoomDistance = 0.5
+            player.CameraMode = Enum.CameraMode.Classic
+        end,
+    })
 
-	Tab:CreateButton({
-		Name = "vesper esp",
-		Callback = function()
-			local vesper = mobs.Vesper
-			local esp = instance>.new("Highlight")
-			esp.Name = "VesperESP"
-			esp.parent = vesper
-			esp.FillColor = Color3.fromRGB(255, 0, 0)
-			esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+    Tab:CreateButton({
+        Name = "vesper esp",
+        Callback = function()
+            local vesper = mobs:FindFirstChild("Vesper")
 
-			local gui = instance>.new("BillboardGui")
-			gui.Name = "VesperName"
-			gui.parent = vesper
-			local statelabel = instance.new("TextLabel")
-			statelabel.Name = "VesperLabel"
-			statelabel.parent = gui
-			statelabel.Text = "Vesper state: " .. vesper:GetAttribute("State")
-			statelabel.Text = "vesper move state".. vesper:GetAttribute("MovementState")
-			statelabel.Size = UDim2.new(1, 0, 1, 0)
-		end,
-	})
+            if not vesper then
+                warn("Vesper was not found in workspace.Mobs")
+                return
+            end
 
-	local function getTile()
-		for _, obj in ipairs(workspace:GetDescendants()) do
-			if obj:IsA("ClickDetector") and obj.Parent:IsA("Model") then
-				return obj
-			end
-		end
-	end
+            -- Remove existing ESP to avoid duplicates
+            local oldHighlight = vesper:FindFirstChild("VesperESP")
+            if oldHighlight then
+                oldHighlight:Destroy()
+            end
 
-	Tab:CreateButton({
-		Name = "maze tile collect idk",
-		Callback = function()
-			local tile = getTile()
-			if not tile then
-				warn("No tile ClickDetector found")
-				return
-			end
+            local oldGui = vesper:FindFirstChild("VesperName")
+            if oldGui then
+                oldGui:Destroy()
+            end
 
-			local character = player.Character
-			local hrp = character and character:FindFirstChild("HumanoidRootPart")
+            local esp = Instance.new("Highlight")
+            esp.Name = "VesperESP"
+            esp.Adornee = vesper
+            esp.Parent = vesper
+            esp.FillColor = Color3.fromRGB(255, 0, 0)
+            esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+            esp.Enabled = true
 
-			if not hrp then
-				warn("Character or HumanoidRootPart not found")
-				return
-			end
+            local gui = Instance.new("BillboardGui")
+            gui.Name = "VesperName"
+            gui.Adornee = vesper:FindFirstChild("Head")
+                or vesper:FindFirstChildWhichIsA("BasePart")
+            gui.Size = UDim2.new(0, 220, 0, 60)
+            gui.StudsOffset = Vector3.new(0, 3, 0)
+            gui.AlwaysOnTop = true
+            gui.Parent = player:WaitForChild("PlayerGui")
 
-			hrp.CFrame = tile.Parent:GetPivot()
+            local stateLabel = Instance.new("TextLabel")
+            stateLabel.Name = "VesperLabel"
+            stateLabel.Size = UDim2.new(1, 0, 1, 0)
+            stateLabel.BackgroundTransparency = 1
+            stateLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            stateLabel.TextStrokeTransparency = 0
+            stateLabel.TextScaled = true
+            stateLabel.Font = Enum.Font.GothamBold
+            stateLabel.Parent = gui
 
-			if typeof(fireclickdetector) == "function" then
-				fireclickdetector(tile)
-			else
-				warn("fireclickdetector is unavailable in this environment")
-			end
-		end,
-	})
+            local function updateLabel()
+                if not vesper.Parent then
+                    return
+                end
 
+                local state = tostring(vesper:GetAttribute("State") or "Unknown")
+                local movement = tostring(
+                    vesper:GetAttribute("MovementState") or "Unknown"
+                )
 
+                stateLabel.Text = "Vesper state: " .. state
+                    .. "\nMovement: " .. movement
+            end
+
+            updateLabel()
+
+            local stateConnection =
+                vesper:GetAttributeChangedSignal("State"):Connect(updateLabel)
+
+            local movementConnection =
+                vesper:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
+
+            vesper.Destroying:Connect(function()
+                stateConnection:Disconnect()
+                movementConnection:Disconnect()
+                gui:Destroy()
+            end)
+        end,
+    })
+
+    local function getTile()
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            if obj:IsA("ClickDetector")
+                and obj.Parent
+                and obj.Parent:IsA("Model") then
+                return obj
+            end
+        end
+    end
+
+    Tab:CreateButton({
+        Name = "maze tile collect idk",
+        Callback = function()
+            local tile = getTile()
+
+            if not tile then
+                warn("No tile ClickDetector found")
+                return
+            end
+
+            local character = player.Character
+            local hrp = character
+                and character:FindFirstChild("HumanoidRootPart")
+
+            if not hrp then
+                warn("Character or HumanoidRootPart not found")
+                return
+            end
+
+            hrp.CFrame = tile.Parent:GetPivot()
+
+            if typeof(fireclickdetector) == "function" then
+                fireclickdetector(tile)
+            else
+                warn("fireclickdetector is unavailable in this environment")
+            end
+        end,
+    })
 end
+
 
 if game.PlaceId == 67 then 
     for i = 1, 67 do
