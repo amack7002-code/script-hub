@@ -17078,7 +17078,6 @@ local function getBase()
         end
     end
 
-    return nil
 end
 
 Tab:CreateButton({
