@@ -16974,136 +16974,147 @@ end
 
 --the hollow
 if game.PlaceId == 116463962153167 then
-    local Tab = Window:CreateTab("Main", 4483362458)
-    local player = game:GetService("Players").LocalPlayer
-    local mobs = workspace:WaitForChild("Mobs")
+	local Tab = Window:CreateTab("Main", 4483362458)
+	local player = game:GetService("Players").LocalPlayer
+	local mobs = workspace:WaitForChild("Mobs")
 
-    Tab:CreateButton({
-        Name = "unlock camera",
-        Callback = function()
-            player.CameraMaxZoomDistance = 1000
-            player.CameraMinZoomDistance = 0.5
-            player.CameraMode = Enum.CameraMode.Classic
-        end,
-    })
+	-- Unlock Camera
+	Tab:CreateButton({
+		Name = "Unlock Camera",
+		Callback = function()
+			player.CameraMaxZoomDistance = 1000
+			player.CameraMinZoomDistance = 0.5
+			player.CameraMode = Enum.CameraMode.Classic
+		end,
+	})
 
-    Tab:CreateButton({
-        Name = "vesper esp",
-        Callback = function()
-            local vesper = mobs:FindFirstChild("Vesper")
+	-- Vesper ESP
+	local vesperConnections = {}
 
-            if not vesper then
-                warn("Vesper was not found in workspace.Mobs")
-                return
-            end
+	Tab:CreateButton({
+		Name = "Vesper ESP",
+		Callback = function()
+			local vesper = mobs:FindFirstChild("Vesper")
 
-            -- Remove existing ESP to avoid duplicates
-            local oldHighlight = vesper:FindFirstChild("VesperESP")
-            if oldHighlight then
-                oldHighlight:Destroy()
-            end
+			if not vesper then
+				warn("Vesper was not found in workspace.Mobs")
+				return
+			end
 
-            local oldGui = vesper:FindFirstChild("VesperName")
-            if oldGui then
-                oldGui:Destroy()
-            end
+			-- Clean up previous ESP + connections
+			for _, conn in ipairs(vesperConnections) do
+				conn:Disconnect()
+			end
+			table.clear(vesperConnections)
 
-            local esp = Instance.new("Highlight")
-            esp.Name = "VesperESP"
-            esp.Adornee = vesper
-            esp.Parent = vesper
-            esp.FillColor = Color3.fromRGB(255, 0, 0)
-            esp.OutlineColor = Color3.fromRGB(255, 255, 255)
-            esp.Enabled = true
+			local oldHighlight = vesper:FindFirstChild("VesperESP")
+			if oldHighlight then
+				oldHighlight:Destroy()
+			end
 
-            local gui = Instance.new("BillboardGui")
-            gui.Name = "VesperName"
-            gui.Adornee = vesper:FindFirstChild("Head")
-                or vesper:FindFirstChildWhichIsA("BasePart")
-            gui.Size = UDim2.new(0, 220, 0, 60)
-            gui.StudsOffset = Vector3.new(0, 3, 0)
-            gui.AlwaysOnTop = true
-            gui.Parent = player:WaitForChild("PlayerGui")
+			local oldGui = player.PlayerGui:FindFirstChild("VesperName")
+			if oldGui then
+				oldGui:Destroy()
+			end
 
-            local stateLabel = Instance.new("TextLabel")
-            stateLabel.Name = "VesperLabel"
-            stateLabel.Size = UDim2.new(1, 0, 1, 0)
-            stateLabel.BackgroundTransparency = 1
-            stateLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-            stateLabel.TextStrokeTransparency = 0
-            stateLabel.TextScaled = true
-            stateLabel.Font = Enum.Font.GothamBold
-            stateLabel.Parent = gui
+			-- Highlight
+			local esp = Instance.new("Highlight")
+			esp.Name = "VesperESP"
+			esp.Adornee = vesper
+			esp.FillColor = Color3.fromRGB(255, 0, 0)
+			esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+			esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			esp.Parent = vesper
 
-            local function updateLabel()
-                if not vesper.Parent then
-                    return
-                end
+			-- BillboardGui
+			local adornee = vesper:FindFirstChild("Head") or vesper:FindFirstChildWhichIsA("BasePart")
+			if not adornee then
+				warn("No valid part found to attach BillboardGui")
+				return
+			end
 
-                local state = tostring(vesper:GetAttribute("State") or "Unknown")
-                local movement = tostring(
-                    vesper:GetAttribute("MovementState") or "Unknown"
-                )
+			local gui = Instance.new("BillboardGui")
+			gui.Name = "VesperName"
+			gui.Adornee = adornee
+			gui.Size = UDim2.new(0, 220, 0, 60)
+			gui.StudsOffset = Vector3.new(0, 3, 0)
+			gui.AlwaysOnTop = true
+			gui.Parent = player:WaitForChild("PlayerGui")
 
-                stateLabel.Text = "Vesper state: " .. state
-                    .. "\nMovement: " .. movement
-            end
+			local stateLabel = Instance.new("TextLabel")
+			stateLabel.Name = "VesperLabel"
+			stateLabel.Size = UDim2.new(1, 0, 1, 0)
+			stateLabel.BackgroundTransparency = 1
+			stateLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			stateLabel.TextStrokeTransparency = 0
+			stateLabel.TextScaled = true
+			stateLabel.Font = Enum.Font.GothamBold
+			stateLabel.Parent = gui
 
-            updateLabel()
+			local function updateLabel()
+				if not vesper or not vesper.Parent then
+					return
+				end
 
-            local stateConnection =
-                vesper:GetAttributeChangedSignal("State"):Connect(updateLabel)
+				local state = tostring(vesper:GetAttribute("State") or "Unknown")
+				local movement = tostring(vesper:GetAttribute("MovementState") or "Unknown")
 
-            local movementConnection =
-                vesper:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
+				stateLabel.Text = "Vesper state: " .. state .. "\nMovement: " .. movement
+			end
 
-            vesper.Destroying:Connect(function()
-                stateConnection:Disconnect()
-                movementConnection:Disconnect()
-                gui:Destroy()
-            end)
-        end,
-    })
+			updateLabel()
 
+			table.insert(vesperConnections, vesper:GetAttributeChangedSignal("State"):Connect(updateLabel))
+			table.insert(vesperConnections, vesper:GetAttributeChangedSignal("MovementState"):Connect(updateLabel))
 
+			table.insert(vesperConnections, vesper.Destroying:Connect(function()
+				for _, conn in ipairs(vesperConnections) do
+					conn:Disconnect()
+				end
+				table.clear(vesperConnections)
 
-local function getBase()
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj.Name == "Base" and obj:IsA("BasePart") then
-            local pointLight = obj:FindFirstChild("PointLight", true)
+				if gui then
+					gui:Destroy()
+				end
+			end))
+		end,
+	})
 
-            if pointLight and pointLight:IsA("PointLight") then
-                return obj
-            end
-        end
-    end
+	-- Find Base with PointLight
+	local function getBase()
+		for _, obj in ipairs(workspace:GetDescendants()) do
+			if obj.Name == "Base" and obj:IsA("BasePart") then
+				local pointLight = obj:FindFirstChild("PointLight", true)
+				if pointLight and pointLight:IsA("PointLight") then
+					return obj
+				end
+			end
+		end
+		return nil
+	end
 
-end
+	-- Teleport Button
+	Tab:CreateButton({
+		Name = "Teleport to PointLight",
+		Callback = function()
+			local base = getBase()
 
-Tab:CreateButton({
-    Name = "Teleport to PointLight",
-    Callback = function()
-        local base = getBase()
+			if not base then
+				warn("No Base containing a PointLight found")
+				return
+			end
 
-        if not base then
-            warn("No Base containing a PointLight found")
-            return
-        end
+			local character = player.Character
+			local hrp = character and character:FindFirstChild("HumanoidRootPart")
 
-        local character = player.Character
-        local hrp = character and character:FindFirstChild("HumanoidRootPart")
+			if not hrp then
+				warn("Character / HumanoidRootPart not found")
+				return
+			end
 
-        if not hrp then
-            warn("Character not found")
-            return
-        end
-
-        hrp.CFrame = base.CFrame * CFrame.new(0, 3, 0)
-    end,
-})
-
-
-
+			hrp.CFrame = base.CFrame * CFrame.new(0, 3, 0)
+		end,
+	})
 end
 
 
