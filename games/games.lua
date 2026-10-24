@@ -16978,6 +16978,8 @@ if game.PlaceId == 116463962153167 then
 	local player = game:GetService("Players").LocalPlayer
 	local mobs = workspace:WaitForChild("Mobs")
 
+	local Section = Tab:CreateSection("Floor 1")
+
 	-- Unlock Camera
 	Tab:CreateButton({
 		Name = "Unlock Camera",
@@ -17215,6 +17217,160 @@ if game.PlaceId == 116463962153167 then
 			print("Visited bases list has been reset")
 		end,
 	})
+
+		------------------------------
+	-- FLOOR 2
+	------------------------------
+	Tab:CreateSection("Floor 2")
+
+	-- Onyx ESP
+	local OnyxConnections = {}
+
+	Tab:CreateButton({
+		Name = "Onyx ESP",
+		Callback = function()
+			local onyx = mobs:FindFirstChild("Onyx")
+
+			if not onyx then
+				warn("Onyx was not found in workspace.Mobs")
+				return
+			end
+
+			-- Remove previous connections
+			for _, conn in ipairs(OnyxConnections) do
+				conn:Disconnect()
+			end
+			table.clear(OnyxConnections)
+
+			local oldHighlight = onyx:FindFirstChild("OnyxESP")
+			if oldHighlight then
+				oldHighlight:Destroy()
+			end
+
+			local oldGui = player.PlayerGui:FindFirstChild("OnyxName")
+			if oldGui then
+				oldGui:Destroy()
+			end
+
+			local esp = Instance.new("Highlight")
+			esp.Name = "OnyxESP"
+			esp.Adornee = onyx
+			esp.FillColor = Color3.fromRGB(255, 0, 0)
+			esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+			esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			esp.Parent = onyx
+
+			local adornee = onyx:FindFirstChild("Head")
+				or onyx:FindFirstChildWhichIsA("BasePart")
+
+			if not adornee then
+				warn("No valid part found to attach BillboardGui")
+				return
+			end
+
+			local gui = Instance.new("BillboardGui")
+			gui.Name = "OnyxName"
+			gui.Adornee = adornee
+			gui.Size = UDim2.new(0, 220, 0, 60)
+			gui.StudsOffset = Vector3.new(0, 3, 0)
+			gui.AlwaysOnTop = true
+			gui.Parent = player:WaitForChild("PlayerGui")
+
+			local stateLabel = Instance.new("TextLabel")
+			stateLabel.Name = "OnyxLabel"
+			stateLabel.Size = UDim2.new(1, 0, 1, 0)
+			stateLabel.BackgroundTransparency = 1
+			stateLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			stateLabel.TextStrokeTransparency = 0
+			stateLabel.TextScaled = true
+			stateLabel.Font = Enum.Font.GothamBold
+			stateLabel.Parent = gui
+
+			local function updateLabel()
+				if not onyx.Parent then
+					return
+				end
+
+				local state = tostring(onyx:GetAttribute("State") or "Unknown")
+				local movement = tostring(onyx:GetAttribute("MovementState") or "Unknown")
+
+				stateLabel.Text = "Onyx state: " .. state
+					.. "\nMovement: " .. movement
+			end
+
+			updateLabel()
+
+			table.insert(OnyxConnections,
+				onyx:GetAttributeChangedSignal("State"):Connect(updateLabel)
+			)
+
+			table.insert(OnyxConnections,
+				onyx:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
+			)
+
+			table.insert(OnyxConnections, onyx.Destroying:Connect(function()
+				for _, conn in ipairs(OnyxConnections) do
+					conn:Disconnect()
+				end
+				table.clear(OnyxConnections)
+
+				gui:Destroy()
+			end))
+		end,
+	})
+
+	-- Event pickup lookup (optional)
+	local function getEvent()
+		for _, obj in ipairs(workspace:GetDescendants()) do
+			if obj:IsA("Model") and obj.Name == "Pickup" then
+				return obj
+			end
+		end
+
+		return nil
+	end
+
+	local eventPickup = getEvent()
+
+	-- Three Pillars teleport
+	Tab:CreateButton({
+		Name = "Teleport to Three Pillars",
+		Callback = function()
+			local success, pillars = pcall(function()
+				return workspace.Model["GR_DW_-1_-3"].ThreePillars.ThreePillars
+			end)
+
+			if not success or not pillars then
+				warn("Three Pillars could not be found")
+				return
+			end
+
+			local character = player.Character
+			local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+			if not hrp then
+				warn("Character / HumanoidRootPart not found")
+				return
+			end
+
+			local target
+
+			if pillars:IsA("BasePart") then
+				target = pillars
+			elseif pillars:IsA("Model") then
+				target = pillars.PrimaryPart
+					or pillars:FindFirstChildWhichIsA("BasePart", true)
+			end
+
+			if not target then
+				warn("No teleportable part found in Three Pillars")
+				return
+			end
+
+			hrp.CFrame = target.CFrame * CFrame.new(0, 3, 0)
+		end,
+	})
+
 end
 
 
