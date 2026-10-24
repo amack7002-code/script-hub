@@ -17218,13 +17218,16 @@ if game.PlaceId == 116463962153167 then
 		end,
 	})
 
-	local Section = Tab:CreateSection("floor 2")
+		------------------------------
+	-- FLOOR 2
+	------------------------------
+	Tab:CreateSection("Floor 2")
 
-	-- Vesper ESP
+	-- Onyx ESP
 	local OnyxConnections = {}
 
 	Tab:CreateButton({
-		Name = "onyx ESP",
+		Name = "Onyx ESP",
 		Callback = function()
 			local onyx = mobs:FindFirstChild("Onyx")
 
@@ -17233,6 +17236,7 @@ if game.PlaceId == 116463962153167 then
 				return
 			end
 
+			-- Remove previous connections
 			for _, conn in ipairs(OnyxConnections) do
 				conn:Disconnect()
 			end
@@ -17256,7 +17260,9 @@ if game.PlaceId == 116463962153167 then
 			esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 			esp.Parent = onyx
 
-			local adornee = onyx:FindFirstChild("Head") or onyx:FindFirstChildWhichIsA("BasePart")
+			local adornee = onyx:FindFirstChild("Head")
+				or onyx:FindFirstChildWhichIsA("BasePart")
+
 			if not adornee then
 				warn("No valid part found to attach BillboardGui")
 				return
@@ -17281,20 +17287,26 @@ if game.PlaceId == 116463962153167 then
 			stateLabel.Parent = gui
 
 			local function updateLabel()
-				if not onyx or not onyx.Parent then
+				if not onyx.Parent then
 					return
 				end
 
 				local state = tostring(onyx:GetAttribute("State") or "Unknown")
 				local movement = tostring(onyx:GetAttribute("MovementState") or "Unknown")
 
-				stateLabel.Text = "Onyx state: " .. state .. "\nMovement: " .. movement
+				stateLabel.Text = "Onyx state: " .. state
+					.. "\nMovement: " .. movement
 			end
 
 			updateLabel()
 
-			table.insert(OnyxConnections, onyx:GetAttributeChangedSignal("State"):Connect(updateLabel))
-			table.insert(OnyxConnections, onyx:GetAttributeChangedSignal("MovementState"):Connect(updateLabel))
+			table.insert(OnyxConnections,
+				onyx:GetAttributeChangedSignal("State"):Connect(updateLabel)
+			)
+
+			table.insert(OnyxConnections,
+				onyx:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
+			)
 
 			table.insert(OnyxConnections, onyx.Destroying:Connect(function()
 				for _, conn in ipairs(OnyxConnections) do
@@ -17302,63 +17314,62 @@ if game.PlaceId == 116463962153167 then
 				end
 				table.clear(OnyxConnections)
 
-				if gui then
-					gui:Destroy()
-				end
+				gui:Destroy()
 			end))
 		end,
 	})
 
+	-- Event pickup lookup (optional)
 	local function getEvent()
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("Model") and obj.Name == "Pickup" then
-            return obj
-        end
-    end
+		for _, obj in ipairs(workspace:GetDescendants()) do
+			if obj:IsA("Model") and obj.Name == "Pickup" then
+				return obj
+			end
+		end
 
-    return nil
-end
+		return nil
+	end
 
-local eventPickup = getEvent()
+	local eventPickup = getEvent()
 
-Tab:CreateButton({
-    Name = "Teleport to Three Pillars",
-    Callback = function()
-        local success, pillars = pcall(function()
-            return workspace.Model["GR_DW_-1_-3"].ThreePillars.ThreePillars
-        end)
+	-- Three Pillars teleport
+	Tab:CreateButton({
+		Name = "Teleport to Three Pillars",
+		Callback = function()
+			local success, pillars = pcall(function()
+				return workspace.Model["GR_DW_-1_-3"].ThreePillars.ThreePillars
+			end)
 
-        if not success or not pillars then
-            warn("Three Pillars could not be found")
-            return
-        end
+			if not success or not pillars then
+				warn("Three Pillars could not be found")
+				return
+			end
 
-        local character = player.Character
-        local hrp = character and character:FindFirstChild("HumanoidRootPart")
+			local character = player.Character
+			local hrp = character and character:FindFirstChild("HumanoidRootPart")
 
-        if not hrp then
-            warn("Character / HumanoidRootPart not found")
-            return
-        end
+			if not hrp then
+				warn("Character / HumanoidRootPart not found")
+				return
+			end
 
-        local target
+			local target
 
-        if pillars:IsA("BasePart") then
-            target = pillars
-        elseif pillars:IsA("Model") then
-            target = pillars.PrimaryPart
-                or pillars:FindFirstChildWhichIsA("BasePart", true)
-        end
+			if pillars:IsA("BasePart") then
+				target = pillars
+			elseif pillars:IsA("Model") then
+				target = pillars.PrimaryPart
+					or pillars:FindFirstChildWhichIsA("BasePart", true)
+			end
 
-        if not target then
-            warn("No teleportable part found in Three Pillars")
-            return
-        end
+			if not target then
+				warn("No teleportable part found in Three Pillars")
+				return
+			end
 
-        hrp.CFrame = target.CFrame * CFrame.new(0, 3, 0)
-        print("Teleported to Three Pillars")
-    end,
-})
+			hrp.CFrame = target.CFrame * CFrame.new(0, 3, 0)
+		end,
+	})
 
 end
 
