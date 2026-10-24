@@ -17082,13 +17082,14 @@ local function getBase()
 
     return nil
 end
+
 Tab:CreateButton({
     Name = "Teleport to PointLight",
     Callback = function()
-        local light = getPointLight()
+        local base = getBase()
 
-        if not light then
-            warn("No PointLight attached to a Base part was found")
+        if not base then
+            warn("No Base containing a PointLight was found")
             return
         end
 
@@ -17100,7 +17101,7 @@ Tab:CreateButton({
             return
         end
 
-        hrp.CFrame = light.Parent.CFrame * CFrame.new(0, 3, 0)
+        hrp.CFrame = base.CFrame * CFrame.new(0, 3, 0)
     end,
 })
 
