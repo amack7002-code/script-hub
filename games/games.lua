@@ -17350,10 +17350,16 @@ if game.PlaceId == 116463962153167 then
 local RemoteUtils = _G.require("RemoteUtils")
 local ThreePillars = RemoteUtils.GetRemoteEvent("ThreePillars")
 
-	Tab:CreateButton({
-    Name = "lwk do the pillar",
+Tab:CreateButton({
+    Name = "Lwk Do the Pillar",
     Callback = function()
-		ThreePillars:FireServer("Ready")
+        if not ThreePillars then
+            warn("ThreePillars remote not found")
+            return
+        end
+
+        ThreePillars:FireServer("Ready")
+        print("Sent ThreePillars Ready")
     end,
 })
 
