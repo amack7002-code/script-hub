@@ -17067,15 +17067,16 @@ if game.PlaceId == 116463962153167 then
 
 
 
-local function getPointLight()
+local function getBase()
     for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("PointLight")
-            and obj.Parent
-            and obj.Parent:IsA("BasePart")
-            and obj.Parent.Name == "Base" then
-            return obj
+        if obj.Name == "Base" and obj:IsA("BasePart") then
+            if obj:FindFirstChildOfClass("PointLight") then
+                return obj
+            end
         end
     end
+
+    return nil
 end
 
 Tab:CreateButton({
