@@ -17472,6 +17472,137 @@ Tab:CreateButton({
         print("Teleported to spawn")
     end,
 })
+
+local Floor2Section = Tab:CreateSection("Floor 3")
+
+------------------------------
+-- Onyx ESP
+------------------------------
+local emberConnections = {}
+
+Tab:CreateButton({
+    Name = "ember ESP",
+    Callback = function()
+        local ember = mobs:FindFirstChild("ember")
+
+        if not ember then
+            warn("ember was not found in workspace.Mobs")
+            return
+        end
+
+        for _, conn in ipairs(emberConnections) do
+            conn:Disconnect()
+        end
+        table.clear(emberConnections)
+
+        local oldHighlight = ember:FindFirstChild("emberESP")
+        if oldHighlight then
+            oldHighlight:Destroy()
+        end
+
+        local playerGui = player:WaitForChild("PlayerGui")
+        local oldGui = playerGui:FindFirstChild("emberName")
+
+        if oldGui then
+            oldGui:Destroy()
+        end
+
+        local adornee = ember:FindFirstChild("Head")
+            or ember:FindFirstChildWhichIsA("BasePart", true)
+
+        if not adornee then
+            warn("No valid ember part found")
+            return
+        end
+
+        local esp = Instance.new("Highlight")
+        esp.Name = "emberESP"
+        esp.Adornee = ember
+        esp.FillColor = Color3.fromRGB(255, 0, 0)
+        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+        esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        esp.Parent = ember
+
+        local gui = Instance.new("BillboardGui")
+        gui.Name = "emberName"
+        gui.Adornee = adornee
+        gui.Size = UDim2.fromOffset(220, 60)
+        gui.StudsOffset = Vector3.new(0, 3, 0)
+        gui.AlwaysOnTop = true
+        gui.Parent = playerGui
+
+        local label = Instance.new("TextLabel")
+        label.Name = "emberLabel"
+        label.Size = UDim2.fromScale(1, 1)
+        label.BackgroundTransparency = 1
+        label.TextColor3 = Color3.new(1, 1, 1)
+        label.TextStrokeTransparency = 0
+        label.TextScaled = true
+        label.Font = Enum.Font.GothamBold
+        label.Parent = gui
+
+        local function updateLabel()
+            if not ember.Parent then
+                return
+            end
+
+            label.Text = "ember state: "
+                .. tostring(ember:GetAttribute("State") or "Unknown")
+                .. "\nMovement: "
+                .. tostring(ember:GetAttribute("MovementState") or "Unknown")
+        end
+
+        updateLabel()
+
+        table.insert(emberConnections,
+            ember:GetAttributeChangedSignal("State"):Connect(updateLabel)
+        )
+
+        table.insert(emberConnections,
+            ember:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
+        )
+
+        table.insert(emberConnections, ember.Destroying:Connect(function()
+            for _, conn in ipairs(emberConnections) do
+                conn:Disconnect()
+            end
+
+            table.clear(emberConnections)
+            gui:Destroy()
+        end))
+    end,
+})
+end
+
+
+if game.PlaceId == 107833198839573 then
+	local Tab = Window:CreateTab("Main", 4483362458)
+	local pickup = workspace.Pickups
+	local function getallPickups()
+		for _, v in ipairs(pickup:GetChildren()) do
+			if v:IsA("Model") and v.Name == "Chest" then
+				return v
+			end
+		end
+	end
+
+	local hrp = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+	local function teleportToPickup()
+		local chest = getallPickups()
+		if chest then
+			hrp.CFrame = chest:GetPivot() + Vector3.new(0, 5, 0)
+		else
+			warn("No Chest found in workspace.Pickups")
+		end
+	end
+
+	Tab:CreateButton({
+		Name = "Teleport to Chest",
+		Callback = function()
+			teleportToPickup()
+		end,
+	})
+
 end
 
 
