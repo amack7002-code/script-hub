@@ -17077,7 +17077,51 @@ if game.PlaceId == 116463962153167 then
 		end,
 	})
 
-	-- Store already visited bases
+	------------------------------
+	-- Save Spot System
+	------------------------------
+	local savedCFrame = nil
+
+	Tab:CreateButton({
+		Name = "Save Spot",
+		Callback = function()
+			local character = player.Character
+			local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+			if not hrp then
+				warn("Character / HumanoidRootPart not found")
+				return
+			end
+
+			savedCFrame = hrp.CFrame
+			print("Spot saved!")
+		end,
+	})
+
+	Tab:CreateButton({
+		Name = "Teleport to Saved Spot",
+		Callback = function()
+			if not savedCFrame then
+				warn("No spot has been saved yet")
+				return
+			end
+
+			local character = player.Character
+			local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+			if not hrp then
+				warn("Character / HumanoidRootPart not found")
+				return
+			end
+
+			hrp.CFrame = savedCFrame
+			print("Teleported to saved spot")
+		end,
+	})
+
+	------------------------------
+	-- PointLight Bases System
+	------------------------------
 	local visitedBases = {}
 
 	local function getAllBases()
@@ -17095,9 +17139,8 @@ if game.PlaceId == 116463962153167 then
 		return bases
 	end
 
-	-- Teleport to next unvisited PointLight Base
 	Tab:CreateButton({
-		Name = "Teleport to maze thing",
+		Name = "Teleport to Next PointLight",
 		Callback = function()
 			local bases = getAllBases()
 
@@ -17114,7 +17157,7 @@ if game.PlaceId == 116463962153167 then
 				return
 			end
 
-			-- Find the next base that hasn't been visited yet
+			-- Find next unvisited base
 			local nextBase = nil
 			for _, base in ipairs(bases) do
 				if not visitedBases[base] then
@@ -17123,14 +17166,13 @@ if game.PlaceId == 116463962153167 then
 				end
 			end
 
-			-- If all bases have been visited, reset the list
+			-- Reset if all bases have been visited
 			if not nextBase then
 				table.clear(visitedBases)
 				print("All bases visited — list reset. Starting over...")
 				nextBase = bases[1]
 			end
 
-			-- Mark as visited and teleport
 			visitedBases[nextBase] = true
 			hrp.CFrame = nextBase.CFrame * CFrame.new(0, 3, 0)
 
@@ -17143,7 +17185,6 @@ if game.PlaceId == 116463962153167 then
 		end,
 	})
 
-	-- Optional: Reset visited list
 	Tab:CreateButton({
 		Name = "Reset Visited Bases",
 		Callback = function()
