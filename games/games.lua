@@ -17068,7 +17068,7 @@ if game.PlaceId == 116463962153167 then
 
 local function getPointLight()
     for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("PointLight") and obj.Parent:IsA("BasePart") then
+        if obj:IsA("PointLight") and obj.Parent:IsA("BasePart") and obj.Parent.Name == "Base" then
             return obj
         end
     end
