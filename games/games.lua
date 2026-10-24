@@ -16972,6 +16972,80 @@ Tab:CreateToggle({
 })
 end
 
+--the hollow
+if game.PlaceId == 116463962153167 then
+	local Tab = Window:CreateTab("Main", 4483362458)
+	local player = game:GetService("Players").LocalPlayer
+	local mobs = workspace.Mobs
+
+	Tab:CreateButton({
+		Name = "unlock camera",
+		Callback = function()
+			player.CameraMaxZoomDistance = 1000
+			player.CameraMinZoomDistance = 0.5
+			player.CameraMode = Enum.CameraMode.Classic
+		end,
+	})
+
+	Tab:CreateButton({
+		Name = "vesper esp",
+		Callback = function()
+			local vesper = mobs.Vesper
+			local esp = instance>.new("Highlight")
+			esp.Name = "VesperESP"
+			esp.parent = vesper
+			esp.FillColor = Color3.fromRGB(255, 0, 0)
+			esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+
+			local gui = instance>.new("BillboardGui")
+			gui.Name = "VesperName"
+			gui.parent = vesper
+			local statelabel = instance.new("TextLabel")
+			statelabel.Name = "VesperLabel"
+			statelabel.parent = gui
+			statelabel.Text = "Vesper state: " .. vesper:GetAttribute("State")
+			statelabel.Text = "vesper move state".. vesper:GetAttribute("MovementState")
+			statelabel.Size = UDim2.new(1, 0, 1, 0)
+		end,
+	})
+
+	local function getTile()
+		for _, obj in ipairs(workspace:GetDescendants()) do
+			if obj:IsA("ClickDetector") and obj.Parent:IsA("Model") then
+				return obj
+			end
+		end
+	end
+
+	Tab:CreateButton({
+		Name = "maze tile collect idk",
+		Callback = function()
+			local tile = getTile()
+			if not tile then
+				warn("No tile ClickDetector found")
+				return
+			end
+
+			local character = player.Character
+			local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+			if not hrp then
+				warn("Character or HumanoidRootPart not found")
+				return
+			end
+
+			hrp.CFrame = tile.Parent:GetPivot()
+
+			if typeof(fireclickdetector) == "function" then
+				fireclickdetector(tile)
+			else
+				warn("fireclickdetector is unavailable in this environment")
+			end
+		end,
+	})
+
+
+end
 
 if game.PlaceId == 67 then 
     for i = 1, 67 do
