@@ -17001,7 +17001,6 @@ if game.PlaceId == 116463962153167 then
 				return
 			end
 
-			-- Clean up previous ESP + connections
 			for _, conn in ipairs(vesperConnections) do
 				conn:Disconnect()
 			end
@@ -17017,7 +17016,6 @@ if game.PlaceId == 116463962153167 then
 				oldGui:Destroy()
 			end
 
-			-- Highlight
 			local esp = Instance.new("Highlight")
 			esp.Name = "VesperESP"
 			esp.Adornee = vesper
@@ -17026,7 +17024,6 @@ if game.PlaceId == 116463962153167 then
 			esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 			esp.Parent = vesper
 
-			-- BillboardGui
 			local adornee = vesper:FindFirstChild("Head") or vesper:FindFirstChildWhichIsA("BasePart")
 			if not adornee then
 				warn("No valid part found to attach BillboardGui")
@@ -17080,7 +17077,9 @@ if game.PlaceId == 116463962153167 then
 		end,
 	})
 
-	-- Get all Bases that contain a PointLight
+	-- Store already visited bases
+	local visitedBases = {}
+
 	local function getAllBases()
 		local bases = {}
 
@@ -17096,9 +17095,9 @@ if game.PlaceId == 116463962153167 then
 		return bases
 	end
 
-	-- Teleport to ALL PointLight Bases
+	-- Teleport to next unvisited PointLight Base
 	Tab:CreateButton({
-		Name = "Teleport maze thing",
+		Name = "Teleport to maze thing",
 		Callback = function()
 			local bases = getAllBases()
 
@@ -17115,18 +17114,41 @@ if game.PlaceId == 116463962153167 then
 				return
 			end
 
-			task.spawn(function()
-				for i, base in ipairs(bases) do
-					if not hrp or not hrp.Parent then
-						break
-					end
-
-					hrp.CFrame = base.CFrame * CFrame.new(0, 3, 0)
-					print("Teleported to Base " .. i .. "/" .. #bases)
-
-					task.wait(0.4) -- small delay between each teleport
+			-- Find the next base that hasn't been visited yet
+			local nextBase = nil
+			for _, base in ipairs(bases) do
+				if not visitedBases[base] then
+					nextBase = base
+					break
 				end
-			end)
+			end
+
+			-- If all bases have been visited, reset the list
+			if not nextBase then
+				table.clear(visitedBases)
+				print("All bases visited — list reset. Starting over...")
+				nextBase = bases[1]
+			end
+
+			-- Mark as visited and teleport
+			visitedBases[nextBase] = true
+			hrp.CFrame = nextBase.CFrame * CFrame.new(0, 3, 0)
+
+			local visitedCount = 0
+			for _ in pairs(visitedBases) do
+				visitedCount += 1
+			end
+
+			print("Teleported to Base (" .. visitedCount .. "/" .. #bases .. ")")
+		end,
+	})
+
+	-- Optional: Reset visited list
+	Tab:CreateButton({
+		Name = "Reset Visited Bases",
+		Callback = function()
+			table.clear(visitedBases)
+			print("Visited bases list has been reset")
 		end,
 	})
 end
