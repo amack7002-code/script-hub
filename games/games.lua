@@ -17383,63 +17383,62 @@ Tab:CreateButton({
     end,
 })
 
-local function getPillars()
-	local success, pillars = pcall(function()
-		return workspace.Model["GR_DW_-1_-3"].ThreePillars.ThreePillars
-	end)
+local function findPillarPrompts()
+	local prompts = {}
 
-	if not success or not pillars then
-		warn("[Pillar] Could not find ThreePillars")
-		return nil
-	end
-
-	return pillars
-end
-
-local function doPillars()
-	local pillars = getPillars()
-	if not pillars then return end
-
-	local promptPaths = {
-		pillars:FindFirstChild("Pillar2") and pillars.Pillar2:FindFirstChild("Prompt") and pillars.Pillar2.Prompt:FindFirstChild("ProximityPrompt"),
-		pillars:FindFirstChild("Pillar1") and pillars.Pillar1:FindFirstChild("Prompt") and pillars.Pillar1.Prompt:FindFirstChild("ProximityPrompt"),
-		pillars:FindFirstChild("Pillar5") and pillars.Pillar5:FindFirstChild("Prompt") and pillars.Pillar5.Prompt:FindFirstChild("ProximityPrompt"),
-	}
-
-	local fired = 0
-
-	for i, prompt in ipairs(promptPaths) do
-		if prompt and prompt:IsA("ProximityPrompt") then
-			-- Make it reachable from anywhere
-			prompt.MaxActivationDistance = 9e9
-			prompt.RequiresLineOfSight = false
-
-			-- Fire the prompt (works in most executors)
-			if fireproximityprompt then
-				fireproximityprompt(prompt)
-				fired += 1
-			else
-				-- Fallback: just enable it so you can press E
-				prompt.Enabled = true
+	-- Search the whole workspace for the ThreePillars model
+	for _, obj in ipairs(workspace:GetDescendants()) do
+		if obj.Name == "ThreePillars" and obj:IsA("Model") then
+			-- Look for Pillar1, Pillar2, Pillar5 inside it
+			for _, pillarName in ipairs({"Pillar1", "Pillar2", "Pillar5"}) do
+				local pillar = obj:FindFirstChild(pillarName, true)
+				if pillar then
+					local prompt = pillar:FindFirstChildWhichIsA("ProximityPrompt", true)
+					if prompt then
+						table.insert(prompts, prompt)
+					end
+				end
 			end
-		else
-			warn("[Pillar] ProximityPrompt #" .. i .. " not found")
 		end
 	end
 
-	if fired > 0 then
-		print("[Pillar] Fired " .. fired .. " prompts")
-	end
+	return prompts
 end
 
--- Optional: listen for puzzle resets so you can re-run easily
+local function doPillars()
+	local prompts = findPillarPrompts()
+
+	if #prompts == 0 then
+		warn("[Pillar] No ProximityPrompts found. The pillars might not be loaded yet.")
+		return
+	end
+
+	local fired = 0
+
+	for _, prompt in ipairs(prompts) do
+		prompt.MaxActivationDistance = 9e9
+		prompt.RequiresLineOfSight = false
+		prompt.Enabled = true
+
+		if fireproximityprompt then
+			fireproximityprompt(prompt)
+			fired += 1
+		end
+	end
+
+	print("[Pillar] Found and fired " .. fired .. " / " .. #prompts .. " prompts")
+end
+
+-- Optional: listen for puzzle resets
 local resetEvent = game:GetService("ReplicatedStorage")
 	:WaitForChild("Remotes")
-	:WaitForChild("PuzzleReset")
+	:WaitForChild("PuzzleReset", 5)
 
-resetEvent.OnClientEvent:Connect(function()
-	print("[Pillar] Puzzle was reset")
-end)
+if resetEvent then
+	resetEvent.OnClientEvent:Connect(function()
+		print("[Pillar] Puzzle was reset")
+	end)
+end
 
 Tab:CreateButton({
 	Name = "Do the Pillars",
