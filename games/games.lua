@@ -17343,7 +17343,7 @@ if game.PlaceId == 116463962153167 then
             return
         end
 
-        hrp.CFrame = CFrame.new(-112, 24, 3620)
+        hrp.CFrame = CFrame.new(-110, 24, 3617)
         print("Teleported to Three Pillars")
     end,
 })
