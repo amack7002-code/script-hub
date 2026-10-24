@@ -17572,6 +17572,28 @@ Tab:CreateButton({
         end))
     end,
 })
+
+local function removeChaseFX()
+    local lighting = game:GetService("Lighting")
+    local chase = lighting:FindFirstChild("HollowEnemyChaseCorrection")
+
+    if not chase then
+        warn("HollowEnemyChaseCorrection not found")
+        return
+    end
+
+    for _, v in ipairs(chase:GetDescendants()) do
+        v:Destroy()
+    end
+end
+
+Tab:CreateButton({
+    Name = "Remove Chase FX",
+    Callback = function()
+        task.spawn(removeChaseFX)
+    end,
+})
+
 end
 
 
