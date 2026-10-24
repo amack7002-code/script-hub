@@ -17066,9 +17066,13 @@ if game.PlaceId == 116463962153167 then
     })
 
 
+
 local function getPointLight()
     for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("PointLight") and obj.Parent:IsA("BasePart") and obj.Parent.Name == "Base" then
+        if obj:IsA("PointLight")
+            and obj.Parent
+            and obj.Parent:IsA("BasePart")
+            and obj.Parent.Name == "Base" then
             return obj
         end
     end
@@ -17080,7 +17084,7 @@ Tab:CreateButton({
         local light = getPointLight()
 
         if not light then
-            warn("No PointLight found")
+            warn("No PointLight attached to a Base part was found")
             return
         end
 
@@ -17095,6 +17099,7 @@ Tab:CreateButton({
         hrp.CFrame = light.Parent.CFrame * CFrame.new(0, 3, 0)
     end,
 })
+
 
 
 end
