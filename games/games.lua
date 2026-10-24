@@ -17347,6 +17347,15 @@ if game.PlaceId == 116463962153167 then
         print("Teleported to Three Pillars")
     end,
 })
+local RemoteUtils = _G.require("RemoteUtils")
+local ThreePillars = RemoteUtils.GetRemoteEvent("ThreePillars")
+
+	Tab:CreateButton({
+    Name = "lwk do the pillar",
+    Callback = function()
+		ThreePillars:FireServer("Ready")
+    end,
+})
 
 end
 
