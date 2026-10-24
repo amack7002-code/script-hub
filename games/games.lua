@@ -17332,7 +17332,7 @@ Tab:CreateButton({
     Callback = function()
         local character = player.Character
         local hrp = character and character:FindFirstChild("HumanoidRootPart")
-        local pillars = workspace.Model["GR_DW_-1_-3"].ThreePillars.ThreePillars
+        local pillars = workspace.Model["GR_DW_-2_-3"].ThreePillars.ThreePillars
 
         if not hrp then
             warn("Character / HumanoidRootPart not found")
@@ -17345,7 +17345,7 @@ Tab:CreateButton({
         end
 
         local position = pillars:GetPivot().Position
-        hrp.CFrame = CFrame.new(position + Vector3.new(0, 5, 0))
+        hrp.CFrame = CFrame.new(position + Vector3.new(10, 5, 0))
 
         print("Teleported to Three Pillars")
     end,
