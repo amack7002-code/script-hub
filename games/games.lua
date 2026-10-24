@@ -17080,27 +17080,30 @@ if game.PlaceId == 116463962153167 then
 		end,
 	})
 
-	-- Find Base with PointLight
-	local function getBase()
+	-- Get all Bases that contain a PointLight
+	local function getAllBases()
+		local bases = {}
+
 		for _, obj in ipairs(workspace:GetDescendants()) do
 			if obj.Name == "Base" and obj:IsA("BasePart") then
 				local pointLight = obj:FindFirstChild("PointLight", true)
 				if pointLight and pointLight:IsA("PointLight") then
-					return obj
+					table.insert(bases, obj)
 				end
 			end
 		end
-		return nil
+
+		return bases
 	end
 
-	-- Teleport Button
+	-- Teleport to ALL PointLight Bases
 	Tab:CreateButton({
-		Name = "Teleport to PointLight",
+		Name = "Teleport maze thing",
 		Callback = function()
-			local base = getBase()
+			local bases = getAllBases()
 
-			if not base then
-				warn("No Base containing a PointLight found")
+			if #bases == 0 then
+				warn("No Bases containing a PointLight found")
 				return
 			end
 
@@ -17112,7 +17115,18 @@ if game.PlaceId == 116463962153167 then
 				return
 			end
 
-			hrp.CFrame = base.CFrame * CFrame.new(0, 3, 0)
+			task.spawn(function()
+				for i, base in ipairs(bases) do
+					if not hrp or not hrp.Parent then
+						break
+					end
+
+					hrp.CFrame = base.CFrame * CFrame.new(0, 3, 0)
+					print("Teleported to Base " .. i .. "/" .. #bases)
+
+					task.wait(0.4) -- small delay between each teleport
+				end
+			end)
 		end,
 	})
 end
