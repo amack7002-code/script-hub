@@ -17332,44 +17332,21 @@ if game.PlaceId == 116463962153167 then
 
 	local eventPickup = getEvent()
 
-	-- Three Pillars teleport
 	Tab:CreateButton({
-		Name = "Teleport to Three Pillars",
-		Callback = function()
-			local success, pillars = pcall(function()
-				return workspace.Model["GR_DW_-1_-3"].ThreePillars.ThreePillars
-			end)
+    Name = "Teleport to Three Pillars",
+    Callback = function()
+        local character = player.Character
+        local hrp = character and character:FindFirstChild("HumanoidRootPart")
 
-			if not success or not pillars then
-				warn("Three Pillars could not be found")
-				return
-			end
+        if not hrp then
+            warn("Character / HumanoidRootPart not found")
+            return
+        end
 
-			local character = player.Character
-			local hrp = character and character:FindFirstChild("HumanoidRootPart")
-
-			if not hrp then
-				warn("Character / HumanoidRootPart not found")
-				return
-			end
-
-			local target
-
-			if pillars:IsA("BasePart") then
-				target = pillars
-			elseif pillars:IsA("Model") then
-				target = pillars.PrimaryPart
-					or pillars:FindFirstChildWhichIsA("BasePart", true)
-			end
-
-			if not target then
-				warn("No teleportable part found in Three Pillars")
-				return
-			end
-
-			hrp.CFrame = target.CFrame * CFrame.new(0, 3, 0)
-		end,
-	})
+        hrp.CFrame = CFrame.new(-112, 24, 3620)
+        print("Teleported to Three Pillars")
+    end,
+})
 
 end
 
