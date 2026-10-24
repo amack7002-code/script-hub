@@ -17120,6 +17120,31 @@ if game.PlaceId == 116463962153167 then
 	})
 
 	------------------------------
+	-- Specific Location Button
+	------------------------------
+	Tab:CreateButton({
+		Name = "Teleport to Special Spot",
+		Callback = function()
+			local character = player.Character
+			local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+			if not hrp then
+				warn("Character / HumanoidRootPart not found")
+				return
+			end
+
+			hrp.CFrame = CFrame.new(
+				179.930573, 3.50153399, 1658.224,
+				-0.080119729, 7.00428915e-09, -0.996785223,
+				-8.74227766e-08, -1, 0,
+				-0.996785223, 8.71417285e-08, 0.080119729
+			)
+
+			print("Teleported to special spot")
+		end,
+	})
+
+	------------------------------
 	-- PointLight Bases System
 	------------------------------
 	local visitedBases = {}
@@ -17140,7 +17165,7 @@ if game.PlaceId == 116463962153167 then
 	end
 
 	Tab:CreateButton({
-		Name = "Teleport to Next PointLight",
+		Name = "Teleport to Next PointLight(im getting to lazy to rename this)",
 		Callback = function()
 			local bases = getAllBases()
 
@@ -17157,7 +17182,6 @@ if game.PlaceId == 116463962153167 then
 				return
 			end
 
-			-- Find next unvisited base
 			local nextBase = nil
 			for _, base in ipairs(bases) do
 				if not visitedBases[base] then
@@ -17166,7 +17190,6 @@ if game.PlaceId == 116463962153167 then
 				end
 			end
 
-			-- Reset if all bases have been visited
 			if not nextBase then
 				table.clear(visitedBases)
 				print("All bases visited — list reset. Starting over...")
