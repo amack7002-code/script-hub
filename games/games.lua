@@ -17344,7 +17344,7 @@ Tab:CreateButton({
 })
 
 Tab:CreateButton({
-    Name = "Lwk Do the Pillar",
+    Name = "Lwk Do the Pillar(Client lol)",
     Callback = function()
 
 local Event = game:GetService("ReplicatedStorage").Remotes.ThreePillars
@@ -17362,7 +17362,7 @@ firesignal(Event.OnClientEvent,
 })
 
 Tab:CreateButton({
-    Name = "fr get ts ghost thing",
+    Name = "fr get ts ghost thing (maybe Client lol)",
     Callback = function()
 	local Event = game:GetService("ReplicatedStorage").Remotes.UGCObtained
 	firesignal(Event.OnClientEvent, 
@@ -17375,11 +17375,37 @@ Tab:CreateButton({
     end,
 })
 
+local function pillar()
+    local pillars = workspace.Model["GR_DW_-1_-3"].ThreePillars.ThreePillars
 
+    local promptPaths = {
+        pillars.Pillar2.Prompt.ProximityPrompt,
+        pillars.Pillar1.Prompt.ProximityPrompt,
+        pillars.Pillar5.Prompt.ProximityPrompt,
+    }
+
+    for _, prompt in ipairs(promptPaths) do
+        if prompt and prompt:IsA("ProximityPrompt") then
+            prompt.MaxActivationDistance = 1000
+        end
+    end
+end
+
+local resetEvent = game:GetService("ReplicatedStorage")
+    :WaitForChild("Remotes")
+    :WaitForChild("PuzzleReset")
+
+Tab:CreateButton({
+    Name = "Lowkey Do the Pillar",
+    Callback = function()
+        firesignal(resetEvent.OnClientEvent, "ThreePillar")
+        pillar()
+    end,
+})
 
 
 Tab:CreateButton({
-    Name = "Teleport to Three Pillars",
+    Name = "Teleport to Spawn",
     Callback = function()
         local character = player.Character
         local hrp = character and character:FindFirstChild("HumanoidRootPart")
@@ -17389,8 +17415,17 @@ Tab:CreateButton({
             return
         end
 
-        hrp.CFrame = CFrame.new(workspace.SpawnLocation.Position + Vector3.new(0, 5, 0))
-        print("Teleported to Three Pillars")
+        local spawnLocation = workspace:FindFirstChild("SpawnLocation")
+
+        if spawnLocation and spawnLocation:IsA("BasePart") then
+            hrp.CFrame = CFrame.new(
+                spawnLocation.Position + Vector3.new(0, 5, 0)
+            )
+        else
+            hrp.CFrame = CFrame.new(-1519, 5, -979)
+        end
+
+        print("Teleported to spawn")
     end,
 })
 end
