@@ -17383,31 +17383,69 @@ Tab:CreateButton({
     end,
 })
 
-local function pillar()
-    local pillars = workspace.Model["GR_DW_-1_-3"].ThreePillars.ThreePillars
+local function getPillars()
+	local success, pillars = pcall(function()
+		return workspace.Model["GR_DW_-1_-3"].ThreePillars.ThreePillars
+	end)
 
-    local promptPaths = {
-        pillars.Pillar2.Prompt.ProximityPrompt,
-        pillars.Pillar1.Prompt.ProximityPrompt,
-        pillars.Pillar5.Prompt.ProximityPrompt,
-    }
+	if not success or not pillars then
+		warn("[Pillar] Could not find ThreePillars")
+		return nil
+	end
 
-    for _, prompt in ipairs(promptPaths) do
-        if prompt and prompt:IsA("ProximityPrompt") then
-            prompt.MaxActivationDistance = 9e9
-        end
-    end
+	return pillars
 end
 
+local function doPillars()
+	local pillars = getPillars()
+	if not pillars then return end
+
+	local promptPaths = {
+		pillars:FindFirstChild("Pillar2") and pillars.Pillar2:FindFirstChild("Prompt") and pillars.Pillar2.Prompt:FindFirstChild("ProximityPrompt"),
+		pillars:FindFirstChild("Pillar1") and pillars.Pillar1:FindFirstChild("Prompt") and pillars.Pillar1.Prompt:FindFirstChild("ProximityPrompt"),
+		pillars:FindFirstChild("Pillar5") and pillars.Pillar5:FindFirstChild("Prompt") and pillars.Pillar5.Prompt:FindFirstChild("ProximityPrompt"),
+	}
+
+	local fired = 0
+
+	for i, prompt in ipairs(promptPaths) do
+		if prompt and prompt:IsA("ProximityPrompt") then
+			-- Make it reachable from anywhere
+			prompt.MaxActivationDistance = 9e9
+			prompt.RequiresLineOfSight = false
+
+			-- Fire the prompt (works in most executors)
+			if fireproximityprompt then
+				fireproximityprompt(prompt)
+				fired += 1
+			else
+				-- Fallback: just enable it so you can press E
+				prompt.Enabled = true
+			end
+		else
+			warn("[Pillar] ProximityPrompt #" .. i .. " not found")
+		end
+	end
+
+	if fired > 0 then
+		print("[Pillar] Fired " .. fired .. " prompts")
+	end
+end
+
+-- Optional: listen for puzzle resets so you can re-run easily
 local resetEvent = game:GetService("ReplicatedStorage")
-    :WaitForChild("Remotes")
-    :WaitForChild("PuzzleReset")
+	:WaitForChild("Remotes")
+	:WaitForChild("PuzzleReset")
+
+resetEvent.OnClientEvent:Connect(function()
+	print("[Pillar] Puzzle was reset")
+end)
 
 Tab:CreateButton({
-    Name = "Lowkey Do the Pillar",
-    Callback = function()
-        pillar()
-    end,
+	Name = "Do the Pillars",
+	Callback = function()
+		doPillars()
+	end,
 })
 
 
