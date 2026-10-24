@@ -16972,6 +16972,7 @@ Tab:CreateToggle({
 })
 end
 
+--the hollow
 if game.PlaceId == 116463962153167 then
     local Tab = Window:CreateTab("Main", 4483362458)
     local player = game:GetService("Players").LocalPlayer
@@ -17064,44 +17065,49 @@ if game.PlaceId == 116463962153167 then
         end,
     })
 
-    local function getTile()
-        for _, obj in ipairs(workspace:GetDescendants()) do
-            if obj:IsA("ClickDetector")
-                and obj.Parent
-                and obj.Parent:IsA("BasePart") then
-                return obj
-            end
-        end
-    end
+	local function getTile()
+		for _, obj in ipairs(workspace:GetChildren()) do
+			local base = obj:FindFirstChild("Base")
 
-    Tab:CreateButton({
-        Name = "maze tile collect idk",
-        Callback = function()
-            local tile = getTile()
+			if base and base:IsA("BasePart") then
+				local detector = base:FindFirstChildOfClass("ClickDetector")
 
-            if not tile then
-                warn("No tile ClickDetector found")
-                return
-            end
+				if detector then
+					return detector
+				end
+			end
+		end
+	end
 
-            local character = player.Character
-            local hrp = character
-                and character:FindFirstChild("HumanoidRootPart")
+	Tab:CreateButton({
+		Name = "maze tile collect idk",
+		Callback = function()
+			local tile = getTile()
 
-            if not hrp then
-                warn("Character or HumanoidRootPart not found")
-                return
-            end
+			if not tile then
+				warn("No maze tile ClickDetector found")
+				return
+			end
 
-            hrp.CFrame = tile.Parent:GetPivot()
+			local character = player.Character
+			local hrp = character and character:FindFirstChild("HumanoidRootPart")
 
-            if typeof(fireclickdetector) == "function" then
-                fireclickdetector(tile)
-            else
-                warn("fireclickdetector is unavailable in this environment")
-            end
-        end,
-    })
+			if not hrp then
+				warn("Character or HumanoidRootPart not found")
+				return
+			end
+
+			local base = tile.Parent
+			hrp.CFrame = base.CFrame * CFrame.new(0, 3, 0)
+
+			if typeof(fireclickdetector) == "function" then
+				fireclickdetector(tile)
+			else
+				warn("fireclickdetector is unavailable")
+			end
+		end,
+	})
+
 end
 
 
