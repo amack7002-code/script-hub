@@ -17068,14 +17068,12 @@ if game.PlaceId == 116463962153167 then
 
 
 local function getBase()
-    for _, obj in ipairs(workspace:GetChildren()) do
-        local base = obj:FindFirstChild("Base")
-
-        if base and base:IsA("BasePart") then
-            local pointLight = base:FindFirstChild("PointLight")
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj.Name == "Base" and obj:IsA("BasePart") then
+            local pointLight = obj:FindFirstChild("PointLight", true)
 
             if pointLight and pointLight:IsA("PointLight") then
-                return base
+                return obj
             end
         end
     end
@@ -17089,7 +17087,7 @@ Tab:CreateButton({
         local base = getBase()
 
         if not base then
-            warn("No Base containing a PointLight was found")
+            warn("No Base containing a PointLight found")
             return
         end
 
