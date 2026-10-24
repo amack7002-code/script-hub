@@ -17065,48 +17065,37 @@ if game.PlaceId == 116463962153167 then
         end,
     })
 
-	local function getTile()
-		for _, obj in ipairs(workspace:GetChildren()) do
-			local base = obj:FindFirstChild("Base")
 
-			if base and base:IsA("BasePart") then
-				local detector = base:FindFirstChildOfClass("ClickDetector")
+local function getPointLight()
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("PointLight") and obj.Parent:IsA("BasePart") then
+            return obj
+        end
+    end
+end
 
-				if detector then
-					return detector
-				end
-			end
-		end
-	end
+Tab:CreateButton({
+    Name = "Teleport to PointLight",
+    Callback = function()
+        local light = getPointLight()
 
-	Tab:CreateButton({
-		Name = "maze tile collect idk",
-		Callback = function()
-			local tile = getTile()
+        if not light then
+            warn("No PointLight found")
+            return
+        end
 
-			if not tile then
-				warn("No maze tile ClickDetector found")
-				return
-			end
+        local character = player.Character
+        local hrp = character and character:FindFirstChild("HumanoidRootPart")
 
-			local character = player.Character
-			local hrp = character and character:FindFirstChild("HumanoidRootPart")
+        if not hrp then
+            warn("Character not found")
+            return
+        end
 
-			if not hrp then
-				warn("Character or HumanoidRootPart not found")
-				return
-			end
+        hrp.CFrame = light.Parent.CFrame * CFrame.new(0, 3, 0)
+    end,
+})
 
-			local base = tile.Parent
-			hrp.CFrame = base.CFrame * CFrame.new(0, 3, 0)
-
-			if typeof(fireclickdetector) == "function" then
-				fireclickdetector(tile)
-			else
-				warn("fireclickdetector is unavailable")
-			end
-		end,
-	})
 
 end
 
