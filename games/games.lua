@@ -17343,50 +17343,56 @@ Tab:CreateButton({
     end,
 })
 
-------------------------------
--- Three Pillars Remote
-------------------------------
-local remoteSuccess, RemoteUtils = pcall(function()
-    return game:GetService("ReplicatedStorage").SharedModules.RemoteUtils.require("RemoteUtils")
-end)
-
-local ThreePillars
-
-if remoteSuccess and RemoteUtils then
-    local success, result = pcall(function()
-        return RemoteUtils.GetRemoteEvent("ThreePillars")
-    end)
-
-    if success then
-        ThreePillars = result
-    else
-        warn("Failed to retrieve ThreePillars remote:", result)
-    end
-else
-    warn("Failed to load RemoteUtils:", RemoteUtils)
-end
-
 Tab:CreateButton({
     Name = "Lwk Do the Pillar",
     Callback = function()
-        if not ThreePillars then
-            warn("ThreePillars remote not found")
-            return
-        end
 
-        local success, err = pcall(function()
-            ThreePillars:FireServer("Ready")
-        end)
-
-        if not success then
-            warn("Failed to fire ThreePillars remote:", err)
-            return
-        end
-
-        print("Sent ThreePillars Ready")
+local Event = game:GetService("ReplicatedStorage").Remotes.ThreePillars
+firesignal(Event.OnClientEvent, 
+    {
+        Solved = true,
+        PullCFrame = CFrame.new(-84.259552001953125, 27.471771240234375, 3618.6611328125, -1.1324882507324219e-05, 0.64275610446929932, 0.76607084274291992, 4.1425228118896484e-06, 0.76607084274291992, -0.64275610446929932, -1, -4.1425228118896484e-06, -1.1324882507324219e-05),
+        Steps = {},
+        Kind = "Pull",
+        RestCFrame = CFrame.new(-87.079719543457031, 28.512981414794922, 3618.6611328125, 0, 0, 1, 0, 1, -0, -1, 0, 0),
+        TurnsLeft = 4
+    }
+)
     end,
 })
 
+Tab:CreateButton({
+    Name = "fr get ts ghost thing",
+    Callback = function()
+	local Event = game:GetService("ReplicatedStorage").Remotes.UGCObtained
+	firesignal(Event.OnClientEvent, 
+		"LauncherRPlusItem",
+		"Little Plus-tergeist",
+		113443548754719,
+		"E4",
+		nil
+	)
+    end,
+})
+
+
+
+
+Tab:CreateButton({
+    Name = "Teleport to Three Pillars",
+    Callback = function()
+        local character = player.Character
+        local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+        if not hrp then
+            warn("Character / HumanoidRootPart not found")
+            return
+        end
+
+        hrp.CFrame = CFrame.new(workspace.SpawnLocation.Position + Vector3.new(0, 5, 0))
+        print("Teleported to Three Pillars")
+    end,
+})
 end
 
 
