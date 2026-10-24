@@ -16972,7 +16972,6 @@ Tab:CreateToggle({
 })
 end
 
---the hollow
 if game.PlaceId == 116463962153167 then
     local Tab = Window:CreateTab("Main", 4483362458)
     local player = game:GetService("Players").LocalPlayer
@@ -17069,7 +17068,7 @@ if game.PlaceId == 116463962153167 then
         for _, obj in ipairs(workspace:GetDescendants()) do
             if obj:IsA("ClickDetector")
                 and obj.Parent
-                and obj.Parent:IsA("Model") then
+                and obj.Parent:IsA("BasePart") then
                 return obj
             end
         end
