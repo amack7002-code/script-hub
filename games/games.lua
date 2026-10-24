@@ -17386,7 +17386,7 @@ local function pillar()
 
     for _, prompt in ipairs(promptPaths) do
         if prompt and prompt:IsA("ProximityPrompt") then
-            prompt.MaxActivationDistance = 1000
+            prompt.MaxActivationDistance = 9e9
         end
     end
 end
@@ -17398,7 +17398,6 @@ local resetEvent = game:GetService("ReplicatedStorage")
 Tab:CreateButton({
     Name = "Lowkey Do the Pillar",
     Callback = function()
-        firesignal(resetEvent.OnClientEvent, "ThreePillar")
         pillar()
     end,
 })
