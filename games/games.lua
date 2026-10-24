@@ -17483,7 +17483,7 @@ local emberConnections = {}
 Tab:CreateButton({
     Name = "ember ESP",
     Callback = function()
-        local ember = mobs:FindFirstChild("ember")
+        local ember = mobs:FindFirstChild("Ember")
 
         if not ember then
             warn("ember was not found in workspace.Mobs")
