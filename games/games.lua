@@ -17068,17 +17068,20 @@ if game.PlaceId == 116463962153167 then
 
 
 local function getBase()
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj.Name == "Base" and obj:IsA("BasePart") then
-            if obj:FindFirstChildOfClass("PointLight") then
-                return obj
+    for _, obj in ipairs(workspace:GetChildren()) do
+        local base = obj:FindFirstChild("Base")
+
+        if base and base:IsA("BasePart") then
+            local pointLight = base:FindFirstChild("PointLight")
+
+            if pointLight and pointLight:IsA("PointLight") then
+                return base
             end
         end
     end
 
     return nil
 end
-
 Tab:CreateButton({
     Name = "Teleport to PointLight",
     Callback = function()
