@@ -33,6 +33,7 @@ local Window = Rayfield:CreateWindow({
     ToggleUIKeybind = "K",
     DisableRayfieldPrompts = false,
     DisableBuildWarnings = false,
+    Heartbeat = "https://www.sentivel.com/api/heartbeat/9WPQX4J8",
     
     ConfigurationSaving = {
         Enabled = true,
