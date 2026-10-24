@@ -17310,24 +17310,34 @@ if game.PlaceId == 116463962153167 then
 	})
 
 	local function getEvent()
-		for _, obj in ipairs(workspace:GetDescendants()) do
-			if obj:IsA("Model") and obj.Name == "Pickup" then
-				return obj
-			end
-		end
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") and obj.Name == "Pickup" then
+            return obj
+        end
+    end
 
-	local eventPickup = getEvent()
+    return nil
+end
+
+local eventPickup = getEvent()
 
 Tab:CreateButton({
     Name = "Teleport to Three Pillars",
     Callback = function()
-        local pillars = workspace.Model["GR_DW_-1_-3"].ThreePillars.ThreePillars
+        local success, pillars = pcall(function()
+            return workspace.Model["GR_DW_-1_-3"].ThreePillars.ThreePillars
+        end)
+
+        if not success or not pillars then
+            warn("Three Pillars could not be found")
+            return
+        end
 
         local character = player.Character
         local hrp = character and character:FindFirstChild("HumanoidRootPart")
 
         if not hrp then
-            warn("Character not found")
+            warn("Character / HumanoidRootPart not found")
             return
         end
 
@@ -17336,15 +17346,17 @@ Tab:CreateButton({
         if pillars:IsA("BasePart") then
             target = pillars
         elseif pillars:IsA("Model") then
-            target = pillars.PrimaryPart or pillars:FindFirstChildWhichIsA("BasePart", true)
+            target = pillars.PrimaryPart
+                or pillars:FindFirstChildWhichIsA("BasePart", true)
         end
 
         if not target then
-            warn("No teleportable part found in ThreePillars")
+            warn("No teleportable part found in Three Pillars")
             return
         end
 
         hrp.CFrame = target.CFrame * CFrame.new(0, 3, 0)
+        print("Teleported to Three Pillars")
     end,
 })
 
