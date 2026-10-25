@@ -17452,28 +17452,122 @@ if game.PlaceId == 77709018585862 then
     end
 
 
+
 local autoTrayTrash = false
 local trashGeneration = 0
 
-local function getTrayTrashPrompt()
+local function getTrashTrays()
     local miscellaneous = workspace:FindFirstChild("Miscellaneous")
+    local trays = {}
+
     if not miscellaneous then
-        return nil
+        return trays
     end
 
     for _, tray in ipairs(miscellaneous:GetChildren()) do
-        if tray:IsA("Model") and tray.Name:match("^TrashTray_") then
+        if tray.Name:match("^TrashTray_") then
             local handle = tray:FindFirstChild("Handle")
             local prompt = handle and handle:FindFirstChild("ProximityPrompt")
 
-            if prompt and prompt:IsA("ProximityPrompt") and prompt.Enabled then
-                return prompt
+            if handle and prompt and prompt:IsA("ProximityPrompt") then
+                table.insert(trays, {
+                    Object = tray,
+                    Handle = handle,
+                    Prompt = prompt
+                })
             end
         end
     end
 
-    return nil
+    return trays
 end
+
+local function getTrashcansWithCapacity()
+    local interactables = workspace:FindFirstChild("_INTERACTABLES")
+    local trashcans = {}
+
+    if not interactables then
+        return trashcans
+    end
+
+    for _, object in ipairs(interactables:GetChildren()) do
+        local capacity = object:GetAttribute("Capacity")
+        local maxCapacity = object:GetAttribute("MaxCapacity")
+
+        if typeof(capacity) == "number"
+            and typeof(maxCapacity) == "number"
+            and capacity < maxCapacity then
+
+            local handle = object:FindFirstChild("Handle")
+            local prompt = object:FindFirstChildWhichIsA("ProximityPrompt", true)
+
+            if not prompt and handle then
+                prompt = handle:FindFirstChildWhichIsA("ProximityPrompt", true)
+            end
+
+            if prompt then
+                table.insert(trashcans, {
+                    Object = object,
+                    Prompt = prompt,
+                    Capacity = capacity,
+                    MaxCapacity = maxCapacity
+                })
+            end
+        end
+    end
+
+    table.sort(trashcans, function(a, b)
+        return a.Capacity < b.Capacity
+    end)
+
+    return trashcans
+end
+
+local function getPromptPart(prompt)
+    if not prompt then
+        return nil
+    end
+
+    local parent = prompt.Parent
+
+    if parent and parent:IsA("Attachment") then
+        parent = parent.Parent
+    end
+
+    if parent and parent:IsA("BasePart") then
+        return parent
+    end
+
+    return parent and parent:FindFirstAncestorWhichIsA("BasePart")
+end
+
+local function teleportToPrompt(prompt)
+    local player = game:GetService("Players").LocalPlayer
+    local character = player.Character
+    local hrp = character and character:FindFirstChild("HumanoidRootPart")
+    local part = getPromptPart(prompt)
+
+    if not hrp or not part then
+        return false
+    end
+
+    hrp.CFrame = part.CFrame * CFrame.new(0, 0, -2)
+    return true
+end
+
+local function firePrompt(prompt)
+    if not prompt or not prompt.Parent or not prompt.Enabled then
+        return false
+    end
+
+    if type(fireproximityprompt) == "function" then
+        return pcall(fireproximityprompt, prompt)
+    end
+
+    return false
+end
+
+
 
 
 
@@ -17500,6 +17594,7 @@ end
 	Tab:CreateToggle({
     Name = "Auto Tray Trash",
     CurrentValue = false,
+
     Callback = function(value)
         autoTrayTrash = value
         trashGeneration = trashGeneration + 1
@@ -17512,33 +17607,73 @@ end
 
         task.spawn(function()
             while autoTrayTrash and trashGeneration == generation do
-                local prompt = getTrayTrashPrompt()
-                local player = game:GetService("Players").LocalPlayer
-                local character = player.Character
-                local hrp = character and character:FindFirstChild("HumanoidRootPart")
+                local trays = getTrashTrays()
 
-                if prompt and hrp then
-                    local handle = prompt.Parent
+                -- No trays found: wait, then scan again.
+                if #trays == 0 then
+                    task.wait(0.5)
+                    continue
+                end
 
-                    if handle and handle:IsA("BasePart") then
-                        hrp.CFrame = handle.CFrame * CFrame.new(0, 0, -3)
-                        task.wait(0.25)
+                -- Visit each tray and trigger its prompt.
+                for _, trayData in ipairs(trays) do
+                    if not autoTrayTrash or trashGeneration ~= generation then
+                        break
+                    end
 
-                        if autoTrayTrash
-                            and trashGeneration == generation
-                            and prompt.Parent
-                            and prompt.Enabled
-                            and type(fireproximityprompt) == "function" then
-                            pcall(fireproximityprompt, prompt)
+                    local tray = trayData.Object
+                    local prompt = trayData.Prompt
+
+                    if tray.Parent and prompt.Parent and prompt.Enabled then
+                        if teleportToPrompt(prompt) then
+                            task.wait(0.3)
+                            firePrompt(prompt)
+                            task.wait(0.25)
                         end
                     end
                 end
 
+                if not autoTrayTrash or trashGeneration ~= generation then
+                    break
+                end
+
+                -- After collecting trays, find a trash can with free capacity.
+                local trashcans = getTrashcansWithCapacity()
+                local deposited = false
+
+                for _, canData in ipairs(trashcans) do
+                    if not autoTrayTrash or trashGeneration ~= generation then
+                        break
+                    end
+
+                    if canData.Object.Parent
+                        and canData.Prompt.Parent
+                        and canData.Prompt.Enabled then
+
+                        if teleportToPrompt(canData.Prompt) then
+                            task.wait(0.4)
+
+                            if firePrompt(canData.Prompt) then
+                                deposited = true
+                                task.wait(0.5)
+                                break
+                            end
+                        end
+                    end
+                end
+
+                if not deposited then
+                    warn("[Auto Tray Trash] No available trash can or deposit prompt found.")
+                    task.wait(1)
+                end
+
+                -- Loop back and check for newly spawned trays.
                 task.wait(0.3)
             end
         end)
     end
 })
+
 end
 
 
