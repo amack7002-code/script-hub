@@ -17795,7 +17795,7 @@ if game.PlaceId == 107833198839573 then
 	Tab:CreateButton({
 		Name = "Teleport to zombie maze thing end",
 		Callback = function()
-			hrp.CFrame = parttouch.CFrame + Vector3.new(0, 5, 0)
+			hrp.CFrame = partouch.CFrame + Vector3.new(0, 5, 0)
 		end,
 	})
 
