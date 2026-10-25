@@ -17200,7 +17200,7 @@ if game.PlaceId == 77709018585862 then
     end
 
     local function getGrillCleanPrompt()
-        return getPrompt(Workspace, "_INTERACTABLES", "Grill", "Core", "CleanPrompt")
+        return getPrompt(Workspace, "_INTERACTABLES", "Grill", "Core", "CleanupPrompt")
     end
 
     local function getTrayTrashPrompt()
