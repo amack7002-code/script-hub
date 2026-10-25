@@ -17514,6 +17514,33 @@ end
 
 	local autoTrayTrash = false
 
+	local function getTrashcanUnderLimit()
+		local interactables = Workspace:FindFirstChild("_INTERACTABLES")
+		if not interactables then
+			return nil
+		end
+
+		for _, v in ipairs(interactables:GetDescendants()) do
+			if v:IsA("ProximityPrompt") and v.Name == "ProximityPrompt" then
+				local parent = v.Parent
+				local trashcan = parent and parent.Parent
+
+				if parent
+					and parent.Name == "Trashcan"
+					and trashcan then
+
+					local disposedCount = trashcan:GetAttribute("DisposedCount")
+
+					if typeof(disposedCount) == "number" and disposedCount < 10 then
+						return v
+					end
+				end
+			end
+		end
+
+		return nil
+	end
+
     createAutoPromptToggle("Auto Patty", getGrillPrompt, 0.2)
     createAutoPromptToggle("Auto Soda", getSodaPrompt, 0.2)
     createTeleportCleanToggle("Auto Clean Grill", getGrillCleanPrompt, 0.5)
@@ -17535,25 +17562,30 @@ end
 
 			task.spawn(function()
 				while autoTrayTrash do
-					local prompt = getTrayTrashPrompt()
+					local prompt = getTrashcanUnderLimit()
 					local character = Player.Character
 					local hrp = character
 						and character:FindFirstChild("HumanoidRootPart")
 
 					if prompt and prompt.Parent and hrp then
-						local handle = prompt.Parent
+						local parent = prompt.Parent
 						local targetPart
 
-						if handle:IsA("BasePart") then
-							targetPart = handle
-						elseif handle:IsA("Attachment") then
-							targetPart = handle.Parent
+						if parent:IsA("BasePart") then
+							targetPart = parent
+						elseif parent:IsA("Attachment") then
+							targetPart = parent.Parent
 						end
 
 						if targetPart and targetPart:IsA("BasePart") then
 							hrp.CFrame = targetPart.CFrame * CFrame.new(0, 0, -3)
 
-							if type(fireproximityprompt) == "function" then
+							task.wait(0.15)
+
+							if autoTrayTrash
+								and prompt.Parent
+								and prompt.Enabled
+								and type(fireproximityprompt) == "function" then
 								pcall(fireproximityprompt, prompt)
 							end
 						end
