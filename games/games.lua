@@ -17942,6 +17942,50 @@ Tab:CreateButton({
 
 end
 
+if game.PlaceId == 185655149 then
+	
+	local Tab = Window:CreateTab("Main", 4483362458)
+	local hrp = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+
+
+local locations = {
+    {
+        Name = "Teleport to Money Bag",
+        Position = Vector3.new(624, 23, -49),
+    },
+    {
+        Name = "Teleport to Bloxinator",
+        Position = Vector3.new(428, 5, -10),
+    },
+    {
+        Name = "Teleport to Briefcase",
+        Position = Vector3.new(962, 47, -50),
+    },
+}
+
+for _, location in ipairs(locations) do
+    Tab:CreateButton({
+        Name = location.Name,
+        Callback = function()
+            local player = game:GetService("Players").LocalPlayer
+            local character = player.Character
+            local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+            if not hrp then
+                warn("Character / HumanoidRootPart not found")
+                return
+            end
+
+            hrp.CFrame = CFrame.new(location.Position)
+            print("Teleported to " .. location.Name)
+        end,
+    })
+end
+
+
+
+end
+
 
 if game.PlaceId == 67 then 
     for i = 1, 67 do
