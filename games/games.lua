@@ -17790,9 +17790,9 @@ if game.PlaceId == 107833198839573 then
 		end,
 	})
 
-	local parttouch = workspace.ZombieBridgeProps.Tiles.Tile53
+	local partouch = workspace.ZombieBridgeProps.Tiles.Tile53
 
-		Tab:CreateButton({
+	Tab:CreateButton({
 		Name = "Teleport to zombie maze thing end",
 		Callback = function()
 			hrp.CFrame = parttouch.CFrame + Vector3.new(0, 5, 0)
