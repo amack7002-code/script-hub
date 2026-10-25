@@ -17759,6 +17759,30 @@ Tab:CreateButton({
     end,
 })
 
+Tab:CreateButton({
+    Name = "Teleport to Zombie Maze End",
+    Callback = function()
+        local hrp = getHRP()
+
+        if not hrp then
+            warn("Character / HumanoidRootPart not found")
+            return
+        end
+
+        local bridge = workspace:FindFirstChild("ZombieBridgeProps")
+        local tiles = bridge and bridge:FindFirstChild("Tiles")
+        local parttouch = tiles and tiles:FindFirstChild("Tile53")
+
+        if not parttouch or not parttouch:IsA("BasePart") then
+            warn("Tile53 not found")
+            return
+        end
+
+        hrp.CFrame = parttouch.CFrame + Vector3.new(0, 5, 0)
+        print("Teleported to Zombie Maze End")
+    end,
+})
+
 end
 
 
@@ -17814,31 +17838,6 @@ Tab:CreateButton({
         teleportToPickup()
     end,
 })
-
-Tab:CreateButton({
-    Name = "Teleport to Zombie Maze End",
-    Callback = function()
-        local hrp = getHRP()
-
-        if not hrp then
-            warn("Character / HumanoidRootPart not found")
-            return
-        end
-
-        local bridge = workspace:FindFirstChild("ZombieBridgeProps")
-        local tiles = bridge and bridge:FindFirstChild("Tiles")
-        local parttouch = tiles and tiles:FindFirstChild("Tile53")
-
-        if not parttouch or not parttouch:IsA("BasePart") then
-            warn("Tile53 not found")
-            return
-        end
-
-        hrp.CFrame = parttouch.CFrame + Vector3.new(0, 5, 0)
-        print("Teleported to Zombie Maze End")
-    end,
-})
-
 
 end
 
