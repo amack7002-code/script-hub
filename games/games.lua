@@ -17616,6 +17616,28 @@ local button = Tab:CreateButton({
     end,
 })
 
+local tombstone = workspace:GetChildren()[9]["GR_Demon_2_-3"]
+
+tab:CreateButton({
+	Name = "Teleport to Tombstone",
+	Callback = function()
+		local character = player.Character
+		local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+		if not hrp then
+			warn("Character / HumanoidRootPart not found")
+			return
+		end
+
+		if tombstone and tombstone:IsA("Model") then
+			hrp.CFrame = tombstone:GetPivot() + Vector3.new(0, 5, 0)
+			print("Teleported to Tombstone")
+		else
+			warn("Tombstone model not found")
+		end
+	end,
+})
+
 end
 
 
