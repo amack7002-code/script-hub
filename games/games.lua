@@ -17171,14 +17171,17 @@ end
 --save the krust krabs
 if game.PlaceId == 77709018585862 then
     local Tab = Window:CreateTab("Main", 4483362458)
+
     local Workspace = game:GetService("Workspace")
-	
+    local Players = game:GetService("Players")
+    local Player = Players.LocalPlayer
 
     local function getPrompt(parent, ...)
         local current = parent
 
         for _, name in ipairs({...}) do
             current = current and current:FindFirstChild(name)
+
             if not current then
                 return nil
             end
@@ -17191,59 +17194,7 @@ if game.PlaceId == 77709018585862 then
         return nil
     end
 
-local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
-local Player = Players.LocalPlayer
-
-local function getTrayTrashPrompt()
-    local misc = Workspace:FindFirstChild("Miscellaneous")
-    if not misc then
-        return nil
-    end
-
-    for _, v in ipairs(misc:GetDescendants()) do
-        if v:IsA("ProximityPrompt") and v.Name == "ProximityPrompt" then
-            local handle = v.Parent
-            local tray = handle and handle.Parent
-
-            if handle
-                and handle.Name == "Handle"
-                and tray
-                and string.find(tray.Name, "Tray", 1, true) then
-                return v
-            end
-        end
-    end
-
-    return nil
-end
-
-
-local function getMoneyPrompt()
-    local prompts = {}
-    local misc = Workspace:FindFirstChild("Miscellaneous")
-
-    if not misc then
-        return prompts
-    end
-
-    for _, v in ipairs(misc:GetDescendants()) do
-        if v:IsA("ProximityPrompt") then
-            local handle = v.Parent
-            local item = handle and handle.Parent
-
-            if handle
-                and handle.Name == "Handle"
-                and item
-                and string.find(item.Name, "Money", 1, true) then
-                table.insert(prompts, v)
-            end
-        end
-    end
-
-    return prompts
-end
-
+    -- Grill and soda prompts
     local function getGrillPrompt()
         return getPrompt(
             Workspace,
@@ -17264,170 +17215,129 @@ end
         )
     end
 
-
-local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-
-local function getCharacterRoot()
-    local character = Player.Character
-    return character and character:FindFirstChild("HumanoidRootPart")
-end
-
-local function getPromptPart(prompt)
-    if not prompt then
-        return nil
+    local function getGrillCleanPrompt()
+        return getPrompt(
+            Workspace,
+            "_INTERACTABLES",
+            "Grill",
+            "Core",
+            "CleanupPrompt"
+        )
     end
 
-    local parent = prompt.Parent
+    -- Find money prompts
+    local function getMoneyPrompt()
+        local prompts = {}
+        local misc = Workspace:FindFirstChild("Miscellaneous")
 
-    if parent and parent:IsA("BasePart") then
-        return parent
-    elseif parent and parent:IsA("Attachment") then
-        return parent.Parent
-    end
-
-    return parent and parent:FindFirstAncestorWhichIsA("BasePart")
-end
-
-local function teleportToPrompt(prompt)
-    local hrp = getCharacterRoot()
-    local target = getPromptPart(prompt)
-
-    if not hrp or not target or not target:IsA("BasePart") then
-        return false
-    end
-
-    hrp.CFrame = target.CFrame * CFrame.new(0, 0, -3)
-    return true
-end
-
-local function getGrillCleanPrompt()
-    return getPrompt(
-        Workspace,
-        "_INTERACTABLES",
-        "Grill",
-        "Core",
-        "CleanupPrompt"
-    )
-end
-
-local function getTableCleanPrompts()
-    local prompts = {}
-    local persistent = Workspace:FindFirstChild("_PERSISTENT")
-    local tablesFolder = persistent and persistent:FindFirstChild("Tables")
-
-    if not tablesFolder then
-        return prompts
-    end
-
-    for _, tableModel in ipairs(tablesFolder:GetChildren()) do
-        local core = tableModel:FindFirstChild("Core")
-        local prompt = core and core:FindFirstChild("ProximityPrompt")
-
-        if prompt and prompt:IsA("ProximityPrompt") then
-            table.insert(prompts, prompt)
+        if not misc then
+            return prompts
         end
-    end
 
-    return prompts
-end
+        for _, v in ipairs(misc:GetDescendants()) do
+            if v:IsA("ProximityPrompt") then
+                local handle = v.Parent
+                local item = handle and handle.Parent
 
-local function createTeleportCleanToggle(name, getter, interval)
-    local enabled = false
-    local generation = 0
-
-    Tab:CreateToggle({
-        Name = name,
-        CurrentValue = false,
-
-        Callback = function(value)
-            enabled = value
-            generation = generation + 1
-            local thisGeneration = generation
-
-            if not value then
-                return
-            end
-
-            task.spawn(function()
-                while enabled and generation == thisGeneration do
-                    local result = getter()
-                    local prompts = {}
-
-                    if typeof(result) == "Instance" then
-                        table.insert(prompts, result)
-                    elseif type(result) == "table" then
-                        prompts = result
-                    end
-
-                    for _, prompt in ipairs(prompts) do
-                        if not enabled or generation ~= thisGeneration then
-                            break
-                        end
-
-                        if prompt and prompt:IsA("ProximityPrompt") and prompt.Parent then
-                            if teleportToPrompt(prompt) then
-                                task.wait(0.15)
-
-                                if prompt.Parent and prompt.Enabled
-                                    and type(fireproximityprompt) == "function" then
-                                    pcall(fireproximityprompt, prompt)
-                                end
-                            end
-
-                            task.wait(interval or 0.5)
-                        end
-                    end
-
-                    task.wait(interval or 0.5)
+                if handle
+                    and handle.Name == "Handle"
+                    and item
+                    and string.find(item.Name, "Money", 1, true) then
+                    table.insert(prompts, v)
                 end
-            end)
+            end
         end
-    })
-end
 
-
-
-local interactables = Workspace:FindFirstChild("_INTERACTABLES")
-
-local function getTrashcanPrompts()
-    local prompts = {}
-
-    interactables = Workspace:FindFirstChild("_INTERACTABLES")
-    if not interactables then
         return prompts
     end
 
-    for _, v in ipairs(interactables:GetDescendants()) do
-        if v:IsA("ProximityPrompt") and v.Name == "ProximityPrompt" then
-            local parent = v.Parent
-            local trashcan = parent and parent.Parent
+    -- Find all table cleanup prompts
+    local function getTableCleanPrompts()
+        local prompts = {}
+        local persistent = Workspace:FindFirstChild("_PERSISTENT")
+        local tablesFolder = persistent
+            and persistent:FindFirstChild("Tables")
 
-            if parent
-                and parent.Name == "Trashcan"
-                and trashcan then
-                table.insert(prompts, v)
+        if not tablesFolder then
+            return prompts
+        end
+
+        for _, tableModel in ipairs(tablesFolder:GetChildren()) do
+            local core = tableModel:FindFirstChild("Core")
+            local prompt = core
+                and core:FindFirstChild("ProximityPrompt")
+
+            if prompt and prompt:IsA("ProximityPrompt") then
+                table.insert(prompts, prompt)
             end
         end
+
+        return prompts
     end
 
-    return prompts
-end
+    -- Find a prompt's physical target
+    local function getPromptPart(prompt)
+        if not prompt then
+            return nil
+        end
 
-    local function createAutoPromptToggle(name, getter, interval)
-					and string.find(tray.Name, "Tray", 1, true) then
-					return v
-				end
-			end
-		end
+        local parent = prompt.Parent
 
-		return nil
-	end
+        if parent and parent:IsA("BasePart") then
+            return parent
+        end
 
+        if parent and parent:IsA("Attachment") then
+            local attachmentParent = parent.Parent
+
+            if attachmentParent and attachmentParent:IsA("BasePart") then
+                return attachmentParent
+            end
+        end
+
+        return parent
+            and parent:FindFirstAncestorWhichIsA("BasePart")
+    end
+
+    local function teleportToPrompt(prompt)
+        local character = Player.Character
+        local hrp = character
+            and character:FindFirstChild("HumanoidRootPart")
+        local target = getPromptPart(prompt)
+
+        if not hrp or not target or not target:IsA("BasePart") then
+            return false
+        end
+
+        hrp.CFrame = target.CFrame * CFrame.new(0, 0, -3)
+        return true
+    end
+
+    -- Handle either a single prompt or a list of prompts
+    local function normalizePrompts(result)
+        local prompts = {}
+
+        if typeof(result) == "Instance" then
+            if result:IsA("ProximityPrompt") then
+                table.insert(prompts, result)
+            end
+        elseif type(result) == "table" then
+            for _, prompt in ipairs(result) do
+                if typeof(prompt) == "Instance"
+                    and prompt:IsA("ProximityPrompt") then
+                    table.insert(prompts, prompt)
+                end
+            end
+        end
+
+        return prompts
+    end
+
+    -- Standard automatic prompt toggle
     local function createAutoPromptToggle(name, getter, interval)
         local enabled = false
-        local savedDistances = {}
         local generation = 0
+        local savedDistances = {}
 
         Tab:CreateToggle({
             Name = name,
@@ -17452,25 +17362,10 @@ end
 
                 task.spawn(function()
                     while enabled and generation == thisGeneration do
-                        local result = getter()
-                        local prompts = {}
-
-                        -- Accept either a single prompt or a list of prompts.
-                        if typeof(result) == "Instance" then
-                            if result:IsA("ProximityPrompt") then
-                                table.insert(prompts, result)
-                            end
-                        elseif type(result) == "table" then
-                            for _, prompt in ipairs(result) do
-                                if typeof(prompt) == "Instance"
-                                    and prompt:IsA("ProximityPrompt") then
-                                    table.insert(prompts, prompt)
-                                end
-                            end
-                        end
+                        local prompts = normalizePrompts(getter())
 
                         for _, prompt in ipairs(prompts) do
-                            if not (enabled and generation == thisGeneration) then
+                            if not enabled or generation ~= thisGeneration then
                                 break
                             end
 
@@ -17482,16 +17377,9 @@ end
 
                                 prompt.MaxActivationDistance = 9e9
 
-                                if prompt.Enabled then
-                                    if type(fireproximityprompt) == "function" then
-                                        pcall(fireproximityprompt, prompt)
-                                    else
-                                        warn(
-                                            "fireproximityprompt is not supported by your executor"
-                                        )
-                                        enabled = false
-                                        break
-                                    end
+                                if prompt.Enabled
+                                    and type(fireproximityprompt) == "function" then
+                                    pcall(fireproximityprompt, prompt)
                                 end
                             end
                         end
@@ -17499,7 +17387,6 @@ end
                         task.wait(interval or 0.2)
                     end
 
-                    -- Restore activation distances when disabled.
                     for prompt, distance in pairs(savedDistances) do
                         if prompt.Parent then
                             prompt.MaxActivationDistance = distance
@@ -17512,92 +17399,160 @@ end
         })
     end
 
-	local autoTrayTrash = false
+    -- Teleporting cleanup toggles
+    local function createTeleportCleanToggle(name, getter, interval)
+        local enabled = false
+        local generation = 0
 
-	local function getTrashcanUnderLimit()
-		local interactables = Workspace:FindFirstChild("_INTERACTABLES")
-		if not interactables then
-			return nil
-		end
+        Tab:CreateToggle({
+            Name = name,
+            CurrentValue = false,
 
-		for _, v in ipairs(interactables:GetDescendants()) do
-			if v:IsA("ProximityPrompt") and v.Name == "ProximityPrompt" then
-				local parent = v.Parent
-				local trashcan = parent and parent.Parent
+            Callback = function(value)
+                enabled = value
+                generation = generation + 1
 
-				if parent
-					and parent.Name == "Trashcan"
-					and trashcan then
+                local thisGeneration = generation
 
-					local disposedCount = trashcan:GetAttribute("DisposedCount")
+                if not value then
+                    return
+                end
 
-					if typeof(disposedCount) == "number" and disposedCount < 10 then
-						return v
-					end
-				end
-			end
-		end
+                task.spawn(function()
+                    while enabled and generation == thisGeneration do
+                        local prompts = normalizePrompts(getter())
 
-		return nil
-	end
+                        for _, prompt in ipairs(prompts) do
+                            if not enabled or generation ~= thisGeneration then
+                                break
+                            end
 
+                            if prompt.Parent and prompt.Enabled then
+                                if teleportToPrompt(prompt) then
+                                    task.wait(0.25)
+
+                                    if enabled
+                                        and generation == thisGeneration
+                                        and prompt.Parent
+                                        and prompt.Enabled
+                                        and type(fireproximityprompt) == "function" then
+                                        pcall(fireproximityprompt, prompt)
+                                    end
+                                end
+
+                                task.wait(interval or 0.5)
+                            end
+                        end
+
+                        task.wait(interval or 0.5)
+                    end
+                end)
+            end,
+        })
+    end
+
+    -- Find a trash can with DisposedCount below 10
+    local function getTrashcanUnderLimit()
+        local interactables = Workspace:FindFirstChild("_INTERACTABLES")
+
+        if not interactables then
+            return nil
+        end
+
+        for _, v in ipairs(interactables:GetDescendants()) do
+            if v:IsA("ProximityPrompt")
+                and v.Name == "ProximityPrompt" then
+
+                local parent = v.Parent
+                local trashcan = parent and parent.Parent
+
+                if parent
+                    and parent.Name == "Trashcan"
+                    and trashcan then
+
+                    local disposedCount =
+                        trashcan:GetAttribute("DisposedCount")
+
+                    -- Also check the prompt's parent in case
+                    -- the attribute is stored on the part.
+                    if typeof(disposedCount) ~= "number" then
+                        disposedCount =
+                            parent:GetAttribute("DisposedCount")
+                    end
+
+                    if typeof(disposedCount) == "number"
+                        and disposedCount < 10 then
+                        return v
+                    end
+                end
+            end
+        end
+
+        return nil
+    end
+
+    -- Auto Tray Trash: teleport to a suitable trash can
+    local autoTrayTrash = false
+    local trashGeneration = 0
+
+    Tab:CreateToggle({
+        Name = "Auto Tray Trash",
+        CurrentValue = false,
+
+        Callback = function(value)
+            autoTrayTrash = value
+            trashGeneration = trashGeneration + 1
+
+            local thisGeneration = trashGeneration
+
+            if not value then
+                return
+            end
+
+            task.spawn(function()
+                while autoTrayTrash
+                    and trashGeneration == thisGeneration do
+
+                    local prompt = getTrashcanUnderLimit()
+
+                    if prompt and prompt.Parent and prompt.Enabled then
+                        if teleportToPrompt(prompt) then
+                            task.wait(0.25)
+
+                            if autoTrayTrash
+                                and trashGeneration == thisGeneration
+                                and prompt.Parent
+                                and prompt.Enabled
+                                and type(fireproximityprompt) == "function" then
+                                pcall(fireproximityprompt, prompt)
+                            end
+                        end
+                    end
+
+                    task.wait(0.2)
+                end
+            end)
+        end,
+    })
+
+    -- Register all toggles
     createAutoPromptToggle("Auto Patty", getGrillPrompt, 0.2)
     createAutoPromptToggle("Auto Soda", getSodaPrompt, 0.2)
-    createTeleportCleanToggle("Auto Clean Grill", getGrillCleanPrompt, 0.5)
-	createTeleportCleanToggle("Auto Clean Tables", getTableCleanPrompts, 0.5)
-
-
-	
-
-	Tab:CreateToggle({
-		Name = "Auto Tray Trash",
-		CurrentValue = false,
-
-		Callback = function(value)
-			autoTrayTrash = value
-
-			if not value then
-				return
-			end
-
-			task.spawn(function()
-				while autoTrayTrash do
-					local prompt = getTrashcanUnderLimit()
-					local character = Player.Character
-					local hrp = character
-						and character:FindFirstChild("HumanoidRootPart")
-
-					if prompt and prompt.Parent and hrp then
-						local parent = prompt.Parent
-						local targetPart
-
-						if parent:IsA("BasePart") then
-							targetPart = parent
-						elseif parent:IsA("Attachment") then
-							targetPart = parent.Parent
-						end
-
-						if targetPart and targetPart:IsA("BasePart") then
-							hrp.CFrame = targetPart.CFrame * CFrame.new(0, 0, -3)
-
-							task.wait(0.15)
-
-							if autoTrayTrash
-								and prompt.Parent
-								and prompt.Enabled
-								and type(fireproximityprompt) == "function" then
-								pcall(fireproximityprompt, prompt)
-							end
-						end
-					end
-
-					task.wait(0.2)
-				end
-			end)
-		end
-	})
     createAutoPromptToggle("Auto Money", getMoneyPrompt, 0.2)
+
+    createTeleportCleanToggle(
+        "Auto Clean Grill",
+        getGrillCleanPrompt,
+        0.5
+    )
+
+    createTeleportCleanToggle(
+        "Auto Clean Tables",
+        getTableCleanPrompts,
+        0.5
+    )
 end
+
 
 
 
