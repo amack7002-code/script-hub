@@ -18067,9 +18067,6 @@ Tab:CreateButton({
 end
 
 
-end
-
-
 if game.PlaceId == 67 then 
     for i = 1, 67 do
     print("lol")
