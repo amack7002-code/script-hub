@@ -17066,7 +17066,7 @@ for _, location in ipairs(locations) do
         end,
     })
 end
-
+end
 
 if game.PlaceId == 117713779364528 then
     local Tab = Window:CreateTab("Main", 4483362458)
