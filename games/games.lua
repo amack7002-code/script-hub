@@ -17451,89 +17451,45 @@ if game.PlaceId == 77709018585862 then
         })
     end
 
-    -- Find a trash can with DisposedCount below 10
-    local function getTrashcanUnderLimit()
-        local interactables = Workspace:FindFirstChild("_INTERACTABLES")
+local autoTrayTrash = false
+local trashGeneration = 0
 
-        if not interactables then
-            return nil
-        end
-
-        for _, v in ipairs(interactables:GetDescendants()) do
-            if v:IsA("ProximityPrompt")
-                and v.Name == "ProximityPrompt" then
-
-                local parent = v.Parent
-                local trashcan = parent and parent.Parent
-
-                if parent
-                    and parent.Name == "Trashcan"
-                    and trashcan then
-
-                    local disposedCount =
-                        trashcan:GetAttribute("DisposedCount")
-
-                    -- Also check the prompt's parent in case
-                    -- the attribute is stored on the part.
-                    if typeof(disposedCount) ~= "number" then
-                        disposedCount =
-                            parent:GetAttribute("DisposedCount")
-                    end
-
-                    if typeof(disposedCount) == "number"
-                        and disposedCount < 10 then
-                        return v
-                    end
-                end
-            end
-        end
-
+local function getTrashcanUnderLimit()
+    local interactables = Workspace:FindFirstChild("_INTERACTABLES")
+    if not interactables then
         return nil
     end
 
-    -- Auto Tray Trash: teleport to a suitable trash can
-    local autoTrayTrash = false
-    local trashGeneration = 0
+    for _, prompt in ipairs(interactables:GetDescendants()) do
+        if prompt:IsA("ProximityPrompt") and prompt.Name == "ProximityPrompt" then
+            local parent = prompt.Parent
 
-    Tab:CreateToggle({
-        Name = "Auto Tray Trash",
-        CurrentValue = false,
+            if parent and parent.Name == "Trashcan" then
+                local current = parent
+                local disposedCount
 
-        Callback = function(value)
-            autoTrayTrash = value
-            trashGeneration = trashGeneration + 1
+                -- Search the trashcan and its ancestors for the attribute.
+                while current and current ~= interactables do
+                    disposedCount = current:GetAttribute("DisposedCount")
 
-            local thisGeneration = trashGeneration
-
-            if not value then
-                return
-            end
-
-            task.spawn(function()
-                while autoTrayTrash
-                    and trashGeneration == thisGeneration do
-
-                    local prompt = getTrashcanUnderLimit()
-
-                    if prompt and prompt.Parent and prompt.Enabled then
-                        if teleportToPrompt(prompt) then
-                            task.wait(0.25)
-
-                            if autoTrayTrash
-                                and trashGeneration == thisGeneration
-                                and prompt.Parent
-                                and prompt.Enabled
-                                and type(fireproximityprompt) == "function" then
-                                pcall(fireproximityprompt, prompt)
-                            end
-                        end
+                    if typeof(disposedCount) == "number" then
+                        break
                     end
 
-                    task.wait(0.2)
+                    current = current.Parent
                 end
-            end)
-        end,
-    })
+
+                if typeof(disposedCount) == "number" and disposedCount < 10 then
+                    return prompt
+                end
+            end
+        end
+    end
+
+    return nil
+end
+
+    
 
     -- Register all toggles
     createAutoPromptToggle("Auto Patty", getGrillPrompt, 0.2)
@@ -17551,6 +17507,59 @@ if game.PlaceId == 77709018585862 then
         getTableCleanPrompts,
         0.5
     )
+
+	Tab:CreateToggle({
+    Name = "Auto Tray Trash",
+    CurrentValue = false,
+
+    Callback = function(value)
+        autoTrayTrash = value
+        trashGeneration += 1
+
+        local myGeneration = trashGeneration
+
+        if not value then
+            return
+        end
+
+        task.spawn(function()
+            while autoTrayTrash and trashGeneration == myGeneration do
+                local prompt = getTrashcanUnderLimit()
+                local character = Player.Character
+                local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+                if prompt and prompt.Parent and prompt.Enabled and hrp then
+                    local parent = prompt.Parent
+                    local targetPart
+
+                    if parent:IsA("BasePart") then
+                        targetPart = parent
+                    elseif parent:IsA("Attachment") then
+                        targetPart = parent.Parent
+                    else
+                        targetPart = parent:FindFirstAncestorWhichIsA("BasePart")
+                    end
+
+                    if targetPart and targetPart:IsA("BasePart") then
+                        hrp.CFrame = targetPart.CFrame * CFrame.new(0, 0, -3)
+
+                        task.wait(0.25)
+
+                        if autoTrayTrash
+                            and trashGeneration == myGeneration
+                            and prompt.Parent
+                            and prompt.Enabled
+                            and type(fireproximityprompt) == "function" then
+                            pcall(fireproximityprompt, prompt)
+                        end
+                    end
+                end
+
+                task.wait(0.2)
+            end
+        end)
+    end
+})
 end
 
 
