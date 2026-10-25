@@ -17027,6 +17027,7 @@ Tab:CreateButton({
 
 end
 
+--welcome to bloxburg
 if game.PlaceId == 185655149 then
 	
 	local Tab = Window:CreateTab("Main", 4483362458)
@@ -17068,6 +17069,7 @@ for _, location in ipairs(locations) do
 end
 end
 
+--some lethal ape game
 if game.PlaceId == 117713779364528 then
     local Tab = Window:CreateTab("Main", 4483362458)
 
@@ -17149,6 +17151,77 @@ if game.PlaceId == 117713779364528 then
             end
         end,
     })
+
+	local screen = game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui
+
+	Tab:CreateButton({
+		Name = "Remove static",
+		Callback = function()
+			if screen then
+				for i,v in pairs(screen:GetChildren()) do
+					if v.Name == "Static" or v:FindFirstChild("Static") then
+						v:Destroy()
+					end
+				end
+			end
+		end,
+	})
+end
+
+--save the krust krabs
+if game.PlaceId == 77709018585862 then
+	local Tab = Window:CreateTab("Main", 4483362458)
+
+
+
+local prompt = workspace:WaitForChild("_INTERACTABLES")
+    :WaitForChild("Grill")
+    :WaitForChild("ProximityPart")
+    :WaitForChild("ProximityPrompt")
+
+local savedPromptDistance = prompt.MaxActivationDistance
+local autoPatty = false
+
+Tab:CreateToggle({
+    Name = "Auto Patty",
+    CurrentValue = false,
+    Callback = function(v)
+        autoPatty = v
+
+        if v then
+            savedPromptDistance = prompt.MaxActivationDistance
+            prompt.MaxActivationDistance = 9e9
+
+            task.spawn(function()
+                while autoPatty do
+                    if not prompt.Parent then
+                        autoPatty = false
+                        break
+                    end
+
+                    if not fireproximityprompt then
+                        warn("fireproximityprompt is not supported by your executor")
+                        autoPatty = false
+                        break
+                    end
+
+                    if prompt.Enabled then
+                        pcall(function()
+                            fireproximityprompt(prompt)
+                        end)
+                    end
+
+                    task.wait(0.2)
+                end
+
+                prompt.MaxActivationDistance = savedPromptDistance
+            end)
+        else
+            prompt.MaxActivationDistance = savedPromptDistance
+        end
+    end,
+})
+
 end
 
 
