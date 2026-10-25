@@ -17172,15 +17172,25 @@ end
 if game.PlaceId == 77709018585862 then
 	local Tab = Window:CreateTab("Main", 4483362458)
 
+local grill = workspace:WaitForChild("_INTERACTABLES"):WaitForChild("Grill")
+local pattyprompt = grill:WaitForChild("ProximityPart"):WaitForChild("ProximityPrompt")
 
+local soda = workspace._INTERACTABLES.SodaMachine
+local SodaPrompt = soda.ProximityPart.ProximityPrompt
 
-local prompt = workspace:WaitForChild("_INTERACTABLES")
-    :WaitForChild("Grill")
-    :WaitForChild("ProximityPart")
-    :WaitForChild("ProximityPrompt")
+local misc = workspace.Miscellaneous
 
-local savedPromptDistance = prompt.MaxActivationDistance
+local savedPattypromptDistance = pattyprompt.MaxActivationDistance
 local autoPatty = false
+
+local function getTrayTrashPrompt()
+	for _, v in pairs(misc:GetDescendants()) do
+		if v:IsA("ProximityPrompt") and v.Name == "ProximityPrompt" and v.Parent.Name == "Handle" then
+			return v
+		end
+	end
+	return nil
+end
 
 Tab:CreateToggle({
     Name = "Auto Patty",
@@ -17189,12 +17199,12 @@ Tab:CreateToggle({
         autoPatty = v
 
         if v then
-            savedPromptDistance = prompt.MaxActivationDistance
-            prompt.MaxActivationDistance = 9e9
+            savedPattypromptDistance = pattyprompt.MaxActivationDistance
+            pattyprompt.MaxActivationDistance = 9e9
 
             task.spawn(function()
                 while autoPatty do
-                    if not prompt.Parent then
+                    if not pattyprompt.Parent then
                         autoPatty = false
                         break
                     end
@@ -17205,21 +17215,86 @@ Tab:CreateToggle({
                         break
                     end
 
-                    if prompt.Enabled then
+                    if pattyprompt.Enabled then
                         pcall(function()
-                            fireproximityprompt(prompt)
+                            fireproximityprompt(pattyprompt)
                         end)
                     end
 
                     task.wait(0.2)
                 end
 
-                prompt.MaxActivationDistance = savedPromptDistance
+                pattyprompt.MaxActivationDistance = savedPattypromptDistance
             end)
         else
-            prompt.MaxActivationDistance = savedPromptDistance
+            pattyprompt.MaxActivationDistance = savedPattypromptDistance
         end
     end,
+})
+
+Tab:CreateToggle({
+    Name = "Auto Soda",
+    CurrentValue = false,
+    Callback = function(v)
+        autoSoda = v
+
+        if v then
+            savedSodaPromptDistance = SodaPrompt.MaxActivationDistance
+            SodaPrompt.MaxActivationDistance = 9e9
+
+            task.spawn(function()
+                while autoSoda do
+                    if not SodaPrompt.Parent then
+                        autoSoda = false
+                        break
+                    end
+
+                    if not fireproximityprompt then
+                        warn("fireproximityprompt is not supported by your executor")
+                        autoSoda = false
+                        break
+                    end
+
+                    if SodaPrompt.Enabled then
+                        pcall(function()
+                            fireproximityprompt(SodaPrompt)
+                        end)
+                    end
+
+                    task.wait(0.2)
+                end
+
+                SodaPrompt.MaxActivationDistance = savedSodaPromptDistance
+            end)
+        else
+            SodaPrompt.MaxActivationDistance = savedSodaPromptDistance
+        end
+    end,
+})
+
+Tab:CreateButton({
+	Name = "Auto Tray Trash",
+	Callback = function()
+		local TrashTrayprompt = getTrayTrashPrompt()
+		if TrashTrayprompt then
+			TrashTrayprompt.MaxActivationDistance = 9e9
+			while true do
+				if not TrashTrayprompt.Parent then
+					break
+				end
+
+				if TrashTrayprompt.Enabled then
+					pcall(function()
+						fireproximityprompt(TrashTrayprompt)
+					end)
+				end
+
+				task.wait(0.2)
+			end
+		else
+			print("Tray Trash ProximityPrompt not found.")
+		end
+	end,
 })
 
 end
