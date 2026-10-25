@@ -17575,44 +17575,45 @@ Tab:CreateButton({
     end,
 })
 
+local Lighting = game:GetService("Lighting")
+
+local removeChase = false
+local chaseTaskRunning = false
+
 local function removeChaseFX()
-    local lighting = game:GetService("Lighting")
-
-    while true do
-        local chase = lighting:FindFirstChild("HollowEnemyChaseCorrection")
-
-        if chase then
-            for _, v in ipairs(chase:GetDescendants()) do
-                v:Destroy()
-            end
+    for _, v in ipairs(Lighting:GetDescendants()) do
+        if v.Name == "HollowEnemyChaseCorrection" then
+            v:Destroy()
         end
+    end
 
-        task.wait(0.1)
+    local direct = Lighting:FindFirstChild("HollowEnemyChaseCorrection")
+    if direct then
+        direct:Destroy()
     end
 end
 
-
-local Lighting = game:GetService("Lighting")
-local RunService = game:GetService("RunService")
-
-local removeChase = false
-
 Tab:CreateButton({
-    Name = "Remove Chase FX",
+    Name = "Remove Chase FX: OFF",
     Callback = function()
         removeChase = not removeChase
 
         if removeChase then
-            RunService.Heartbeat:Connect(function()
-                while removeChase do
-                    local chase = Lighting:FindFirstChild("HollowEnemyChaseCorrection")
+            if chaseTaskRunning then return end
+            chaseTaskRunning = true
 
-                    if chase then
-                        chase:Destroy()
+            task.spawn(function()
+                while removeChase do
+                    local success, err = pcall(removeChaseFX)
+
+                    if not success then
+                        warn("Remove Chase FX error:", err)
                     end
 
                     task.wait(0.1)
                 end
+
+                chaseTaskRunning = false
             end)
         end
     end,
