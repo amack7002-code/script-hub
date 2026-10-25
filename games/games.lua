@@ -17272,30 +17272,56 @@ Tab:CreateToggle({
     end,
 })
 
-Tab:CreateButton({
-	Name = "Auto Tray Trash",
-	Callback = function()
-		local TrashTrayprompt = getTrayTrashPrompt()
-		if TrashTrayprompt then
-			TrashTrayprompt.MaxActivationDistance = 9e9
-			while true do
-				if not TrashTrayprompt.Parent then
-					break
-				end
 
-				if TrashTrayprompt.Enabled then
-					pcall(function()
-						fireproximityprompt(TrashTrayprompt)
-					end)
-				end
+local autoTrayTrash = false
+local trayTrashPrompt
+local savedTrayTrashDistance
 
-				task.wait(0.2)
-			end
-		else
-			print("Tray Trash ProximityPrompt not found.")
-		end
-	end,
+Tab:CreateToggle({
+    Name = "Auto Tray Trash",
+    CurrentValue = false,
+    Callback = function(value)
+        autoTrayTrash = value
+
+        if value then
+            task.spawn(function()
+                trayTrashPrompt = getTrayTrashPrompt()
+
+                if not trayTrashPrompt then
+                    warn("Tray Trash ProximityPrompt not found.")
+                    autoTrayTrash = false
+                    return
+                end
+
+                savedTrayTrashDistance = trayTrashPrompt.MaxActivationDistance
+                trayTrashPrompt.MaxActivationDistance = 9e9
+
+                while autoTrayTrash do
+                    if not trayTrashPrompt.Parent then
+                        break
+                    end
+
+                    if trayTrashPrompt.Enabled and fireproximityprompt then
+                        pcall(function()
+                            fireproximityprompt(trayTrashPrompt)
+                        end)
+                    end
+
+                    task.wait(0.2)
+                end
+
+                if trayTrashPrompt and trayTrashPrompt.Parent and savedTrayTrashDistance then
+                    trayTrashPrompt.MaxActivationDistance = savedTrayTrashDistance
+                end
+            end)
+        else
+            if trayTrashPrompt and trayTrashPrompt.Parent and savedTrayTrashDistance then
+                trayTrashPrompt.MaxActivationDistance = savedTrayTrashDistance
+            end
+        end
+    end,
 })
+
 
 end
 
