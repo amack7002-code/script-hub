@@ -17659,63 +17659,83 @@ Tab:CreateButton({
     end,
 })
 
-local Floor2Section = Tab:CreateSection("Floor 4")
 
-------------------------------
--- Onyx ESP
-------------------------------
+local Floor4Section = Tab:CreateSection("Floor 4")
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local juniperESPEnabled = false
 local juniperConnections = {}
+local juniperHighlight
+local juniperGui
+local juniperLabel
+local currentJuniper
+local juniperWatcher
 
-Tab:CreateButton({
-    Name = "juniper ESP",
-    Callback = function()
-        local juniper = mobs:FindFirstChild("Juniper")
-
-        if not juniper then
-            warn("juniper was not found in workspace.Mobs")
-            return
-        end
-
-        for _, conn in ipairs(juniperConnections) do
+local function disconnectJuniperConnections()
+    for _, conn in ipairs(juniperConnections) do
+        pcall(function()
             conn:Disconnect()
-        end
-        table.clear(juniperConnections)
+        end)
+    end
 
-        local oldHighlight = juniper:FindFirstChild("juniperESP")
-        if oldHighlight then
-            oldHighlight:Destroy()
-        end
+    table.clear(juniperConnections)
+end
 
-        local playerGui = player:WaitForChild("PlayerGui")
-        local oldGui = playerGui:FindFirstChild("juniperName")
+local function cleanupJuniperESP()
+    disconnectJuniperConnections()
 
-        if oldGui then
-            oldGui:Destroy()
-        end
+    if juniperHighlight then
+        juniperHighlight:Destroy()
+        juniperHighlight = nil
+    end
 
-        local adornee = juniper:FindFirstChild("Head")
-            or juniper:FindFirstChildWhichIsA("BasePart", true)
+    if juniperGui then
+        juniperGui:Destroy()
+        juniperGui = nil
+    end
 
-        if not adornee then
-            warn("No valid juniper part found")
-            return
-        end
+    juniperLabel = nil
+    currentJuniper = nil
+end
 
-        local esp = Instance.new("Highlight")
-        esp.Name = "juniperESP"
-        esp.Adornee = juniper
-        esp.FillColor = Color3.fromRGB(255, 0, 0)
-        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
-        esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        esp.Parent = juniper
+local function attachJuniperESP(juniper)
+    if not juniperESPEnabled or not juniper or not juniper.Parent then
+        return
+    end
 
+    if currentJuniper == juniper and juniperHighlight and juniperHighlight.Parent then
+        return
+    end
+
+    cleanupJuniperESP()
+    currentJuniper = juniper
+
+    local adornee = juniper:FindFirstChild("Head", true)
+        or juniper:FindFirstChildWhichIsA("BasePart", true)
+
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "juniperESP"
+    highlight.Adornee = juniper
+    highlight.FillColor = Color3.fromRGB(255, 0, 0)
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.Parent = juniper
+    juniperHighlight = highlight
+
+    if adornee then
         local gui = Instance.new("BillboardGui")
         gui.Name = "juniperName"
         gui.Adornee = adornee
-        gui.Size = UDim2.fromOffset(220, 60)
+        gui.Size = UDim2.fromOffset(260, 65)
         gui.StudsOffset = Vector3.new(0, 3, 0)
         gui.AlwaysOnTop = true
         gui.Parent = playerGui
+        juniperGui = gui
 
         local label = Instance.new("TextLabel")
         label.Name = "juniperLabel"
@@ -17726,43 +17746,101 @@ Tab:CreateButton({
         label.TextScaled = true
         label.Font = Enum.Font.GothamBold
         label.Parent = gui
+        juniperLabel = label
+    end
 
-        local function updateLabel()
-            if not juniper.Parent then
-                return
-            end
-
-            label.Text = "juniper state: "
-                .. tostring(juniper:GetAttribute("State") or "Unknown")
-                .. "\nMovement: "
-                .. tostring(juniper:GetAttribute("MovementState") or "Unknown")
+    local function updateLabel()
+        if not juniperESPEnabled or currentJuniper ~= juniper then
+            return
         end
 
-        updateLabel()
+        if not juniper.Parent then
+            return
+        end
 
-        table.insert(juniperConnections,
-            juniper:GetAttributeChangedSignal("State"):Connect(updateLabel)
-        )
+        if juniperLabel then
+            juniperLabel.Text =
+                "Juniper State: " ..
+                tostring(juniper:GetAttribute("State") or "Unknown") ..
+                "\nMovement: " ..
+                tostring(juniper:GetAttribute("MovementState") or "Unknown")
+        end
+    end
 
-        table.insert(juniperConnections,
-            juniper:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
-        )
+    updateLabel()
 
-        table.insert(juniperConnections, juniper.Destroying:Connect(function()
-            for _, conn in ipairs(juniperConnections) do
-                conn:Disconnect()
+    table.insert(juniperConnections,
+        juniper:GetAttributeChangedSignal("State"):Connect(updateLabel)
+    )
+
+    table.insert(juniperConnections,
+        juniper:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
+    )
+
+    table.insert(juniperConnections, juniper.Destroying:Connect(function()
+        if currentJuniper == juniper then
+            cleanupJuniperESP()
+        end
+    end))
+end
+
+local function findJuniper()
+    local mobsFolder = workspace:FindFirstChild("Mobs")
+    if not mobsFolder then
+        return nil
+    end
+
+    return mobsFolder:FindFirstChild("Juniper")
+end
+
+local function startJuniperWatcher()
+    if juniperWatcher then
+        return
+    end
+
+    juniperWatcher = task.spawn(function()
+        while juniperESPEnabled do
+            local juniper = findJuniper()
+
+            if juniper then
+                attachJuniperESP(juniper)
+            elseif currentJuniper then
+                cleanupJuniperESP()
             end
 
-            table.clear(juniperConnections)
-            gui:Destroy()
-        end))
+            task.wait(0.5)
+        end
+
+        juniperWatcher = nil
+    end)
+end
+
+Tab:CreateButton({
+    Name = "Juniper ESP: Toggle",
+    Callback = function()
+        juniperESPEnabled = not juniperESPEnabled
+
+        if juniperESPEnabled then
+            local juniper = findJuniper()
+
+            if juniper then
+                attachJuniperESP(juniper)
+            end
+
+            startJuniperWatcher()
+            print("Juniper ESP enabled")
+        else
+            cleanupJuniperESP()
+            print("Juniper ESP disabled")
+        end
     end,
 })
 
 Tab:CreateButton({
     Name = "Teleport to Zombie Maze End",
     Callback = function()
-        local hrp = getHRP()
+        local character = player.Character
+        local hrp = character and character:FindFirstChild("HumanoidRootPart")
 
         if not hrp then
             warn("Character / HumanoidRootPart not found")
@@ -17782,6 +17860,7 @@ Tab:CreateButton({
         print("Teleported to Zombie Maze End")
     end,
 })
+
 
 end
 
