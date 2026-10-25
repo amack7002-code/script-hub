@@ -17351,6 +17351,23 @@ Tab:CreateToggle({
     end,
 })
 
+
+local autoCleanGrill = false
+local savedGrillCleanPromptDistances = {}
+
+local function getGrillCleanPrompt()
+    local interactables = workspace:FindFirstChild("_INTERACTABLES")
+    local grill = interactables and interactables:FindFirstChild("Grill")
+    local core = grill and grill:FindFirstChild("Core")
+    local prompt = core and core:FindFirstChild("CleanPrompt")
+
+    if prompt and prompt:IsA("ProximityPrompt") then
+        return prompt
+    end
+
+    return nil
+end
+
 Tab:CreateToggle({
     Name = "Auto Clean Grill",
     CurrentValue = false,
@@ -17358,38 +17375,50 @@ Tab:CreateToggle({
         autoCleanGrill = v
 
         if v then
-            savedGrillCleanPromptDistance = grillCleanPrompt.MaxActivationDistance
-            grillCleanPrompt.MaxActivationDistance = 9e9
-
             task.spawn(function()
                 while autoCleanGrill do
-                    if not grillCleanPrompt.Parent then
-                        autoCleanGrill = false
-                        break
-                    end
+                    local prompt = getGrillCleanPrompt()
 
-                    if not fireproximityprompt then
-                        warn("fireproximityprompt is not supported by your executor")
-                        autoCleanGrill = false
-                        break
-                    end
+                    if prompt then
+                        if savedGrillCleanPromptDistances[prompt] == nil then
+                            savedGrillCleanPromptDistances[prompt] =
+                                prompt.MaxActivationDistance
+                        end
 
-                    if grillCleanPrompt.Enabled then
-                        pcall(function()
-                            fireproximityprompt(grillCleanPrompt)
-                        end)
+                        prompt.MaxActivationDistance = 9e9
+
+                        if prompt.Enabled then
+                            if type(fireproximityprompt) == "function" then
+                                pcall(fireproximityprompt, prompt)
+                            else
+                                warn("fireproximityprompt is not supported by your executor")
+                                autoCleanGrill = false
+                                break
+                            end
+                        end
                     end
 
                     task.wait(0.2)
                 end
 
-                grillCleanPrompt.MaxActivationDistance = savedGrillCleanPromptDistance
+                for prompt, distance in pairs(savedGrillCleanPromptDistances) do
+                    if prompt.Parent then
+                        prompt.MaxActivationDistance = distance
+                    end
+                end
+
+                table.clear(savedGrillCleanPromptDistances)
             end)
         else
-            grillCleanPrompt.MaxActivationDistance = savedGrillCleanPromptDistance
+            for prompt, distance in pairs(savedGrillCleanPromptDistances) do
+                if prompt.Parent then
+                    prompt.MaxActivationDistance = distance
+                end
+            end
         end
     end,
 })
+
 
 end
 
