@@ -17174,6 +17174,7 @@ if game.PlaceId == 77709018585862 then
 
 local grill = workspace:WaitForChild("_INTERACTABLES"):WaitForChild("Grill")
 local pattyprompt = grill:WaitForChild("ProximityPart"):WaitForChild("ProximityPrompt")
+local grillCleanPrompt = grill:WaitForChild("Core"):WaitForChild("CleanPrompt")
 
 local soda = workspace._INTERACTABLES.SodaMachine
 local SodaPrompt = soda.ProximityPart.ProximityPrompt
@@ -17183,14 +17184,41 @@ local misc = workspace.Miscellaneous
 local savedPattypromptDistance = pattyprompt.MaxActivationDistance
 local autoPatty = false
 
+
 local function getTrayTrashPrompt()
-	for _, v in pairs(misc:GetDescendants()) do
-		if v:IsA("ProximityPrompt") and v.Name == "ProximityPrompt" and v.Parent.Name == "Handle" then
-			return v
-		end
-	end
-	return nil
+    for _, v in ipairs(misc:GetDescendants()) do
+        if v:IsA("ProximityPrompt") and v.Name == "ProximityPrompt" then
+            local handle = v.Parent
+            local tray = handle and handle.Parent
+
+            if handle
+                and handle.Name == "Handle"
+                and tray
+                and string.find(tray.Name, "Tray", 1, true) then
+                return v
+            end
+        end
+    end
+
+    return nil
 end
+
+local function getMoneyPrompt()
+	for _, v in ipairs(misc:GetDescendants()) do
+        if v:IsA("ProximityPrompt") and v.Name == "ProximityPrompt" then
+
+            if handle
+                and handle.Name == "Handle"
+                and tray
+                and string.find(tray.Name, "Tray", 1, true) then
+                return v
+            end
+        end
+    end
+
+    return nil
+end
+
 
 Tab:CreateToggle({
     Name = "Auto Patty",
@@ -17273,9 +17301,9 @@ Tab:CreateToggle({
 })
 
 
+
 local autoTrayTrash = false
-local trayTrashPrompt
-local savedTrayTrashDistance
+local savedTrayTrashDistance = {}
 
 Tab:CreateToggle({
     Name = "Auto Tray Trash",
@@ -17285,43 +17313,83 @@ Tab:CreateToggle({
 
         if value then
             task.spawn(function()
-                trayTrashPrompt = getTrayTrashPrompt()
+                while autoTrayTrash do
+                    local prompt = getTrayTrashPrompt()
 
-                if not trayTrashPrompt then
-                    warn("Tray Trash ProximityPrompt not found.")
-                    autoTrayTrash = false
-                    return
+                    if prompt and prompt.Parent then
+                        if savedTrayTrashDistance[prompt] == nil then
+                            savedTrayTrashDistance[prompt] = prompt.MaxActivationDistance
+                        end
+
+                        prompt.MaxActivationDistance = 9e9
+
+                        if prompt.Enabled and fireproximityprompt then
+                            pcall(function()
+                                fireproximityprompt(prompt)
+                            end)
+                        end
+                    end
+
+                    task.wait(0.2)
                 end
 
-                savedTrayTrashDistance = trayTrashPrompt.MaxActivationDistance
-                trayTrashPrompt.MaxActivationDistance = 9e9
+                for prompt, distance in pairs(savedTrayTrashDistance) do
+                    if prompt.Parent then
+                        prompt.MaxActivationDistance = distance
+                    end
+                end
 
-                while autoTrayTrash do
-                    if not trayTrashPrompt.Parent then
+                table.clear(savedTrayTrashDistance)
+            end)
+        else
+            for prompt, distance in pairs(savedTrayTrashDistance) do
+                if prompt.Parent then
+                    prompt.MaxActivationDistance = distance
+                end
+            end
+        end
+    end,
+})
+
+Tab:CreateToggle({
+    Name = "Auto Clean Grill",
+    CurrentValue = false,
+    Callback = function(v)
+        autoCleanGrill = v
+
+        if v then
+            savedGrillCleanPromptDistance = grillCleanPrompt.MaxActivationDistance
+            grillCleanPrompt.MaxActivationDistance = 9e9
+
+            task.spawn(function()
+                while autoCleanGrill do
+                    if not grillCleanPrompt.Parent then
+                        autoCleanGrill = false
                         break
                     end
 
-                    if trayTrashPrompt.Enabled and fireproximityprompt then
+                    if not fireproximityprompt then
+                        warn("fireproximityprompt is not supported by your executor")
+                        autoCleanGrill = false
+                        break
+                    end
+
+                    if grillCleanPrompt.Enabled then
                         pcall(function()
-                            fireproximityprompt(trayTrashPrompt)
+                            fireproximityprompt(grillCleanPrompt)
                         end)
                     end
 
                     task.wait(0.2)
                 end
 
-                if trayTrashPrompt and trayTrashPrompt.Parent and savedTrayTrashDistance then
-                    trayTrashPrompt.MaxActivationDistance = savedTrayTrashDistance
-                end
+                grillCleanPrompt.MaxActivationDistance = savedGrillCleanPromptDistance
             end)
         else
-            if trayTrashPrompt and trayTrashPrompt.Parent and savedTrayTrashDistance then
-                trayTrashPrompt.MaxActivationDistance = savedTrayTrashDistance
-            end
+            grillCleanPrompt.MaxActivationDistance = savedGrillCleanPromptDistance
         end
     end,
 })
-
 
 end
 
