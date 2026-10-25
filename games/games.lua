@@ -17659,7 +17659,105 @@ Tab:CreateButton({
     end,
 })
 
+local Floor2Section = Tab:CreateSection("Floor 4")
 
+------------------------------
+-- Onyx ESP
+------------------------------
+local juniperConnections = {}
+
+Tab:CreateButton({
+    Name = "juniper ESP",
+    Callback = function()
+        local juniper = mobs:FindFirstChild("Juniper")
+
+        if not juniper then
+            warn("juniper was not found in workspace.Mobs")
+            return
+        end
+
+        for _, conn in ipairs(juniperConnections) do
+            conn:Disconnect()
+        end
+        table.clear(juniperConnections)
+
+        local oldHighlight = juniper:FindFirstChild("juniperESP")
+        if oldHighlight then
+            oldHighlight:Destroy()
+        end
+
+        local playerGui = player:WaitForChild("PlayerGui")
+        local oldGui = playerGui:FindFirstChild("juniperName")
+
+        if oldGui then
+            oldGui:Destroy()
+        end
+
+        local adornee = juniper:FindFirstChild("Head")
+            or juniper:FindFirstChildWhichIsA("BasePart", true)
+
+        if not adornee then
+            warn("No valid juniper part found")
+            return
+        end
+
+        local esp = Instance.new("Highlight")
+        esp.Name = "juniperESP"
+        esp.Adornee = juniper
+        esp.FillColor = Color3.fromRGB(255, 0, 0)
+        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+        esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        esp.Parent = juniper
+
+        local gui = Instance.new("BillboardGui")
+        gui.Name = "juniperName"
+        gui.Adornee = adornee
+        gui.Size = UDim2.fromOffset(220, 60)
+        gui.StudsOffset = Vector3.new(0, 3, 0)
+        gui.AlwaysOnTop = true
+        gui.Parent = playerGui
+
+        local label = Instance.new("TextLabel")
+        label.Name = "juniperLabel"
+        label.Size = UDim2.fromScale(1, 1)
+        label.BackgroundTransparency = 1
+        label.TextColor3 = Color3.new(1, 1, 1)
+        label.TextStrokeTransparency = 0
+        label.TextScaled = true
+        label.Font = Enum.Font.GothamBold
+        label.Parent = gui
+
+        local function updateLabel()
+            if not juniper.Parent then
+                return
+            end
+
+            label.Text = "juniper state: "
+                .. tostring(juniper:GetAttribute("State") or "Unknown")
+                .. "\nMovement: "
+                .. tostring(juniper:GetAttribute("MovementState") or "Unknown")
+        end
+
+        updateLabel()
+
+        table.insert(juniperConnections,
+            juniper:GetAttributeChangedSignal("State"):Connect(updateLabel)
+        )
+
+        table.insert(juniperConnections,
+            juniper:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
+        )
+
+        table.insert(juniperConnections, juniper.Destroying:Connect(function()
+            for _, conn in ipairs(juniperConnections) do
+                conn:Disconnect()
+            end
+
+            table.clear(juniperConnections)
+            gui:Destroy()
+        end))
+    end,
+})
 
 end
 
