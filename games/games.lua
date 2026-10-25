@@ -17575,6 +17575,7 @@ Tab:CreateButton({
     end,
 })
 
+
 local Lighting = game:GetService("Lighting")
 
 local removeChase = false
@@ -17586,36 +17587,46 @@ local function removeChaseFX()
             v:Destroy()
         end
     end
+
+    local direct = Lighting:FindFirstChild("HollowEnemyChaseCorrection")
+    if direct then
+        direct:Destroy()
+    end
 end
 
 Tab:CreateButton({
-    Name = "Remove Chase FX: OFF",
+    Name = "Toggle Remove Chase FX",
     Callback = function()
         removeChase = not removeChase
 
         if removeChase then
-            -- Clean any existing ones immediately
             removeChaseFX()
 
-            -- Listen for new ones instead of polling
-            if connection then connection:Disconnect() end
+            if connection then
+                connection:Disconnect()
+            end
+
             connection = Lighting.DescendantAdded:Connect(function(descendant)
                 if removeChase and descendant.Name == "HollowEnemyChaseCorrection" then
-                    task.defer(descendant.Destroy, descendant)
+                    task.defer(function()
+                        if descendant.Parent then
+                            descendant:Destroy()
+                        end
+                    end)
                 end
             end)
 
-            button:Set("Remove Chase FX: ON") -- Depends on your UI library
+            print("Remove Chase FX: ON")
         else
             if connection then
                 connection:Disconnect()
                 connection = nil
             end
-            button:Set("Remove Chase FX: OFF")
+
+            print("Remove Chase FX: OFF")
         end
     end,
 })
-
 
 Tab:CreateButton({
     Name = "Teleport to Tombstone",
@@ -17647,6 +17658,7 @@ Tab:CreateButton({
         print("Teleported to Tombstone")
     end,
 })
+
 
 
 end
