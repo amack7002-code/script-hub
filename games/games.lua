@@ -17773,31 +17773,72 @@ if game.PlaceId == 107833198839573 then
 		end
 	end
 
-	local hrp = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
-	local function teleportToPickup()
-		local chest = getallPickups()
-		if chest then
-			hrp.CFrame = chest:GetPivot() + Vector3.new(0, 5, 0)
-		else
-			warn("No Chest found in workspace.Pickups")
-		end
-	end
 
-	Tab:CreateButton({
-		Name = "Teleport to Chest",
-		Callback = function()
-			teleportToPickup()
-		end,
-	})
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
 
-	local partouch = workspace.ZombieBridgeProps.Tiles.Tile53
+local function getHRP()
+    local character = player.Character
+    if not character then
+        return nil
+    end
 
-	Tab:CreateButton({
-		Name = "Teleport to zombie maze thing end",
-		Callback = function()
-			hrp.CFrame = partouch.CFrame + Vector3.new(0, 5, 0)
-		end,
-	})
+    return character:FindFirstChild("HumanoidRootPart")
+end
+
+local function teleportToPickup()
+    local hrp = getHRP()
+    if not hrp then
+        warn("Character / HumanoidRootPart not found")
+        return
+    end
+
+    local chest = getallPickups()
+
+    if chest then
+        if chest:IsA("Model") then
+            hrp.CFrame = chest:GetPivot() + Vector3.new(0, 5, 0)
+        elseif chest:IsA("BasePart") then
+            hrp.CFrame = chest.CFrame + Vector3.new(0, 5, 0)
+        else
+            warn("Chest is not a Model or BasePart")
+        end
+    else
+        warn("No Chest found in workspace.Pickups")
+    end
+end
+
+Tab:CreateButton({
+    Name = "Teleport to Chest",
+    Callback = function()
+        teleportToPickup()
+    end,
+})
+
+Tab:CreateButton({
+    Name = "Teleport to Zombie Maze End",
+    Callback = function()
+        local hrp = getHRP()
+
+        if not hrp then
+            warn("Character / HumanoidRootPart not found")
+            return
+        end
+
+        local bridge = workspace:FindFirstChild("ZombieBridgeProps")
+        local tiles = bridge and bridge:FindFirstChild("Tiles")
+        local parttouch = tiles and tiles:FindFirstChild("Tile53")
+
+        if not parttouch or not parttouch:IsA("BasePart") then
+            warn("Tile53 not found")
+            return
+        end
+
+        hrp.CFrame = parttouch.CFrame + Vector3.new(0, 5, 0)
+        print("Teleported to Zombie Maze End")
+    end,
+})
+
 
 end
 
