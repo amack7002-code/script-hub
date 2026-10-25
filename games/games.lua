@@ -17451,43 +17451,32 @@ if game.PlaceId == 77709018585862 then
         })
     end
 
+
 local autoTrayTrash = false
 local trashGeneration = 0
 
-local function getTrashcanUnderLimit()
-    local interactables = Workspace:FindFirstChild("_INTERACTABLES")
-    if not interactables then
+local function getTrayTrashPrompt()
+    local miscellaneous = workspace:FindFirstChild("Miscellaneous")
+    if not miscellaneous then
         return nil
     end
 
-    for _, prompt in ipairs(interactables:GetDescendants()) do
-        if prompt:IsA("ProximityPrompt") and prompt.Name == "ProximityPrompt" then
-            local parent = prompt.Parent
+    for _, tray in ipairs(miscellaneous:GetChildren()) do
+        if tray:IsA("Model") and tray.Name:match("^TrashTray_") then
+            local handle = tray:FindFirstChild("Handle")
+            local prompt = handle and handle:FindFirstChild("ProximityPrompt")
 
-            if parent and parent.Name == "Trashcan" then
-                local current = parent
-                local disposedCount
-
-                -- Search the trashcan and its ancestors for the attribute.
-                while current and current ~= interactables do
-                    disposedCount = current:GetAttribute("DisposedCount")
-
-                    if typeof(disposedCount) == "number" then
-                        break
-                    end
-
-                    current = current.Parent
-                end
-
-                if typeof(disposedCount) == "number" and disposedCount < 10 then
-                    return prompt
-                end
+            if prompt and prompt:IsA("ProximityPrompt") and prompt.Enabled then
+                return prompt
             end
         end
     end
 
     return nil
 end
+
+
+
 
     
 
@@ -17511,42 +17500,32 @@ end
 	Tab:CreateToggle({
     Name = "Auto Tray Trash",
     CurrentValue = false,
-
     Callback = function(value)
         autoTrayTrash = value
-        trashGeneration += 1
+        trashGeneration = trashGeneration + 1
 
-        local myGeneration = trashGeneration
+        local generation = trashGeneration
 
         if not value then
             return
         end
 
         task.spawn(function()
-            while autoTrayTrash and trashGeneration == myGeneration do
-                local prompt = getTrashcanUnderLimit()
-                local character = Player.Character
+            while autoTrayTrash and trashGeneration == generation do
+                local prompt = getTrayTrashPrompt()
+                local player = game:GetService("Players").LocalPlayer
+                local character = player.Character
                 local hrp = character and character:FindFirstChild("HumanoidRootPart")
 
-                if prompt and prompt.Parent and prompt.Enabled and hrp then
-                    local parent = prompt.Parent
-                    local targetPart
+                if prompt and hrp then
+                    local handle = prompt.Parent
 
-                    if parent:IsA("BasePart") then
-                        targetPart = parent
-                    elseif parent:IsA("Attachment") then
-                        targetPart = parent.Parent
-                    else
-                        targetPart = parent:FindFirstAncestorWhichIsA("BasePart")
-                    end
-
-                    if targetPart and targetPart:IsA("BasePart") then
-                        hrp.CFrame = targetPart.CFrame * CFrame.new(0, 0, -3)
-
+                    if handle and handle:IsA("BasePart") then
+                        hrp.CFrame = handle.CFrame * CFrame.new(0, 0, -3)
                         task.wait(0.25)
 
                         if autoTrayTrash
-                            and trashGeneration == myGeneration
+                            and trashGeneration == generation
                             and prompt.Parent
                             and prompt.Enabled
                             and type(fireproximityprompt) == "function" then
@@ -17555,7 +17534,7 @@ end
                     end
                 end
 
-                task.wait(0.2)
+                task.wait(0.3)
             end
         end)
     end
