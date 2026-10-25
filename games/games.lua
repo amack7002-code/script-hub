@@ -17618,7 +17618,7 @@ local button = Tab:CreateButton({
 
 local tombstone = workspace:GetChildren()[9]["GR_Demon_2_-3"]
 
-tab:CreateButton({
+Tab:CreateButton({
 	Name = "Teleport to Tombstone",
 	Callback = function()
 		local character = player.Character
