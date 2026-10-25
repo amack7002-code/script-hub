@@ -17171,7 +17171,6 @@ end
 --save the krust krabs
 if game.PlaceId == 77709018585862 then
     local Tab = Window:CreateTab("Main", 4483362458)
-
     local Workspace = game:GetService("Workspace")
 
     local function getPrompt(parent, ...)
@@ -17184,23 +17183,11 @@ if game.PlaceId == 77709018585862 then
             end
         end
 
-        if current:IsA("ProximityPrompt") then
+        if current and current:IsA("ProximityPrompt") then
             return current
         end
 
         return nil
-    end
-
-    local function getGrillPrompt()
-        return getPrompt(Workspace, "_INTERACTABLES", "Grill", "ProximityPart", "ProximityPrompt")
-    end
-
-    local function getSodaPrompt()
-        return getPrompt(Workspace, "_INTERACTABLES", "SodaMachine", "ProximityPart", "ProximityPrompt")
-    end
-
-    local function getGrillCleanPrompt()
-        return getPrompt(Workspace, "_INTERACTABLES", "Grill", "Core", "CleanupPrompt")
     end
 
     local function getTrayTrashPrompt()
@@ -17249,6 +17236,61 @@ if game.PlaceId == 77709018585862 then
         return nil
     end
 
+    local function getGrillPrompt()
+        return getPrompt(
+            Workspace,
+            "_INTERACTABLES",
+            "Grill",
+            "ProximityPart",
+            "ProximityPrompt"
+        )
+    end
+
+    local function getSodaPrompt()
+        return getPrompt(
+            Workspace,
+            "_INTERACTABLES",
+            "SodaMachine",
+            "ProximityPart",
+            "ProximityPrompt"
+        )
+    end
+
+    local function getGrillCleanPrompt()
+        return getPrompt(
+            Workspace,
+            "_INTERACTABLES",
+            "Grill",
+            "Core",
+            "CleanupPrompt"
+        )
+    end
+
+    -- Returns the cleanup prompt for every table.
+    local function getTableCleanPrompts()
+        local prompts = {}
+
+        local persistent = Workspace:FindFirstChild("_PERSISTENT")
+        local tablesFolder = persistent
+            and persistent:FindFirstChild("Tables")
+
+        if not tablesFolder then
+            return prompts
+        end
+
+        for _, tableModel in ipairs(tablesFolder:GetChildren()) do
+            local core = tableModel:FindFirstChild("Core")
+            local prompt = core
+                and core:FindFirstChild("ProximityPrompt")
+
+            if prompt and prompt:IsA("ProximityPrompt") then
+                table.insert(prompts, prompt)
+            end
+        end
+
+        return prompts
+    end
+
     local function createAutoPromptToggle(name, getter, interval)
         local enabled = false
         local savedDistances = {}
@@ -17257,9 +17299,11 @@ if game.PlaceId == 77709018585862 then
         Tab:CreateToggle({
             Name = name,
             CurrentValue = false,
+
             Callback = function(value)
                 enabled = value
                 generation = generation + 1
+
                 local thisGeneration = generation
 
                 if not value then
@@ -17275,22 +17319,46 @@ if game.PlaceId == 77709018585862 then
 
                 task.spawn(function()
                     while enabled and generation == thisGeneration do
-                        local prompt = getter()
+                        local result = getter()
+                        local prompts = {}
 
-                        if prompt and prompt.Parent then
-                            if savedDistances[prompt] == nil then
-                                savedDistances[prompt] = prompt.MaxActivationDistance
+                        -- Accept either a single prompt or a list of prompts.
+                        if typeof(result) == "Instance" then
+                            if result:IsA("ProximityPrompt") then
+                                table.insert(prompts, result)
+                            end
+                        elseif type(result) == "table" then
+                            for _, prompt in ipairs(result) do
+                                if typeof(prompt) == "Instance"
+                                    and prompt:IsA("ProximityPrompt") then
+                                    table.insert(prompts, prompt)
+                                end
+                            end
+                        end
+
+                        for _, prompt in ipairs(prompts) do
+                            if not (enabled and generation == thisGeneration) then
+                                break
                             end
 
-                            prompt.MaxActivationDistance = 9e9
+                            if prompt.Parent then
+                                if savedDistances[prompt] == nil then
+                                    savedDistances[prompt] =
+                                        prompt.MaxActivationDistance
+                                end
 
-                            if prompt.Enabled then
-                                if type(fireproximityprompt) == "function" then
-                                    pcall(fireproximityprompt, prompt)
-                                else
-                                    warn("fireproximityprompt is not supported by your executor")
-                                    enabled = false
-                                    break
+                                prompt.MaxActivationDistance = 9e9
+
+                                if prompt.Enabled then
+                                    if type(fireproximityprompt) == "function" then
+                                        pcall(fireproximityprompt, prompt)
+                                    else
+                                        warn(
+                                            "fireproximityprompt is not supported by your executor"
+                                        )
+                                        enabled = false
+                                        break
+                                    end
                                 end
                             end
                         end
@@ -17298,6 +17366,7 @@ if game.PlaceId == 77709018585862 then
                         task.wait(interval or 0.2)
                     end
 
+                    -- Restore activation distances when disabled.
                     for prompt, distance in pairs(savedDistances) do
                         if prompt.Parent then
                             prompt.MaxActivationDistance = distance
@@ -17314,11 +17383,10 @@ if game.PlaceId == 77709018585862 then
     createAutoPromptToggle("Auto Soda", getSodaPrompt, 0.2)
     createAutoPromptToggle("Auto Tray Trash", getTrayTrashPrompt, 0.2)
     createAutoPromptToggle("Auto Clean Grill", getGrillCleanPrompt, 0.2)
-	createAutoPromptToggle("Auto Money", getMoneyPrompt, 0.2)
-
-    -- Helper available if you want to add an Auto Money toggle:
-    -- createAutoPromptToggle("Auto Money", getMoneyPrompt, 0.2)
+    createAutoPromptToggle("Auto Money", getMoneyPrompt, 0.2)
+    createAutoPromptToggle("Auto Clean Tables", getTableCleanPrompts, 0.2)
 end
+
 
 
 
