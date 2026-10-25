@@ -17765,7 +17765,7 @@ end
 if game.PlaceId == 107833198839573 then
 	local Tab = Window:CreateTab("Main", 4483362458)
 	local pickup = workspace.Pickups
-	local function getallPickups()
+	local function getallPickups() 
 		for _, v in ipairs(pickup:GetChildren()) do
 			if v:IsA("Model") and v.Name == "Chest" then
 				return v
@@ -17787,6 +17787,15 @@ if game.PlaceId == 107833198839573 then
 		Name = "Teleport to Chest",
 		Callback = function()
 			teleportToPickup()
+		end,
+	})
+
+	local parttouch = workspace.ZombieBridgeProps.Tiles.Tile53
+
+		Tab:CreateButton({
+		Name = "Teleport to zombie maze thing end",
+		Callback = function()
+			hrp.CFrame = parttouch.CFrame + Vector3.new(0, 5, 0)
 		end,
 	})
 
