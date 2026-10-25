@@ -17067,47 +17067,90 @@ for _, location in ipairs(locations) do
     })
 end
 
+
 if game.PlaceId == 117713779364528 then
-	local Tab = Window:CreateTab("Main", 4483362458)
-	
-	local monsters = {
-		"Ashy",
-		"Sandman",
-		"Gooba",
-		"Lost",
-		"Claw",
-		"BloodmoonGus",
-		"ProtoApe",
-		"Unkown",
-		"Lurk",
-		"Gus",
-		"Taller"
-	}
+    local Tab = Window:CreateTab("Main", 4483362458)
 
-	local monsterSet = {}
+    local monsters = {
+        "Ashy",
+        "Sandman",
+        "Gooba",
+        "Lost",
+        "Claw",
+        "BloodmoonGus",
+        "ProtoApe",
+        "Unkown",
+        "Lurk",
+        "Gus",
+        "Taller"
+    }
 
-	for _, name in ipairs(monsters) do
-		monsterSet[name] = true
-	end
-	Tab:CreateButton({
-        Name = "ape esp",
+    local monsterSet = {}
+    local espEnabled = false
+    local addedConnection
+
+    for _, name in ipairs(monsters) do
+        monsterSet[name] = true
+    end
+
+    local function addMonsterESP(v)
+        if not espEnabled or not v:IsA("Model") then
+            return
+        end
+
+        if not monsterSet[v.Name] then
+            return
+        end
+
+        if v:FindFirstChild("MonsterESP") then
+            return
+        end
+
+        local esp = Instance.new("Highlight")
+        esp.Name = "MonsterESP"
+        esp.Adornee = v
+        esp.FillColor = Color3.fromRGB(255, 0, 0)
+        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+        esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        esp.Parent = v
+    end
+
+    Tab:CreateButton({
+        Name = "Toggle Ape ESP",
         Callback = function()
-			for _, v in ipairs(workspace:GetChildren()) do
-				if v:IsA("Model") and monsterSet[v.Name] then
-					if not v:FindFirstChild("MonsterESP") then
-						local esp = Instance.new("Highlight")
-						esp.Name = "MonsterESP"
-						esp.Adornee = v
-						esp.FillColor = Color3.fromRGB(255, 0, 0)
-						esp.OutlineColor = Color3.fromRGB(255, 255, 255)
-						esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-						esp.Parent = v
-					end
-				end
-			end
+            espEnabled = not espEnabled
+
+            if espEnabled then
+                for _, v in ipairs(workspace:GetDescendants()) do
+                    addMonsterESP(v)
+                end
+
+                addedConnection = workspace.DescendantAdded:Connect(function(v)
+                    addMonsterESP(v)
+                end)
+
+                print("Monster ESP enabled")
+            else
+                if addedConnection then
+                    addedConnection:Disconnect()
+                    addedConnection = nil
+                end
+
+                for _, v in ipairs(workspace:GetDescendants()) do
+                    if v:IsA("Model") then
+                        local esp = v:FindFirstChild("MonsterESP")
+                        if esp then
+                            esp:Destroy()
+                        end
+                    end
+                end
+
+                print("Monster ESP disabled")
+            end
         end,
     })
 end
+
 
 --the hollow
 if game.PlaceId == 116463962153167 then
