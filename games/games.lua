@@ -17588,7 +17588,7 @@ local function removeChaseFX()
     end
 end
 
-local button = Tab:CreateButton({
+Tab:CreateButton({
     Name = "Remove Chase FX: OFF",
     Callback = function()
         removeChase = not removeChase
