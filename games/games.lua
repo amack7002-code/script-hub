@@ -17190,29 +17190,33 @@ if game.PlaceId == 77709018585862 then
         return nil
     end
 
-    local function getTrayTrashPrompt()
-        local misc = Workspace:FindFirstChild("Miscellaneous")
-        if not misc then
-            return nil
-        end
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local Player = Players.LocalPlayer
 
-        for _, v in ipairs(misc:GetDescendants()) do
-            if v:IsA("ProximityPrompt") and v.Name == "ProximityPrompt" then
-                local handle = v.Parent
-                local tray = handle and handle.Parent
-
-                if handle
-                    and handle.Name == "Handle"
-                    and tray
-                    and string.find(tray.Name, "Tray", 1, true) then
-                    return v
-
-                end
-            end
-        end
-
+local function getTrayTrashPrompt()
+    local misc = Workspace:FindFirstChild("Miscellaneous")
+    if not misc then
         return nil
     end
+
+    for _, v in ipairs(misc:GetDescendants()) do
+        if v:IsA("ProximityPrompt") and v.Name == "ProximityPrompt" then
+            local handle = v.Parent
+            local tray = handle and handle.Parent
+
+            if handle
+                and handle.Name == "Handle"
+                and tray
+                and string.find(tray.Name, "Tray", 1, true) then
+                return v
+            end
+        end
+    end
+
+    return nil
+end
+
 
 local function getMoneyPrompt()
     local prompts = {}
@@ -17382,46 +17386,55 @@ end
         })
     end
 
+	local autoTrayTrash = false
+
     createAutoPromptToggle("Auto Patty", getGrillPrompt, 0.2)
     createAutoPromptToggle("Auto Soda", getSodaPrompt, 0.2)
-	Tab:CreateButton({
-		Name = "Teleport to Trash Tray",
-		Callback = function()
-			local Players = game:GetService("Players")
-			local player = Players.LocalPlayer
-			local character = player.Character
-			local hrp = character and character:FindFirstChild("HumanoidRootPart")
+    createAutoPromptToggle("Auto Clean Grill", getGrillCleanPrompt, 0.2)
+	
 
-			local prompt = getTrayTrashPrompt()
+	Tab:CreateToggle({
+		Name = "Auto Tray Trash",
+		CurrentValue = false,
 
-			if not hrp then
-				warn("Character or HumanoidRootPart not found")
+		Callback = function(value)
+			autoTrayTrash = value
+
+			if not value then
 				return
 			end
 
-			if not prompt or not prompt.Parent then
-				warn("Trash tray prompt not found")
-				return
-			end
+			task.spawn(function()
+				while autoTrayTrash do
+					local prompt = getTrayTrashPrompt()
+					local character = Player.Character
+					local hrp = character
+						and character:FindFirstChild("HumanoidRootPart")
 
-			local target = prompt.Parent
+					if prompt and prompt.Parent and hrp then
+						local handle = prompt.Parent
+						local targetPart
 
-			if target:IsA("BasePart") then
-				hrp.CFrame = target.CFrame * CFrame.new(0, 0, -3)
-			elseif target:IsA("Attachment") then
-				hrp.CFrame = CFrame.new(target.WorldPosition + Vector3.new(0, 0, -3))
-			else
-				local part = target:FindFirstAncestorWhichIsA("BasePart")
+						if handle:IsA("BasePart") then
+							targetPart = handle
+						elseif handle:IsA("Attachment") then
+							targetPart = handle.Parent
+						end
 
-				if part then
-					hrp.CFrame = part.CFrame * CFrame.new(0, 0, -3)
-				else
-					warn("Could not find the trash tray position")
+						if targetPart and targetPart:IsA("BasePart") then
+							hrp.CFrame = targetPart.CFrame * CFrame.new(0, 0, -3)
+
+							if type(fireproximityprompt) == "function" then
+								pcall(fireproximityprompt, prompt)
+							end
+						end
+					end
+
+					task.wait(0.2)
 				end
-			end
+			end)
 		end
 	})
-    createAutoPromptToggle("Auto Clean Grill", getGrillCleanPrompt, 0.2)
     createAutoPromptToggle("Auto Money", getMoneyPrompt, 0.2)
     createAutoPromptToggle("Auto Clean Tables", getTableCleanPrompts, 0.2)
 end
