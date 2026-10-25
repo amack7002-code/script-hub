@@ -17172,6 +17172,7 @@ end
 if game.PlaceId == 77709018585862 then
     local Tab = Window:CreateTab("Main", 4483362458)
     local Workspace = game:GetService("Workspace")
+	
 
     local function getPrompt(parent, ...)
         local current = parent
@@ -17263,40 +17264,165 @@ end
         )
     end
 
-    local function getGrillCleanPrompt()
-        return getPrompt(
-            Workspace,
-            "_INTERACTABLES",
-            "Grill",
-            "Core",
-            "CleanupPrompt"
-        )
+
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+
+local function getCharacterRoot()
+    local character = Player.Character
+    return character and character:FindFirstChild("HumanoidRootPart")
+end
+
+local function getPromptPart(prompt)
+    if not prompt then
+        return nil
     end
 
-    -- Returns the cleanup prompt for every table.
-    local function getTableCleanPrompts()
-        local prompts = {}
+    local parent = prompt.Parent
 
-        local persistent = Workspace:FindFirstChild("_PERSISTENT")
-        local tablesFolder = persistent
-            and persistent:FindFirstChild("Tables")
+    if parent and parent:IsA("BasePart") then
+        return parent
+    elseif parent and parent:IsA("Attachment") then
+        return parent.Parent
+    end
 
-        if not tablesFolder then
-            return prompts
-        end
+    return parent and parent:FindFirstAncestorWhichIsA("BasePart")
+end
 
-        for _, tableModel in ipairs(tablesFolder:GetChildren()) do
-            local core = tableModel:FindFirstChild("Core")
-            local prompt = core
-                and core:FindFirstChild("ProximityPrompt")
+local function teleportToPrompt(prompt)
+    local hrp = getCharacterRoot()
+    local target = getPromptPart(prompt)
 
-            if prompt and prompt:IsA("ProximityPrompt") then
-                table.insert(prompts, prompt)
-            end
-        end
+    if not hrp or not target or not target:IsA("BasePart") then
+        return false
+    end
 
+    hrp.CFrame = target.CFrame * CFrame.new(0, 0, -3)
+    return true
+end
+
+local function getGrillCleanPrompt()
+    return getPrompt(
+        Workspace,
+        "_INTERACTABLES",
+        "Grill",
+        "Core",
+        "CleanupPrompt"
+    )
+end
+
+local function getTableCleanPrompts()
+    local prompts = {}
+    local persistent = Workspace:FindFirstChild("_PERSISTENT")
+    local tablesFolder = persistent and persistent:FindFirstChild("Tables")
+
+    if not tablesFolder then
         return prompts
     end
+
+    for _, tableModel in ipairs(tablesFolder:GetChildren()) do
+        local core = tableModel:FindFirstChild("Core")
+        local prompt = core and core:FindFirstChild("ProximityPrompt")
+
+        if prompt and prompt:IsA("ProximityPrompt") then
+            table.insert(prompts, prompt)
+        end
+    end
+
+    return prompts
+end
+
+local function createTeleportCleanToggle(name, getter, interval)
+    local enabled = false
+    local generation = 0
+
+    Tab:CreateToggle({
+        Name = name,
+        CurrentValue = false,
+
+        Callback = function(value)
+            enabled = value
+            generation = generation + 1
+            local thisGeneration = generation
+
+            if not value then
+                return
+            end
+
+            task.spawn(function()
+                while enabled and generation == thisGeneration do
+                    local result = getter()
+                    local prompts = {}
+
+                    if typeof(result) == "Instance" then
+                        table.insert(prompts, result)
+                    elseif type(result) == "table" then
+                        prompts = result
+                    end
+
+                    for _, prompt in ipairs(prompts) do
+                        if not enabled or generation ~= thisGeneration then
+                            break
+                        end
+
+                        if prompt and prompt:IsA("ProximityPrompt") and prompt.Parent then
+                            if teleportToPrompt(prompt) then
+                                task.wait(0.15)
+
+                                if prompt.Parent and prompt.Enabled
+                                    and type(fireproximityprompt) == "function" then
+                                    pcall(fireproximityprompt, prompt)
+                                end
+                            end
+
+                            task.wait(interval or 0.5)
+                        end
+                    end
+
+                    task.wait(interval or 0.5)
+                end
+            end)
+        end
+    })
+end
+
+
+
+local interactables = Workspace:FindFirstChild("_INTERACTABLES")
+
+local function getTrashcanPrompts()
+    local prompts = {}
+
+    interactables = Workspace:FindFirstChild("_INTERACTABLES")
+    if not interactables then
+        return prompts
+    end
+
+    for _, v in ipairs(interactables:GetDescendants()) do
+        if v:IsA("ProximityPrompt") and v.Name == "ProximityPrompt" then
+            local parent = v.Parent
+            local trashcan = parent and parent.Parent
+
+            if parent
+                and parent.Name == "Trashcan"
+                and trashcan then
+                table.insert(prompts, v)
+            end
+        end
+    end
+
+    return prompts
+end
+
+    local function createAutoPromptToggle(name, getter, interval)
+					and string.find(tray.Name, "Tray", 1, true) then
+					return v
+				end
+			end
+		end
+
+		return nil
+	end
 
     local function createAutoPromptToggle(name, getter, interval)
         local enabled = false
@@ -17390,7 +17516,10 @@ end
 
     createAutoPromptToggle("Auto Patty", getGrillPrompt, 0.2)
     createAutoPromptToggle("Auto Soda", getSodaPrompt, 0.2)
-    createAutoPromptToggle("Auto Clean Grill", getGrillCleanPrompt, 0.2)
+    createTeleportCleanToggle("Auto Clean Grill", getGrillCleanPrompt, 0.5)
+	createTeleportCleanToggle("Auto Clean Tables", getTableCleanPrompts, 0.5)
+
+
 	
 
 	Tab:CreateToggle({
@@ -17436,7 +17565,6 @@ end
 		end
 	})
     createAutoPromptToggle("Auto Money", getMoneyPrompt, 0.2)
-    createAutoPromptToggle("Auto Clean Tables", getTableCleanPrompts, 0.2)
 end
 
 
