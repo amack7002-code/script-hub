@@ -17567,18 +17567,29 @@ if game.PlaceId == 77709018585862 then
 		return false
 	end
 
-	local function checkCustomer
-		for i,v in pairs(workspace._PERSISTENT.Registers:GetChildren()) do
-			if v:GetAttribute("HasCustomer") == true then
-				local prompt = v.Core:FindFirstChild("ProximityPrompt")
-				if prompt then
-					teleportToPrompt(prompt)
-					task.wait(0.3)
-					firePrompt(prompt)
-				end
-			end
-		end
-	end
+    local function checkCustomer()
+        local persistent = Workspace:FindFirstChild("_PERSISTENT")
+        local registers = persistent and persistent:FindFirstChild("Registers")
+
+        if not registers then
+            return
+        end
+
+        for _, register in ipairs(registers:GetChildren()) do
+            if register:GetAttribute("HasCustomer") == true then
+                local core = register:FindFirstChild("Core")
+                local prompt = core and core:FindFirstChild("ProximityPrompt")
+
+                if prompt and prompt:IsA("ProximityPrompt") and prompt.Enabled then
+                    if teleportToPrompt(prompt) then
+                        task.wait(0.3)
+                        firePrompt(prompt)
+                        task.wait(0.3)
+                    end
+                end
+            end
+        end
+    end
 
 	local function getAssemblyPrompts()
 		local prompts = {}
@@ -17631,87 +17642,87 @@ if game.PlaceId == 77709018585862 then
     )
 
 	Tab:CreateToggle({
-    Name = "Auto Tray Trash",
-    CurrentValue = false,
+		Name = "Auto Tray Trash",
+		CurrentValue = false,
 
-    Callback = function(value)
-        autoTrayTrash = value
-        trashGeneration = trashGeneration + 1
+		Callback = function(value)
+			autoTrayTrash = value
+			trashGeneration = trashGeneration + 1
 
-        local generation = trashGeneration
+			local generation = trashGeneration
 
-        if not value then
-            return
-        end
+			if not value then
+				return
+			end
 
-        task.spawn(function()
-            while autoTrayTrash and trashGeneration == generation do
-                local trays = getTrashTrays()
+			task.spawn(function()
+				while autoTrayTrash and trashGeneration == generation do
+					local trays = getTrashTrays()
 
-                -- No trays found: wait, then scan again.
-                if #trays == 0 then
-                    task.wait(0.5)
-                    continue
-                end
+					-- No trays found: wait, then scan again.
+					if #trays == 0 then
+						task.wait(0.5)
+						continue
+					end
 
-                -- Visit each tray and trigger its prompt.
-                for _, trayData in ipairs(trays) do
-                    if not autoTrayTrash or trashGeneration ~= generation then
-                        break
-                    end
+					-- Visit each tray and trigger its prompt.
+					for _, trayData in ipairs(trays) do
+						if not autoTrayTrash or trashGeneration ~= generation then
+							break
+						end
 
-                    local tray = trayData.Object
-                    local prompt = trayData.Prompt
+						local tray = trayData.Object
+						local prompt = trayData.Prompt
 
-                    if tray.Parent and prompt.Parent and prompt.Enabled then
-                        if teleportToPrompt(prompt) then
-                            task.wait(0.3)
-                            firePrompt(prompt)
-                            task.wait(0.25)
-                        end
-                    end
-                end
+						if tray.Parent and prompt.Parent and prompt.Enabled then
+							if teleportToPrompt(prompt) then
+								task.wait(0.3)
+								firePrompt(prompt)
+								task.wait(0.25)
+							end
+						end
+					end
 
-                if not autoTrayTrash or trashGeneration ~= generation then
-                    break
-                end
+					if not autoTrayTrash or trashGeneration ~= generation then
+						break
+					end
 
-                -- After collecting trays, find a trash can with free capacity.
-                local trashcans = getTrashcansWithCapacity()
-                local deposited = false
+					-- After collecting trays, find a trash can with free capacity.
+					local trashcans = getTrashcansWithCapacity()
+					local deposited = false
 
-                for _, canData in ipairs(trashcans) do
-                    if not autoTrayTrash or trashGeneration ~= generation then
-                        break
-                    end
+					for _, canData in ipairs(trashcans) do
+						if not autoTrayTrash or trashGeneration ~= generation then
+							break
+						end
 
-                    if canData.Object.Parent
-                        and canData.Prompt.Parent
-                        and canData.Prompt.Enabled then
+						if canData.Object.Parent
+							and canData.Prompt.Parent
+							and canData.Prompt.Enabled then
 
-                        if teleportToPrompt(canData.Prompt) then
-                            task.wait(0.4)
+							if teleportToPrompt(canData.Prompt) then
+								task.wait(0.4)
 
-                            if firePrompt(canData.Prompt) then
-                                deposited = true
-                                task.wait(0.5)
-                                break
-                            end
-                        end
-                    end
-                end
+								if firePrompt(canData.Prompt) then
+									deposited = true
+									task.wait(0.5)
+									break
+								end
+							end
+						end
+					end
 
-                if not deposited then
-                    warn("[Auto Tray Trash] No available trash can or deposit prompt found.")
-                    task.wait(1)
-                end
+					if not deposited then
+						warn("[Auto Tray Trash] No available trash can or deposit prompt found.")
+						task.wait(1)
+					end
 
-                -- Loop back and check for newly spawned trays.
-                task.wait(0.3)
-            end
-        end)
-    end
-})
+					-- Loop back and check for newly spawned trays.
+					task.wait(0.3)
+				end
+			end)
+		end
+	})
 
 end
 
