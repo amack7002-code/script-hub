@@ -17601,7 +17601,7 @@ Tab:CreateButton({
         removeChase = not removeChase
 
         if removeChase then
-            task.spawn(function()
+            RunService.Heartbeat:Connect(function()
                 while removeChase do
 					Lighting.ColorShift_Bottom = Color3.new(255, 255, 255)
 					Lighting.ColorShift_Top = Color3.new(255, 255, 255)
