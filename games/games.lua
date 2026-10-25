@@ -16972,6 +16972,143 @@ Tab:CreateToggle({
 })
 end
 
+if game.PlaceId == 107833198839573 then
+	local Tab = Window:CreateTab("Main", 4483362458)
+	local pickup = workspace.Pickups
+	local function getallPickups() 
+		for _, v in ipairs(pickup:GetChildren()) do
+			if v:IsA("Model") and v.Name == "Chest" then
+				return v
+			end
+		end
+	end
+
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local function getHRP()
+    local character = player.Character
+    if not character then
+        return nil
+    end
+
+    return character:FindFirstChild("HumanoidRootPart")
+end
+
+local function teleportToPickup()
+    local hrp = getHRP()
+    if not hrp then
+        warn("Character / HumanoidRootPart not found")
+        return
+    end
+
+    local chest = getallPickups()
+
+    if chest then
+        if chest:IsA("Model") then
+            hrp.CFrame = chest:GetPivot() + Vector3.new(0, 5, 0)
+        elseif chest:IsA("BasePart") then
+            hrp.CFrame = chest.CFrame + Vector3.new(0, 5, 0)
+        else
+            warn("Chest is not a Model or BasePart")
+        end
+    else
+        warn("No Chest found in workspace.Pickups")
+    end
+end
+
+Tab:CreateButton({
+    Name = "Teleport to Chest",
+    Callback = function()
+        teleportToPickup()
+    end,
+})
+
+end
+
+if game.PlaceId == 185655149 then
+	
+	local Tab = Window:CreateTab("Main", 4483362458)
+	local hrp = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+
+
+local locations = {
+    {
+        Name = "Teleport to Money Bag",
+        Position = Vector3.new(624, 23, -49),
+    },
+    {
+        Name = "Teleport to Bloxinator",
+        Position = Vector3.new(428, 5, -10),
+    },
+    {
+        Name = "Teleport to Briefcase",
+        Position = Vector3.new(962, 47, -50),
+    },
+}
+
+for _, location in ipairs(locations) do
+    Tab:CreateButton({
+        Name = location.Name,
+        Callback = function()
+            local player = game:GetService("Players").LocalPlayer
+            local character = player.Character
+            local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+            if not hrp then
+                warn("Character / HumanoidRootPart not found")
+                return
+            end
+
+            hrp.CFrame = CFrame.new(location.Position)
+            print("Teleported to " .. location.Name)
+        end,
+    })
+end
+
+if game.PlaceId == 117713779364528 then
+	local Tab = Window:CreateTab("Main", 4483362458)
+	
+	local monsters = {
+		"Ashy",
+		"Sandman",
+		"Gooba",
+		"Lost",
+		"Claw",
+		"BloodmoonGus",
+		"ProtoApe",
+		"Unkown",
+		"Lurk",
+		"Gus",
+		"Taller"
+	}
+
+	local monsterSet = {}
+
+	for _, name in ipairs(monsters) do
+		monsterSet[name] = true
+	end
+	Tab:CreateButton({
+        Name = "ape esp",
+        Callback = function()
+			for _, v in ipairs(workspace:GetChildren()) do
+				if v:IsA("Model") and monsterSet[v.Name] then
+					if not v:FindFirstChild("MonsterESP") then
+						local esp = Instance.new("Highlight")
+						esp.Name = "MonsterESP"
+						esp.Adornee = v
+						esp.FillColor = Color3.fromRGB(255, 0, 0)
+						esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+						esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+						esp.Parent = v
+					end
+				end
+			end
+        end,
+    })
+end
+
 --the hollow
 if game.PlaceId == 116463962153167 then
 	local Tab = Window:CreateTab("Main", 4483362458)
@@ -17885,103 +18022,6 @@ Tab:CreateButton({
 
 
 end
-
-
-if game.PlaceId == 107833198839573 then
-	local Tab = Window:CreateTab("Main", 4483362458)
-	local pickup = workspace.Pickups
-	local function getallPickups() 
-		for _, v in ipairs(pickup:GetChildren()) do
-			if v:IsA("Model") and v.Name == "Chest" then
-				return v
-			end
-		end
-	end
-
-
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
-local function getHRP()
-    local character = player.Character
-    if not character then
-        return nil
-    end
-
-    return character:FindFirstChild("HumanoidRootPart")
-end
-
-local function teleportToPickup()
-    local hrp = getHRP()
-    if not hrp then
-        warn("Character / HumanoidRootPart not found")
-        return
-    end
-
-    local chest = getallPickups()
-
-    if chest then
-        if chest:IsA("Model") then
-            hrp.CFrame = chest:GetPivot() + Vector3.new(0, 5, 0)
-        elseif chest:IsA("BasePart") then
-            hrp.CFrame = chest.CFrame + Vector3.new(0, 5, 0)
-        else
-            warn("Chest is not a Model or BasePart")
-        end
-    else
-        warn("No Chest found in workspace.Pickups")
-    end
-end
-
-Tab:CreateButton({
-    Name = "Teleport to Chest",
-    Callback = function()
-        teleportToPickup()
-    end,
-})
-
-end
-
-if game.PlaceId == 185655149 then
-	
-	local Tab = Window:CreateTab("Main", 4483362458)
-	local hrp = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
-
-
-local locations = {
-    {
-        Name = "Teleport to Money Bag",
-        Position = Vector3.new(624, 23, -49),
-    },
-    {
-        Name = "Teleport to Bloxinator",
-        Position = Vector3.new(428, 5, -10),
-    },
-    {
-        Name = "Teleport to Briefcase",
-        Position = Vector3.new(962, 47, -50),
-    },
-}
-
-for _, location in ipairs(locations) do
-    Tab:CreateButton({
-        Name = location.Name,
-        Callback = function()
-            local player = game:GetService("Players").LocalPlayer
-            local character = player.Character
-            local hrp = character and character:FindFirstChild("HumanoidRootPart")
-
-            if not hrp then
-                warn("Character / HumanoidRootPart not found")
-                return
-            end
-
-            hrp.CFrame = CFrame.new(location.Position)
-            print("Teleported to " .. location.Name)
-        end,
-    })
-end
-
 
 
 end
