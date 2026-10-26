@@ -17727,7 +17727,362 @@ if game.PlaceId == 77709018585862 then
 end
 
 
+if game.PlaceId == 12931609417 then
+	local monsters = workspace.GameplayAssets.Monsters
+	local Tab = Window:CreateTab("Main", 4483362458)
 
+
+
+	Tab:CreateButton({
+		Name = "Enable Monster ESP",
+		Callback = function()
+		for i,v in pairs(monsters:GetDescendants()) do
+		if v:IsA("Highlight") and v.Parent:IsA("Model") then
+			v.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			v.FillColor = Color3.fromRGB(255, 0, 0)
+			v.FillTransparency = 0
+		end
+	end
+		end,
+	})
+end
+
+if game.PlaceId == then
+	local Tab = Window:CreateTab("Main", 4483362458)
+
+	local autoWorkGeneration = 0
+
+	Tab:CreateToggle({
+		Name = "Auto Work",
+		CurrentValue = false,
+		Callback = function(v)
+			autoWorkGeneration = autoWorkGeneration + 1
+			local generation = autoWorkGeneration
+
+			if not v then
+				return
+			end
+
+			task.spawn(function()
+					local Players = game:GetService("Players")
+					local VIM = game:GetService("VirtualInputManager")
+					local GuiService = game:GetService("GuiService")
+					local Player = Players.LocalPlayer
+
+					local CLICK_MODE = "Both" -- "Activated" | "Click" | "Both"
+					local LOOP = 0.03
+					local RETRY = 0.06
+					local SETTLE = 0.08
+					local SEARCH_INTERVAL = 0.5
+					local UPDATE_KEY = Enum.KeyCode.S
+					local UPDATE_RETRY = 0.15
+
+					local function Get(path)
+						local obj = Player:FindFirstChild("PlayerGui")
+						for _, name in ipairs(path) do
+							if not obj then return nil end
+							obj = obj:FindFirstChild(name)
+						end
+						return obj
+					end
+
+					local function FindAny(parent, names)
+						if not parent then return nil end
+						for _, n in ipairs(names) do
+							local f = parent:FindFirstChild(n)
+							if f then return f end
+						end
+						return nil
+					end
+
+					local function IsShown(obj)
+						if not obj or not obj:IsDescendantOf(game) then return false end
+						local cur = obj
+						while cur do
+							if cur:IsA("GuiObject") then
+								if not cur.Visible then return false end
+							elseif cur:IsA("LayerCollector") then
+								return cur.Enabled
+							end
+							cur = cur.Parent
+						end
+						return true
+					end
+
+					local function norm(s)
+						return (s:lower():gsub("[%s_]", ""))
+					end
+
+					-- Deep search (by custom matcher). Prefers visible, throttled per key.
+					local cache, lastSearch = {}, {}
+
+					local function FindDeep(key, root, matcher)
+						local c = cache[key]
+						if c and c:IsDescendantOf(game) and IsShown(c) then
+							return c
+						end
+						cache[key] = nil
+
+						if not root then return nil end
+
+						local now = os.clock()
+						if now - (lastSearch[key] or 0) < SEARCH_INTERVAL then
+							return c and c:IsDescendantOf(game) and c or nil
+						end
+						lastSearch[key] = now
+
+						local fallback
+						for _, v in ipairs(root:GetDescendants()) do
+							if matcher(v) then
+								if IsShown(v) then
+									cache[key] = v
+									return v
+								end
+								fallback = fallback or v
+							end
+						end
+						return fallback
+					end
+
+					local function ByNames(names)
+						return function(v)
+							if not v:IsA("GuiObject") then return false end
+							local n = norm(v.Name)
+							for _, want in ipairs(names) do
+								if n == want then return true end
+							end
+							return false
+						end
+					end
+
+					local function IsTextBox(v)
+						return v:IsA("TextBox")
+					end
+
+					local function Fire(signal)
+						if firesignal and pcall(firesignal, signal) then
+							return true
+						end
+						if getconnections then
+							local ok, conns = pcall(getconnections, signal)
+							if ok and conns then
+								for _, c in ipairs(conns) do
+									pcall(function() c:Fire() end)
+								end
+								return true
+							end
+						end
+						return false
+					end
+
+					-- Real input click
+					local function RealClick(obj)
+						if not obj:IsA("GuiObject") then return end
+						local gui = obj:FindFirstAncestorWhichIsA("ScreenGui")
+						local inset = (gui and gui.IgnoreGuiInset) and Vector2.zero or GuiService:GetGuiInset()
+						local pos = obj.AbsolutePosition + obj.AbsoluteSize / 2 + inset
+
+						VIM:SendMouseMoveEvent(pos.X, pos.Y, game)
+						task.wait()
+						VIM:SendMouseButtonEvent(pos.X, pos.Y, 0, true, game, 1)
+						task.wait()
+						VIM:SendMouseButtonEvent(pos.X, pos.Y, 0, false, game, 1)
+					end
+
+					local function PressKey(key)
+						pcall(function()
+							VIM:SendKeyEvent(true, key, false, game)
+							task.wait(0.03)
+							VIM:SendKeyEvent(false, key, false, game)
+						end)
+					end
+
+					local function FindTextBox(obj)
+						if obj:IsA("TextBox") then return obj end
+						return obj:FindFirstChildWhichIsA("TextBox", true)
+							or (obj.Parent and obj.Parent:FindFirstChildWhichIsA("TextBox", true))
+					end
+
+					local function Click(obj, isTyping)
+						if not obj then return end
+
+						if isTyping then
+							local tb = FindTextBox(obj)
+							if tb then
+								if tb:IsFocused() then return end
+								pcall(function() tb:CaptureFocus() end)
+								if tb:IsFocused() then return end
+							end
+						end
+
+						local btn = obj:IsA("GuiButton") and obj or obj:FindFirstChildWhichIsA("GuiButton", true)
+						if btn then
+							if CLICK_MODE == "Activated" or CLICK_MODE == "Both" then
+								pcall(function() Fire(btn.Activated) end)
+							end
+							if CLICK_MODE == "Click" or CLICK_MODE == "Both" then
+								pcall(function() Fire(btn.MouseButton1Click) end)
+							end
+						end
+
+						pcall(RealClick, obj)
+					end
+
+					local function Resolve()
+						local Root = Get({"MeetingUI", "Root"})
+						if not Root then return nil end
+
+						local LaptopView = Root:FindFirstChild("LaptopView")
+						local InboxWindow = LaptopView and LaptopView:FindFirstChild("InboxWindow")
+						local Body = InboxWindow and InboxWindow:FindFirstChild("Body")
+
+						-- New message
+						local NewMessage = FindDeep("NewMessage", Root, ByNames({"newmessage", "composewindow", "compose"}))
+						local scope = NewMessage or Root
+
+						local TapToType = FindDeep("Tap", scope, ByNames({"taptotype", "clicktotype", "typebox", "messagebox"}))
+						local TextBox = FindDeep("TextBox", scope, IsTextBox)
+						local Send = FindDeep("Send", scope, ByNames({"send", "sendbutton", "submit"}))
+
+						-- System update
+						local SysUpdate = LaptopView and LaptopView:FindFirstChild("UpdateWindow")
+
+						-- Email
+						local EmailField = Body and Body:FindFirstChild("EmailField")
+						local EmailScroll = EmailField and EmailField:FindFirstChild("EmailScroll")
+						local Email = EmailScroll and EmailScroll:FindFirstChild("Email")
+
+						local WriteEmail = FindAny(Body, {"WriteEmail", "Write Email", "Compose", "ComposeButton", "NewEmail", "Write"})
+						if not WriteEmail and Body then
+							for _, child in ipairs(Body:GetChildren()) do
+								if child:IsA("GuiObject") then
+									WriteEmail = FindAny(child, {"WriteEmail", "Write Email", "Compose"})
+									if WriteEmail then break end
+								end
+							end
+						end
+
+						-- Call
+						local CallWindow = LaptopView and LaptopView:FindFirstChild("CallWindow")
+						local CallBody = CallWindow and CallWindow:FindFirstChild("Body")
+
+						return {
+							Body = Body,
+							Email = Email,
+							WriteEmail = WriteEmail,
+							TapToType = TapToType,
+							TextBox = TextBox,
+							Send = Send,
+							SysUpdate = SysUpdate,
+							Decline = CallBody and CallBody:FindFirstChild("Decline"),
+						}
+					end
+
+					local function GetAction(ui)
+						if not ui.Email then return nil, "" end
+
+						local text = ""
+						pcall(function()
+							local ct = ui.Email.ContentText
+							text = (ct and ct ~= "" and ct) or ui.Email.Text or ""
+						end)
+						text = text:lower()
+						if text == "" then return nil, text end
+
+						local name
+						if text:find("this message looks suspicious", 1, true) then
+							name = "DELETE"
+						elseif text:find("approve", 1, true) then
+							name = "APPROVE"
+						elseif text:find("forward", 1, true) then
+							name = "FORWARD"
+						end
+
+						return name and ui.Body and ui.Body:FindFirstChild(name), text
+					end
+
+					-- State
+					local lastClick, shownSince = {}, {}
+					local lastEmailText, emailChangedAt = nil, 0
+
+					local function ClickWhenShown(key, obj, isTyping)
+						if not obj then return end
+
+						if not IsShown(obj) then
+							shownSince[key] = nil
+							return
+						end
+
+						local now = os.clock()
+						shownSince[key] = shownSince[key] or now
+
+						if now - shownSince[key] < SETTLE then return end
+						if now - (lastClick[key] or 0) < RETRY then return end
+
+						lastClick[key] = now
+						Click(obj, isTyping)
+					end
+
+					-- Main loop
+					while autoCollectGeneration == generation do
+						task.wait(LOOP)
+						if autoCollectGeneration ~= generation then
+							break
+						end
+						local ok, err = pcall(function()
+							local ui = Resolve()
+							if not ui then return end
+
+							-- Email actions
+							if ui.Email and IsShown(ui.Email) then
+								local btn, text = GetAction(ui)
+
+								if text ~= lastEmailText then
+									lastEmailText = text
+									emailChangedAt = os.clock()
+								end
+
+								if btn and os.clock() - emailChangedAt >= SETTLE then
+									ClickWhenShown("emailAction", btn)
+								end
+							else
+								lastEmailText = nil
+							end
+
+							ClickWhenShown("WriteEmail", ui.WriteEmail)
+
+							-- System update: press S while the window is visible
+							if ui.SysUpdate and IsShown(ui.SysUpdate) then
+								local now = os.clock()
+								shownSince.SysUpdate = shownSince.SysUpdate or now
+								if now - shownSince.SysUpdate >= SETTLE and now - (lastClick.SysUpdate or 0) >= UPDATE_RETRY then
+									lastClick.SysUpdate = now
+									PressKey(UPDATE_KEY)
+								end
+							else
+								shownSince.SysUpdate = nil
+							end
+
+							-- New message: focus the field without typing random text.
+							local tb = ui.TextBox
+							if tb and IsShown(tb) and tb.Text == "" then
+								ClickWhenShown("TapToType", ui.TapToType or tb, true)
+							elseif not tb then
+								ClickWhenShown("TapToType", ui.TapToType, true)
+							end
+
+							ClickWhenShown("Send", ui.Send)
+							ClickWhenShown("Decline", ui.Decline)
+						end)
+
+						if not ok then
+							warn("[AutoClicker] Error:", err)
+						end
+					end
+				end
+			end)
+		end,
+	})
 
 
 --the hollow
