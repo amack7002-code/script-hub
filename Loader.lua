@@ -33,6 +33,8 @@ local Window = Rayfield:CreateWindow({
     ToggleUIKeybind = "K",
     DisableRayfieldPrompts = false,
     DisableBuildWarnings = false,
+    Heartbeat = "https://www.sentivel.com/api/heartbeat/9WPQX4J8",
+
     
     ConfigurationSaving = {
         Enabled = true,
@@ -116,94 +118,6 @@ HomeTab:CreateButton({
     Name = "JasonSpy",
     Callback = function()
         loadstring(game:HttpGet("https://pastebin.com/raw/8Pa2QRY8"))()
-    end
-})
-
--- Medal Decompiler
-HomeTab:CreateButton({
-    Name = "Medal Decompiler for good exec (doesnt work for bad exec)",
-    Callback = function()
-        Rayfield:Notify({
-            Title = "Decompiler",
-            Content = "Starting...",
-            Duration = 2
-        })
-
-        getgenv().decompile = function(script_instance)
-            local bytecode = getscriptbytecode(script_instance)
-            local encoded = crypt.base64.encode(bytecode)
-            return request({
-                Url = "http://localhost:3000/decompile",
-                Method = "POST",
-                Body = encoded
-            }).Body
-        end
-
-        local synsaveinstance = loadstring(game:HttpGet("https://raw.githubusercontent.com/luau/SynSaveInstance/main/saveinstance.luau"))()
-        local Options = {
-            SafeMode = true,
-            ShutdownWhenDone = true,
-            mode = "scripts",
-            NilInstances = true,
-        }
-        synsaveinstance(Options)
-
-        Rayfield:Notify({
-            Title = "Decompiler",
-            Content = "Finished!",
-            Duration = 3
-        })
-    end
-})
-
--- Script Dumper (FIXED: Removed incomplete "en[...]")
-HomeTab:CreateButton({
-    Name = "Script Dumper",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/TesterTD/Script.Dumper/refs/heads/main/Debugger.lua"))()
-    end
-})
-
--- Dex++
-HomeTab:CreateButton({
-    Name = "Dex++",
-    Callback = function()
-        local gethui = gethui or get_hidden_gui
-
-        if not gethui then
-            warn("Your executor doesn't support gethui().")
-            return
-        end
-
-        local hiddenGui = gethui()
-
-        local folder = Instance.new("Folder")
-        folder.Name = "[Dumped] HiddenGui"
-        folder.Parent = game
-
-        for _, instance in ipairs(hiddenGui:GetChildren()) do
-            pcall(function()
-                instance:Clone().Parent = folder
-            end)
-        end
-
-        local success, source = pcall(function()
-            return game:HttpGet("https://github.com/AZYsGithub/DexPlusPlus/releases/latest/download/out.lua")
-        end)
-
-        if success then
-            loadstring(source)()
-        else
-            warn("Failed to download Dex++:", source)
-        end
-    end
-})
-
--- Executor Tester
-HomeTab:CreateButton({
-    Name = "Executor Tester",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/GmilerlolYT/ExecutorTester/refs/heads/main/Hi"))()
     end
 })
 
