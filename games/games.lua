@@ -19321,23 +19321,31 @@ Tab:CreateButton({
 })
 
 Tab:CreateButton({
-    Name = "Teleport to SSK",
-    Callback = function()
-        local character = player.Character
-        local hrp = character and character:FindFirstChild("HumanoidRootPart")
+	Name = "Teleport to SSK",
+	Callback = function()
+		local Players = game:GetService("Players")
+		local player = Players.LocalPlayer
 
-        if not hrp then
-            warn("Character / HumanoidRootPart not found")
-            return
-        end
+		local character = player.Character
+		local hrp = character and character:FindFirstChild("HumanoidRootPart")
 
-        local sidewalk = workspace:GetChildren()[8]["GR_Shawarma_0_-3"].Kit.Street.Sidewalks:GetChildren()[15]
+		if not hrp then
+			warn("Character / HumanoidRootPart not found")
+			return
+		end
 
-        local targetCFrame = sidewalk:IsA("Model") and sidewalk:GetPivot() or sidewalk.CFrame
+		local sidewalk = workspace:GetChildren()[8]["GR_Shawarma_0_-3"].Kit.Street.Sidewalks:GetChildren()[15]
 
-        hrp.CFrame = targetCFrame + Vector3.new(0, 5, 0)
-        print("Teleported to SSK")
-    end,
+		if not sidewalk then
+			warn("Sidewalk not found")
+			return
+		end
+
+		local targetCFrame = sidewalk:IsA("Model") and sidewalk:GetPivot() or sidewalk.CFrame
+
+		hrp.CFrame = targetCFrame + Vector3.new(0, 5, 0)
+		print("Teleported to SSK")
+	end,
 })
 
 Tab:CreateButton({
