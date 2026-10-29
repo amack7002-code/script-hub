@@ -19076,6 +19076,24 @@ Tab:CreateButton({
     end,
 })
 
+
+Tab:CreateButton({
+    Name = "Teleport to mirror area",
+    Callback = function()
+        local character = player.Character
+        local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+        if not hrp then
+            warn("Character / HumanoidRootPart not found")
+            return
+        end
+
+        local entrance = Vector3.new(-201, 4, 9744)
+
+        hrp.CFrame = CFrame.new(entrance + Vector3.new(0, 5, 0))
+        print("Teleported to mirror part idk")
+    end,
+})
 end
 
 
