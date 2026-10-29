@@ -19331,17 +19331,28 @@ Tab:CreateButton({
             return
         end
 
-        local hospital = workspace:GetChildren()[8]["GR_Shawarma_0_-3"].Forcefield
+        local folder = workspace:GetChildren()[8]
+        local shawarma = folder and folder:FindFirstChild("GR_Shawarma_0_-3")
+        local forcefield = shawarma and shawarma:FindFirstChild("Forcefield")
 
-        if not hospital then
-            warn("Animal Hospital model not found")
+        if not forcefield then
+            warn("Shawarma Forcefield not found")
             return
         end
 
-        local entrance = hospital:GetPivot()
-        hrp.CFrame = CFrame.new(entrance.Position + Vector3.new(0, 5, 0))
+        local targetCFrame
 
-        print("Teleported to Animal Hospital Spot")
+        if forcefield:IsA("Model") then
+            targetCFrame = forcefield:GetPivot()
+        elseif forcefield:IsA("BasePart") then
+            targetCFrame = forcefield.CFrame
+        else
+            warn("Forcefield is not a Model or BasePart")
+            return
+        end
+
+        hrp.CFrame = CFrame.new(targetCFrame.Position + Vector3.new(0, 5, 0))
+        print("Teleported to SSK")
     end,
 })
 
