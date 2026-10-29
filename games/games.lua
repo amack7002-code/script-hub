@@ -19331,30 +19331,9 @@ Tab:CreateButton({
             return
         end
 
-        local folder = workspace:GetChildren()[8]
-        local building = folder and folder:FindFirstChild("GR_Shawarma_0_-3")
-        local kit = building and building:FindFirstChild("Kit")
-        local street = kit and kit:FindFirstChild("Street")
-        local sidewalks = street and street:FindFirstChild("Sidewalks")
-        local children = sidewalks and sidewalks:GetChildren()
-        local shawarma = children and children[15]
-        local forcefield = shawarma and shawarma:FindFirstChild("Forcefield")
+        local sidewalk = workspace:GetChildren()[8]["GR_Shawarma_0_-3"].Kit.Street.Sidewalks:GetChildren()[15]
 
-        if not forcefield then
-            warn("Forcefield not found at Sidewalks child 15")
-            return
-        end
-
-        local targetCFrame
-
-        if forcefield:IsA("Model") then
-            targetCFrame = forcefield:GetPivot()
-        elseif forcefield:IsA("BasePart") then
-            targetCFrame = forcefield.CFrame
-        else
-            warn("Forcefield is not a Model or BasePart")
-            return
-        end
+        local targetCFrame = sidewalk:IsA("Model") and sidewalk:GetPivot() or sidewalk.CFrame
 
         hrp.CFrame = targetCFrame + Vector3.new(0, 5, 0)
         print("Teleported to SSK")
