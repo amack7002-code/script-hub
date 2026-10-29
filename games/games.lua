@@ -19094,6 +19094,106 @@ Tab:CreateButton({
         print("Teleported to mirror part idk")
     end,
 })
+
+local Floor2Section = Tab:CreateSection("Floor 6")
+
+------------------------------
+-- Onyx ESP
+------------------------------
+local marrowConnections = {}
+
+Tab:CreateButton({
+    Name = "marrorw ESP",
+    Callback = function()
+        local marrow = mobs:FindFirstChild("Marrow")
+
+        if not marrow then
+            warn("Marrow was not found in workspace.Mobs")
+            return
+        end
+
+        for _, conn in ipairs(marrowConnections) do
+            conn:Disconnect()
+        end
+        table.clear(marrowConnections)
+
+        local oldHighlight = marrow:FindFirstChild("marrowESP")
+        if oldHighlight then
+            oldHighlight:Destroy()
+        end
+
+        local playerGui = player:WaitForChild("PlayerGui")
+        local oldGui = playerGui:FindFirstChild("marrowName")
+
+        if oldGui then
+            oldGui:Destroy()
+        end
+
+        local adornee = marrow:FindFirstChild("Head")
+            or marrow:FindFirstChildWhichIsA("BasePart", true)
+
+        if not adornee then
+            warn("No valid Marrow part found")
+            return
+        end
+
+        local esp = Instance.new("Highlight")
+        esp.Name = "marrowESP"
+        esp.Adornee = marrow
+        esp.FillColor = Color3.fromRGB(255, 0, 0)
+        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+        esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        esp.Parent = marrow
+
+        local gui = Instance.new("BillboardGui")
+        gui.Name = "marrowName"
+        gui.Adornee = adornee
+        gui.Size = UDim2.fromOffset(220, 60)
+        gui.StudsOffset = Vector3.new(0, 3, 0)
+        gui.AlwaysOnTop = true
+        gui.Parent = playerGui
+
+        local label = Instance.new("TextLabel")
+        label.Name = "marrowLabel"
+        label.Size = UDim2.fromScale(1, 1)
+        label.BackgroundTransparency = 1
+        label.TextColor3 = Color3.new(1, 1, 1)
+        label.TextStrokeTransparency = 0
+        label.TextScaled = true
+        label.Font = Enum.Font.GothamBold
+        label.Parent = gui
+
+        local function updateLabel()
+            if not marrow.Parent then
+                return
+            end
+
+            label.Text = "marrow state: "
+                .. tostring(marrow:GetAttribute("State") or "Unknown")
+                .. "\nMovement: "
+                .. tostring(marrow:GetAttribute("MovementState") or "Unknown")
+        end
+
+        updateLabel()
+
+        table.insert(marrowConnections,
+            Marrow:GetAttributeChangedSignal("State"):Connect(updateLabel)
+        )
+
+        table.insert(marrowConnections,
+            Marrow:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
+        )
+
+        table.insert(marrowConnections, Marrow.Destroying:Connect(function()
+            for _, conn in ipairs(marrowConnections) do
+                conn:Disconnect()
+            end
+
+            table.clear(marrowConnections)
+            gui:Destroy()
+        end))
+    end,
+})
 end
 
 
