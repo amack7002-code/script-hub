@@ -18025,9 +18025,9 @@ if game.PlaceId == 115532003479675 then
 					end
 
 					-- Main loop
-					while autoCollectGeneration == generation do
+					while autoWorkGeneration == generation do
 						task.wait(LOOP)
-						if autoCollectGeneration ~= generation then
+						if autoWorkGeneration ~= generation then
 							break
 						end
 						local ok, err = pcall(function()
@@ -18085,6 +18085,7 @@ if game.PlaceId == 115532003479675 then
 		end,
 	})
 end
+
 
 
 --the hollow
