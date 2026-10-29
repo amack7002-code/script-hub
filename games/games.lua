@@ -18964,26 +18964,22 @@ Tab:CreateButton({
     end,
 })
 
-local entrance = workspace:GetChildren()[15].EL_TheaterEntrance_3_0.Decay:GetChildren()[3]
+local entrance = Vector3.new(271, 4, 7999)
 
 Tab:CreateButton({
-	Name = "Teleport to Theater Entrance",
-	Callback = function()
-		local character = player.Character
-		local hrp = character and character:FindFirstChild("HumanoidRootPart")
+    Name = "Teleport to Theater Entrance",
+    Callback = function()
+        local character = player.Character
+        local hrp = character and character:FindFirstChild("HumanoidRootPart")
 
-		if not hrp then
-			warn("Character / HumanoidRootPart not found")
-			return
-		end
+        if not hrp then
+            warn("Character / HumanoidRootPart not found")
+            return
+        end
 
-		if entrance and entrance:IsA("BasePart") then
-			hrp.CFrame = entrance.CFrame + Vector3.new(0, 5, 0)
-			print("Teleported to Theater Entrance")
-		else
-			warn("Theater Entrance part not found")
-		end
-	end,
+        hrp.CFrame = CFrame.new(entrance + Vector3.new(0, 5, 0))
+        print("Teleported to Theater Entrance")
+    end,
 })
 
 
