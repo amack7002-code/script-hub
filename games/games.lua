@@ -17747,7 +17747,8 @@ if game.PlaceId == 12931609417 then
 	})
 end
 
-if game.PlaceId == then
+--dont get fired at work
+if game.PlaceId == 115532003479675 then
 	local Tab = Window:CreateTab("Main", 4483362458)
 
 	local autoWorkGeneration = 0
