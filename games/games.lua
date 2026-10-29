@@ -18950,16 +18950,9 @@ Tab:CreateButton({
             return
         end
 
-        local bridge = workspace:FindFirstChild("ZombieBridgeProps")
-        local tiles = bridge and bridge:FindFirstChild("Tiles")
-        local parttouch = tiles and tiles:FindFirstChild("Tile53")
+        local bridge = Vector3.new(-52, 4, 7670)
 
-        if not parttouch or not parttouch:IsA("BasePart") then
-            warn("Tile53 not found")
-            return
-        end
-
-        hrp.CFrame = parttouch.CFrame + Vector3.new(0, 5, 0)
+        hrp.CFrame = CFrame.new(bridge + Vector3.new(0, 5, 0))
         print("Teleported to Zombie Maze End")
     end,
 })
@@ -18982,6 +18975,106 @@ Tab:CreateButton({
     end,
 })
 
+
+local Floor2Section = Tab:CreateSection("Floor 5")
+
+------------------------------
+-- Onyx ESP
+------------------------------
+local veilConnections = {}
+
+Tab:CreateButton({
+    Name = "Veil ESP",
+    Callback = function()
+        local Veil = mobs:FindFirstChild("Veil")
+
+        if not Veil then
+            warn("Veil was not found in workspace.Mobs")
+            return
+        end
+
+        for _, conn in ipairs(veilConnections) do
+            conn:Disconnect()
+        end
+        table.clear(veilConnections)
+
+        local oldHighlight = Veil:FindFirstChild("veilESP")
+        if oldHighlight then
+            oldHighlight:Destroy()
+        end
+
+        local playerGui = player:WaitForChild("PlayerGui")
+        local oldGui = playerGui:FindFirstChild("veilName")
+
+        if oldGui then
+            oldGui:Destroy()
+        end
+
+        local adornee = Veil:FindFirstChild("Head")
+            or Veil:FindFirstChildWhichIsA("BasePart", true)
+
+        if not adornee then
+            warn("No valid Veil part found")
+            return
+        end
+
+        local esp = Instance.new("Highlight")
+        esp.Name = "veilESP"
+        esp.Adornee = Veil
+        esp.FillColor = Color3.fromRGB(255, 0, 0)
+        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+        esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        esp.Parent = Veil
+
+        local gui = Instance.new("BillboardGui")
+        gui.Name = "veilName"
+        gui.Adornee = adornee
+        gui.Size = UDim2.fromOffset(220, 60)
+        gui.StudsOffset = Vector3.new(0, 3, 0)
+        gui.AlwaysOnTop = true
+        gui.Parent = playerGui
+
+        local label = Instance.new("TextLabel")
+        label.Name = "veilLabel"
+        label.Size = UDim2.fromScale(1, 1)
+        label.BackgroundTransparency = 1
+        label.TextColor3 = Color3.new(1, 1, 1)
+        label.TextStrokeTransparency = 0
+        label.TextScaled = true
+        label.Font = Enum.Font.GothamBold
+        label.Parent = gui
+
+        local function updateLabel()
+            if not Veil.Parent then
+                return
+            end
+
+            label.Text = "veil state: "
+                .. tostring(Veil:GetAttribute("State") or "Unknown")
+                .. "\nMovement: "
+                .. tostring(Veil:GetAttribute("MovementState") or "Unknown")
+        end
+
+        updateLabel()
+
+        table.insert(veilConnections,
+            Veil:GetAttributeChangedSignal("State"):Connect(updateLabel)
+        )
+
+        table.insert(veilConnections,
+            Veil:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
+        )
+
+        table.insert(veilConnections, Veil.Destroying:Connect(function()
+            for _, conn in ipairs(veilConnections) do
+                conn:Disconnect()
+            end
+
+            table.clear(veilConnections)
+            gui:Destroy()
+        end))
+    end,
+})
 
 end
 
