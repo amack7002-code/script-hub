@@ -19320,6 +19320,96 @@ Tab:CreateButton({
     end,
 })
 
+Tab:CreateButton({
+    Name = "Teleport to SSK",
+    Callback = function()
+        local character = player.Character
+        local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+        if not hrp then
+            warn("Character / HumanoidRootPart not found")
+            return
+        end
+
+        local hospital = workspace:GetChildren()[8]["GR_Shawarma_0_-3"].Forcefield
+
+        if not hospital then
+            warn("Animal Hospital model not found")
+            return
+        end
+
+        local entrance = hospital:GetPivot()
+        hrp.CFrame = CFrame.new(entrance.Position + Vector3.new(0, 5, 0))
+
+        print("Teleported to Animal Hospital Spot")
+    end,
+})
+
+Tab:CreateButton({
+		Name = "Activate Pumpkins",
+		Callback = function()
+			local Players = game:GetService("Players")
+			local player = Players.LocalPlayer
+
+			local pack = workspace:GetChildren()[8]
+			if not pack then
+				warn("Pack not found")
+				return
+			end
+
+			local pumpkinsActivated = {}
+			for _, v in ipairs(pack:GetDescendants()) do
+				if v:IsA("RemoteFunction") and v.Parent and v.Parent:IsA("MeshPart") then
+					table.insert(pumpkinsActivated, v)
+				end
+			end
+
+			local character = player.Character or player.CharacterAdded:Wait()
+			local hrp = character:WaitForChild("HumanoidRootPart")
+			local originalCFrame = hrp.CFrame
+
+			for _, pumpkin in ipairs(pumpkinsActivated) do
+				if not pumpkin.Parent then
+					continue
+				end
+
+				character = player.Character
+				if not character then
+					break
+				end
+
+				hrp = character:FindFirstChild("HumanoidRootPart")
+				if not hrp then
+					break
+				end
+
+				local pumpkinPart = pumpkin.Parent
+				if not pumpkinPart:IsA("BasePart") then
+					continue
+				end
+
+				hrp.CFrame = pumpkinPart.CFrame + Vector3.new(0, 4, 0)
+				task.wait(0.15)
+
+				local success, result = pcall(function()
+					return pumpkin:InvokeServer()
+				end)
+
+				if not success then
+					warn("Pumpkin activation failed:", result)
+				end
+
+				task.wait(0.15)
+			end
+
+			character = player.Character
+			hrp = character and character:FindFirstChild("HumanoidRootPart")
+			if hrp then
+				hrp.CFrame = originalCFrame
+			end
+		end,
+	})
+
 end
 
 
