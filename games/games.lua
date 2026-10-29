@@ -19332,11 +19332,16 @@ Tab:CreateButton({
         end
 
         local folder = workspace:GetChildren()[8]
-        local shawarma = folder and folder:FindFirstChild("GR_Shawarma_0_-3")
+        local building = folder and folder:FindFirstChild("GR_Shawarma_0_-3")
+        local kit = building and building:FindFirstChild("Kit")
+        local street = kit and kit:FindFirstChild("Street")
+        local sidewalks = street and street:FindFirstChild("Sidewalks")
+        local children = sidewalks and sidewalks:GetChildren()
+        local shawarma = children and children[15]
         local forcefield = shawarma and shawarma:FindFirstChild("Forcefield")
 
         if not forcefield then
-            warn("Shawarma Forcefield not found")
+            warn("Forcefield not found at Sidewalks child 15")
             return
         end
 
@@ -19351,7 +19356,7 @@ Tab:CreateButton({
             return
         end
 
-        hrp.CFrame = CFrame.new(targetCFrame.Position + Vector3.new(0, 5, 0))
+        hrp.CFrame = targetCFrame + Vector3.new(0, 5, 0)
         print("Teleported to SSK")
     end,
 })
