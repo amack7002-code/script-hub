@@ -18084,6 +18084,7 @@ if game.PlaceId == 115532003479675 then
 			end)
 		end,
 	})
+end
 
 
 --the hollow
