@@ -19194,6 +19194,132 @@ Tab:CreateButton({
         end))
     end,
 })
+
+Tab:CreateButton({
+    Name = "Teleport to Animal Hospital Spot",
+    Callback = function()
+        local character = player.Character
+        local hrp = character and character:FindFirstChild("HumanoidRootPart")
+
+        if not hrp then
+            warn("Character / HumanoidRootPart not found")
+            return
+        end
+
+        local hospital = workspace:GetChildren()[12]:FindFirstChild("GR_AnimalHospital_-1_-3")
+
+        if not hospital then
+            warn("Animal Hospital model not found")
+            return
+        end
+
+        local entrance = hospital:GetPivot()
+        hrp.CFrame = CFrame.new(entrance.Position + Vector3.new(0, 5, 0))
+
+        print("Teleported to Animal Hospital Spot")
+    end,
+})
+
+local Floor2Section = Tab:CreateSection("Floor 7")
+
+------------------------------
+-- Onyx ESP
+------------------------------
+local watchConnections = {}
+
+Tab:CreateButton({
+    Name = "watch ESP",
+    Callback = function()
+        local Watch = mobs:FindFirstChild("Watch")
+
+        if not Watch then
+            warn("Watch was not found in workspace.Mobs")
+            return
+        end
+
+        for _, conn in ipairs(watchConnections) do
+            conn:Disconnect()
+        end
+        table.clear(watchConnections)
+
+        local oldHighlight = Watch:FindFirstChild("watchESP")
+        if oldHighlight then
+            oldHighlight:Destroy()
+        end
+
+        local playerGui = player:WaitForChild("PlayerGui")
+        local oldGui = playerGui:FindFirstChild("watchName")
+
+        if oldGui then
+            oldGui:Destroy()
+        end
+
+        local adornee = Watch:FindFirstChild("Head")
+            or Watch:FindFirstChildWhichIsA("BasePart", true)
+
+        if not adornee then
+            warn("No valid Watch part found")
+            return
+        end
+
+        local esp = Instance.new("Highlight")
+        esp.Name = "watchESP"
+        esp.Adornee = Watch
+        esp.FillColor = Color3.fromRGB(255, 0, 0)
+        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+        esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        esp.Parent = Watch
+
+        local gui = Instance.new("BillboardGui")
+        gui.Name = "watchName"
+        gui.Adornee = adornee
+        gui.Size = UDim2.fromOffset(220, 60)
+        gui.StudsOffset = Vector3.new(0, 3, 0)
+        gui.AlwaysOnTop = true
+        gui.Parent = playerGui
+
+        local label = Instance.new("TextLabel")
+        label.Name = "watchLabel"
+        label.Size = UDim2.fromScale(1, 1)
+        label.BackgroundTransparency = 1
+        label.TextColor3 = Color3.new(1, 1, 1)
+        label.TextStrokeTransparency = 0
+        label.TextScaled = true
+        label.Font = Enum.Font.GothamBold
+        label.Parent = gui
+
+        local function updateLabel()
+            if not Watch.Parent then
+                return
+            end
+
+            label.Text = "watch state: "
+                .. tostring(Watch:GetAttribute("State") or "Unknown")
+                .. "\nMovement: "
+                .. tostring(Watch:GetAttribute("MovementState") or "Unknown")
+        end
+
+        updateLabel()
+
+        table.insert(watchConnections,
+            Watch:GetAttributeChangedSignal("State"):Connect(updateLabel)
+        )
+
+        table.insert(watchConnections,
+            Watch:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
+        )
+
+        table.insert(watchConnections, Watch.Destroying:Connect(function()
+            for _, conn in ipairs(watchConnections) do
+                conn:Disconnect()
+            end
+
+            table.clear(watchConnections)
+            gui:Destroy()
+        end))
+    end,
+})
+
 end
 
 
