@@ -18081,7 +18081,15 @@ if game.PlaceId == 116463962153167 then
 	local player = game:GetService("Players").LocalPlayer
 	local mobs = workspace:WaitForChild("Mobs")
 
-	local Section = Tab:CreateSection("Floor 1")
+	local function getHRP()
+		local character = player.Character
+		return character and character:FindFirstChild("HumanoidRootPart")
+	end
+
+	----------------------------------------------------------------
+	-- FLOOR 1
+	----------------------------------------------------------------
+	local Floor1Section = Tab:CreateSection("Floor 1")
 
 	-- Unlock Camera
 	Tab:CreateButton({
@@ -18095,16 +18103,35 @@ if game.PlaceId == 116463962153167 then
 		end,
 	})
 
+	------------------------------
 	-- Vesper ESP
+	------------------------------
 	local vesperConnections = {}
+	local vesperESPEnabled = false
 
 	Tab:CreateButton({
 		Name = "Vesper ESP",
 		Callback = function()
 			local vesper = mobs:FindFirstChild("Vesper")
-
 			if not vesper then
-				warn("Vesper was not found in workspace.Mobs")
+				warn("[Vesper ESP] Vesper not found")
+				return
+			end
+
+			if vesperESPEnabled then
+				for _, conn in ipairs(vesperConnections) do
+					conn:Disconnect()
+				end
+				table.clear(vesperConnections)
+
+				local oldHighlight = vesper:FindFirstChild("VesperESP")
+				if oldHighlight then oldHighlight:Destroy() end
+
+				local oldGui = player.PlayerGui:FindFirstChild("VesperName")
+				if oldGui then oldGui:Destroy() end
+
+				vesperESPEnabled = false
+				print("[Vesper ESP] Disabled")
 				return
 			end
 
@@ -18114,13 +18141,15 @@ if game.PlaceId == 116463962153167 then
 			table.clear(vesperConnections)
 
 			local oldHighlight = vesper:FindFirstChild("VesperESP")
-			if oldHighlight then
-				oldHighlight:Destroy()
-			end
+			if oldHighlight then oldHighlight:Destroy() end
 
 			local oldGui = player.PlayerGui:FindFirstChild("VesperName")
-			if oldGui then
-				oldGui:Destroy()
+			if oldGui then oldGui:Destroy() end
+
+			local adornee = vesper:FindFirstChild("Head") or vesper:FindFirstChildWhichIsA("BasePart", true)
+			if not adornee then
+				warn("[Vesper ESP] No valid part found")
+				return
 			end
 
 			local esp = Instance.new("Highlight")
@@ -18131,56 +18160,41 @@ if game.PlaceId == 116463962153167 then
 			esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 			esp.Parent = vesper
 
-			local adornee = vesper:FindFirstChild("Head") or vesper:FindFirstChildWhichIsA("BasePart")
-			if not adornee then
-				warn("No valid part found to attach BillboardGui")
-				return
-			end
-
 			local gui = Instance.new("BillboardGui")
 			gui.Name = "VesperName"
 			gui.Adornee = adornee
-			gui.Size = UDim2.new(0, 220, 0, 60)
+			gui.Size = UDim2.fromOffset(220, 60)
 			gui.StudsOffset = Vector3.new(0, 3, 0)
 			gui.AlwaysOnTop = true
-			gui.Parent = player:WaitForChild("PlayerGui")
+			gui.Parent = player.PlayerGui
 
-			local stateLabel = Instance.new("TextLabel")
-			stateLabel.Name = "VesperLabel"
-			stateLabel.Size = UDim2.new(1, 0, 1, 0)
-			stateLabel.BackgroundTransparency = 1
-			stateLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-			stateLabel.TextStrokeTransparency = 0
-			stateLabel.TextScaled = true
-			stateLabel.Font = Enum.Font.GothamBold
-			stateLabel.Parent = gui
+			local label = Instance.new("TextLabel")
+			label.Size = UDim2.fromScale(1, 1)
+			label.BackgroundTransparency = 1
+			label.TextColor3 = Color3.new(1, 1, 1)
+			label.TextStrokeTransparency = 0
+			label.TextScaled = true
+			label.Font = Enum.Font.GothamBold
+			label.Parent = gui
 
 			local function updateLabel()
-				if not vesper or not vesper.Parent then
-					return
-				end
-
-				local state = tostring(vesper:GetAttribute("State") or "Unknown")
-				local movement = tostring(vesper:GetAttribute("MovementState") or "Unknown")
-
-				stateLabel.Text = "Vesper state: " .. state .. "\nMovement: " .. movement
+				if not vesper or not vesper.Parent then return end
+				label.Text = "State: " .. tostring(vesper:GetAttribute("State") or "Unknown")
+					.. "\nMovement: " .. tostring(vesper:GetAttribute("MovementState") or "Unknown")
 			end
 
 			updateLabel()
-
 			table.insert(vesperConnections, vesper:GetAttributeChangedSignal("State"):Connect(updateLabel))
 			table.insert(vesperConnections, vesper:GetAttributeChangedSignal("MovementState"):Connect(updateLabel))
-
 			table.insert(vesperConnections, vesper.Destroying:Connect(function()
-				for _, conn in ipairs(vesperConnections) do
-					conn:Disconnect()
-				end
+				for _, conn in ipairs(vesperConnections) do conn:Disconnect() end
 				table.clear(vesperConnections)
-
-				if gui then
-					gui:Destroy()
-				end
+				if gui then gui:Destroy() end
+				vesperESPEnabled = false
 			end))
+
+			vesperESPEnabled = true
+			print("[Vesper ESP] Enabled")
 		end,
 	})
 
@@ -18192,14 +18206,11 @@ if game.PlaceId == 116463962153167 then
 	Tab:CreateButton({
 		Name = "Save Spot",
 		Callback = function()
-			local character = player.Character
-			local hrp = character and character:FindFirstChild("HumanoidRootPart")
-
+			local hrp = getHRP()
 			if not hrp then
 				warn("Character / HumanoidRootPart not found")
 				return
 			end
-
 			savedCFrame = hrp.CFrame
 			print("Spot saved!")
 		end,
@@ -18212,41 +18223,30 @@ if game.PlaceId == 116463962153167 then
 				warn("No spot has been saved yet")
 				return
 			end
-
-			local character = player.Character
-			local hrp = character and character:FindFirstChild("HumanoidRootPart")
-
+			local hrp = getHRP()
 			if not hrp then
 				warn("Character / HumanoidRootPart not found")
 				return
 			end
-
 			hrp.CFrame = savedCFrame
 			print("Teleported to saved spot")
 		end,
 	})
 
-	------------------------------
-	-- Specific Location Button
-	------------------------------
 	Tab:CreateButton({
 		Name = "Teleport to Special Spot",
 		Callback = function()
-			local character = player.Character
-			local hrp = character and character:FindFirstChild("HumanoidRootPart")
-
+			local hrp = getHRP()
 			if not hrp then
 				warn("Character / HumanoidRootPart not found")
 				return
 			end
-
 			hrp.CFrame = CFrame.new(
 				179.930573, 3.50153399, 1658.224,
 				-0.080119729, 7.00428915e-09, -0.996785223,
 				-8.74227766e-08, -1, 0,
 				-0.996785223, 8.71417285e-08, 0.080119729
 			)
-
 			print("Teleported to special spot")
 		end,
 	})
@@ -18258,7 +18258,6 @@ if game.PlaceId == 116463962153167 then
 
 	local function getAllBases()
 		local bases = {}
-
 		for _, obj in ipairs(workspace:GetDescendants()) do
 			if obj.Name == "Base" and obj:IsA("BasePart") then
 				local pointLight = obj:FindFirstChild("PointLight", true)
@@ -18267,23 +18266,19 @@ if game.PlaceId == 116463962153167 then
 				end
 			end
 		end
-
 		return bases
 	end
 
 	Tab:CreateButton({
-		Name = "Teleport to Next PointLight(im getting to lazy to rename this)",
+		Name = "Teleport to Next PointLight Base",
 		Callback = function()
 			local bases = getAllBases()
-
 			if #bases == 0 then
 				warn("No Bases containing a PointLight found")
 				return
 			end
 
-			local character = player.Character
-			local hrp = character and character:FindFirstChild("HumanoidRootPart")
-
+			local hrp = getHRP()
 			if not hrp then
 				warn("Character / HumanoidRootPart not found")
 				return
@@ -18323,1333 +18318,1124 @@ if game.PlaceId == 116463962153167 then
 		end,
 	})
 
-		------------------------------
+	----------------------------------------------------------------
 	-- FLOOR 2
+	----------------------------------------------------------------
+	local Floor2Section = Tab:CreateSection("Floor 2")
+
 	------------------------------
-------------------------------
--- FLOOR 2
-------------------------------
-local Floor2Section = Tab:CreateSection("Floor 2")
+	-- Onyx ESP
+	------------------------------
+	local onyxConnections = {}
+	local onyxESPEnabled = false
 
-------------------------------
--- Onyx ESP
-------------------------------
-local OnyxConnections = {}
+	Tab:CreateButton({
+		Name = "Onyx ESP",
+		Callback = function()
+			local onyx = mobs:FindFirstChild("Onyx")
+			if not onyx then
+				warn("[Onyx ESP] Onyx not found")
+				return
+			end
 
-Tab:CreateButton({
-    Name = "Onyx ESP",
-    Callback = function()
-        local onyx = mobs:FindFirstChild("Onyx")
+			if onyxESPEnabled then
+				for _, conn in ipairs(onyxConnections) do conn:Disconnect() end
+				table.clear(onyxConnections)
 
-        if not onyx then
-            warn("Onyx was not found in workspace.Mobs")
-            return
-        end
+				local oldHighlight = onyx:FindFirstChild("OnyxESP")
+				if oldHighlight then oldHighlight:Destroy() end
 
-        for _, conn in ipairs(OnyxConnections) do
-            conn:Disconnect()
-        end
-        table.clear(OnyxConnections)
+				local oldGui = player.PlayerGui:FindFirstChild("OnyxName")
+				if oldGui then oldGui:Destroy() end
 
-        local oldHighlight = onyx:FindFirstChild("OnyxESP")
-        if oldHighlight then
-            oldHighlight:Destroy()
-        end
+				onyxESPEnabled = false
+				print("[Onyx ESP] Disabled")
+				return
+			end
 
-        local playerGui = player:WaitForChild("PlayerGui")
-        local oldGui = playerGui:FindFirstChild("OnyxName")
+			for _, conn in ipairs(onyxConnections) do conn:Disconnect() end
+			table.clear(onyxConnections)
 
-        if oldGui then
-            oldGui:Destroy()
-        end
+			local oldHighlight = onyx:FindFirstChild("OnyxESP")
+			if oldHighlight then oldHighlight:Destroy() end
 
-        local adornee = onyx:FindFirstChild("Head")
-            or onyx:FindFirstChildWhichIsA("BasePart", true)
+			local oldGui = player.PlayerGui:FindFirstChild("OnyxName")
+			if oldGui then oldGui:Destroy() end
 
-        if not adornee then
-            warn("No valid Onyx part found")
-            return
-        end
+			local adornee = onyx:FindFirstChild("Head") or onyx:FindFirstChildWhichIsA("BasePart", true)
+			if not adornee then
+				warn("[Onyx ESP] No valid part found")
+				return
+			end
 
-        local esp = Instance.new("Highlight")
-        esp.Name = "OnyxESP"
-        esp.Adornee = onyx
-        esp.FillColor = Color3.fromRGB(255, 0, 0)
-        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
-        esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        esp.Parent = onyx
+			local esp = Instance.new("Highlight")
+			esp.Name = "OnyxESP"
+			esp.Adornee = onyx
+			esp.FillColor = Color3.fromRGB(255, 0, 0)
+			esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+			esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			esp.Parent = onyx
 
-        local gui = Instance.new("BillboardGui")
-        gui.Name = "OnyxName"
-        gui.Adornee = adornee
-        gui.Size = UDim2.fromOffset(220, 60)
-        gui.StudsOffset = Vector3.new(0, 3, 0)
-        gui.AlwaysOnTop = true
-        gui.Parent = playerGui
+			local gui = Instance.new("BillboardGui")
+			gui.Name = "OnyxName"
+			gui.Adornee = adornee
+			gui.Size = UDim2.fromOffset(220, 60)
+			gui.StudsOffset = Vector3.new(0, 3, 0)
+			gui.AlwaysOnTop = true
+			gui.Parent = player.PlayerGui
 
-        local label = Instance.new("TextLabel")
-        label.Name = "OnyxLabel"
-        label.Size = UDim2.fromScale(1, 1)
-        label.BackgroundTransparency = 1
-        label.TextColor3 = Color3.new(1, 1, 1)
-        label.TextStrokeTransparency = 0
-        label.TextScaled = true
-        label.Font = Enum.Font.GothamBold
-        label.Parent = gui
+			local label = Instance.new("TextLabel")
+			label.Size = UDim2.fromScale(1, 1)
+			label.BackgroundTransparency = 1
+			label.TextColor3 = Color3.new(1, 1, 1)
+			label.TextStrokeTransparency = 0
+			label.TextScaled = true
+			label.Font = Enum.Font.GothamBold
+			label.Parent = gui
 
-        local function updateLabel()
-            if not onyx.Parent then
-                return
-            end
+			local function updateLabel()
+				if not onyx or not onyx.Parent then return end
+				label.Text = "State: " .. tostring(onyx:GetAttribute("State") or "Unknown")
+					.. "\nMovement: " .. tostring(onyx:GetAttribute("MovementState") or "Unknown")
+			end
 
-            label.Text = "Onyx state: "
-                .. tostring(onyx:GetAttribute("State") or "Unknown")
-                .. "\nMovement: "
-                .. tostring(onyx:GetAttribute("MovementState") or "Unknown")
-        end
+			updateLabel()
+			table.insert(onyxConnections, onyx:GetAttributeChangedSignal("State"):Connect(updateLabel))
+			table.insert(onyxConnections, onyx:GetAttributeChangedSignal("MovementState"):Connect(updateLabel))
+			table.insert(onyxConnections, onyx.Destroying:Connect(function()
+				for _, conn in ipairs(onyxConnections) do conn:Disconnect() end
+				table.clear(onyxConnections)
+				if gui then gui:Destroy() end
+				onyxESPEnabled = false
+			end))
 
-        updateLabel()
+			onyxESPEnabled = true
+			print("[Onyx ESP] Enabled")
+		end,
+	})
 
-        table.insert(OnyxConnections,
-            onyx:GetAttributeChangedSignal("State"):Connect(updateLabel)
-        )
+	------------------------------
+	-- Three Pillars
+	------------------------------
+	Tab:CreateButton({
+		Name = "Teleport to Three Pillars",
+		Callback = function()
+			local hrp = getHRP()
+			if not hrp then
+				warn("Character / HumanoidRootPart not found")
+				return
+			end
 
-        table.insert(OnyxConnections,
-            onyx:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
-        )
+			local pillars = workspace:FindFirstChild("Model")
+				and workspace.Model:FindFirstChild("GR_DW_-2_-3")
+				and workspace.Model["GR_DW_-2_-3"]:FindFirstChild("ThreePillars")
+				and workspace.Model["GR_DW_-2_-3"].ThreePillars:FindFirstChild("ThreePillars")
 
-        table.insert(OnyxConnections, onyx.Destroying:Connect(function()
-            for _, conn in ipairs(OnyxConnections) do
-                conn:Disconnect()
-            end
+			if not pillars then
+				warn("Three Pillars model not found")
+				return
+			end
 
-            table.clear(OnyxConnections)
-            gui:Destroy()
-        end))
-    end,
-})
+			local position = pillars:GetPivot().Position
+			hrp.CFrame = CFrame.new(position + Vector3.new(10, 5, 0))
+			print("Teleported to Three Pillars")
+		end,
+	})
 
-------------------------------
--- Three Pillars Teleport
-------------------------------
-Tab:CreateButton({
-    Name = "Teleport to Three Pillars",
-    Callback = function()
-        local character = player.Character
-        local hrp = character and character:FindFirstChild("HumanoidRootPart")
-        local pillars = workspace.Model["GR_DW_-2_-3"].ThreePillars.ThreePillars
+	Tab:CreateButton({
+		Name = "Lwk Do the Pillar (Client)",
+		Callback = function()
+			local Event = game:GetService("ReplicatedStorage").Remotes.ThreePillars
+			firesignal(Event.OnClientEvent, {
+				Solved = true,
+				PullCFrame = CFrame.new(-84.259552001953125, 27.471771240234375, 3618.6611328125, -1.1324882507324219e-05, 0.64275610446929932, 0.76607084274291992, 4.1425228118896484e-06, 0.76607084274291992, -0.64275610446929932, -1, -4.1425228118896484e-06, -1.1324882507324219e-05),
+				Steps = {},
+				Kind = "Pull",
+				RestCFrame = CFrame.new(-87.079719543457031, 28.512981414794922, 3618.6611328125, 0, 0, 1, 0, 1, -0, -1, 0, 0),
+				TurnsLeft = 4
+			})
+		end,
+	})
 
-        if not hrp then
-            warn("Character / HumanoidRootPart not found")
-            return
-        end
+	Tab:CreateButton({
+		Name = "fr get ts ghost thing (maybe Client)",
+		Callback = function()
+			local Event = game:GetService("ReplicatedStorage").Remotes.UGCObtained
+			firesignal(Event.OnClientEvent, "LauncherRPlusItem", "Little Plus-tergeist", 113443548754719, "E4", nil)
+		end,
+	})
 
-        if not pillars then
-            warn("Three Pillars model not found")
-            return
-        end
-
-        local position = pillars:GetPivot().Position
-        hrp.CFrame = CFrame.new(position + Vector3.new(10, 5, 0))
-
-        print("Teleported to Three Pillars")
-    end,
-})
-
-Tab:CreateButton({
-    Name = "Lwk Do the Pillar(Client lol)",
-    Callback = function()
-
-local Event = game:GetService("ReplicatedStorage").Remotes.ThreePillars
-firesignal(Event.OnClientEvent, 
-    {
-        Solved = true,
-        PullCFrame = CFrame.new(-84.259552001953125, 27.471771240234375, 3618.6611328125, -1.1324882507324219e-05, 0.64275610446929932, 0.76607084274291992, 4.1425228118896484e-06, 0.76607084274291992, -0.64275610446929932, -1, -4.1425228118896484e-06, -1.1324882507324219e-05),
-        Steps = {},
-        Kind = "Pull",
-        RestCFrame = CFrame.new(-87.079719543457031, 28.512981414794922, 3618.6611328125, 0, 0, 1, 0, 1, -0, -1, 0, 0),
-        TurnsLeft = 4
-    }
-)
-    end,
-})
-
-Tab:CreateButton({
-    Name = "fr get ts ghost thing (maybe Client lol)",
-    Callback = function()
-	local Event = game:GetService("ReplicatedStorage").Remotes.UGCObtained
-	firesignal(Event.OnClientEvent, 
-		"LauncherRPlusItem",
-		"Little Plus-tergeist",
-		113443548754719,
-		"E4",
-		nil
-	)
-    end,
-})
-
-local function findPillarPrompts()
-	local prompts = {}
-
-	-- Search the whole workspace for the ThreePillars model
-	for _, obj in ipairs(workspace:GetDescendants()) do
-		if obj.Name == "ThreePillars" and obj:IsA("Model") then
-			-- Look for Pillar1, Pillar2, Pillar5 inside it
-			for _, pillarName in ipairs({"Pillar1", "Pillar2", "Pillar5"}) do
-				local pillar = obj:FindFirstChild(pillarName, true)
-				if pillar then
-					local prompt = pillar:FindFirstChildWhichIsA("ProximityPrompt", true)
-					if prompt then
-						table.insert(prompts, prompt)
+	local function findPillarPrompts()
+		local prompts = {}
+		for _, obj in ipairs(workspace:GetDescendants()) do
+			if obj.Name == "ThreePillars" and obj:IsA("Model") then
+				for _, pillarName in ipairs({"Pillar1", "Pillar2", "Pillar5"}) do
+					local pillar = obj:FindFirstChild(pillarName, true)
+					if pillar then
+						local prompt = pillar:FindFirstChildWhichIsA("ProximityPrompt", true)
+						if prompt then
+							table.insert(prompts, prompt)
+						end
 					end
 				end
 			end
 		end
+		return prompts
 	end
 
-	return prompts
-end
-
-local function doPillars()
-	local prompts = findPillarPrompts()
-
-	if #prompts == 0 then
-		warn("[Pillar] No ProximityPrompts found. The pillars might not be loaded yet.")
-		return
-	end
-
-	local fired = 0
-
-	for _, prompt in ipairs(prompts) do
-		prompt.MaxActivationDistance = 9e9
-		prompt.RequiresLineOfSight = false
-		prompt.Enabled = true
-
-		if fireproximityprompt then
-			fireproximityprompt(prompt)
-			fired += 1
+	local function doPillars()
+		local prompts = findPillarPrompts()
+		if #prompts == 0 then
+			warn("[Pillar] No ProximityPrompts found. The pillars might not be loaded yet.")
+			return
 		end
+
+		local fired = 0
+		for _, prompt in ipairs(prompts) do
+			prompt.MaxActivationDistance = 9e9
+			prompt.RequiresLineOfSight = false
+			prompt.Enabled = true
+			if fireproximityprompt then
+				fireproximityprompt(prompt)
+				fired += 1
+			end
+		end
+		print("[Pillar] Found and fired " .. fired .. " / " .. #prompts .. " prompts")
 	end
 
-	print("[Pillar] Found and fired " .. fired .. " / " .. #prompts .. " prompts")
-end
-
--- Optional: listen for puzzle resets
-local resetEvent = game:GetService("ReplicatedStorage")
-	:WaitForChild("Remotes")
-	:WaitForChild("PuzzleReset", 5)
-
-if resetEvent then
-	resetEvent.OnClientEvent:Connect(function()
-		print("[Pillar] Puzzle was reset")
-	end)
-end
-
-Tab:CreateButton({
-	Name = "Do the Pillars",
-	Callback = function()
-		doPillars()
-	end,
-})
-
-
-Tab:CreateButton({
-    Name = "Teleport to Spawn",
-    Callback = function()
-        local character = player.Character
-        local hrp = character and character:FindFirstChild("HumanoidRootPart")
-
-        if not hrp then
-            warn("Character / HumanoidRootPart not found")
-            return
-        end
-
-        local spawnLocation = workspace:FindFirstChild("SpawnLocation")
-
-        if spawnLocation and spawnLocation:IsA("BasePart") then
-            hrp.CFrame = CFrame.new(
-                spawnLocation.Position + Vector3.new(0, 5, 0)
-            )
-        else
-            hrp.CFrame = CFrame.new(-1519, 5, -979)
-        end
-
-        print("Teleported to spawn")
-    end,
-})
-
-local Floor2Section = Tab:CreateSection("Floor 3")
-
-------------------------------
--- Onyx ESP
-------------------------------
-local emberConnections = {}
-
-Tab:CreateButton({
-    Name = "ember ESP",
-    Callback = function()
-        local ember = mobs:FindFirstChild("Ember")
-
-        if not ember then
-            warn("ember was not found in workspace.Mobs")
-            return
-        end
-
-        for _, conn in ipairs(emberConnections) do
-            conn:Disconnect()
-        end
-        table.clear(emberConnections)
-
-        local oldHighlight = ember:FindFirstChild("emberESP")
-        if oldHighlight then
-            oldHighlight:Destroy()
-        end
-
-        local playerGui = player:WaitForChild("PlayerGui")
-        local oldGui = playerGui:FindFirstChild("emberName")
-
-        if oldGui then
-            oldGui:Destroy()
-        end
-
-        local adornee = ember:FindFirstChild("Head")
-            or ember:FindFirstChildWhichIsA("BasePart", true)
-
-        if not adornee then
-            warn("No valid ember part found")
-            return
-        end
-
-        local esp = Instance.new("Highlight")
-        esp.Name = "emberESP"
-        esp.Adornee = ember
-        esp.FillColor = Color3.fromRGB(255, 0, 0)
-        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
-        esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        esp.Parent = ember
-
-        local gui = Instance.new("BillboardGui")
-        gui.Name = "emberName"
-        gui.Adornee = adornee
-        gui.Size = UDim2.fromOffset(220, 60)
-        gui.StudsOffset = Vector3.new(0, 3, 0)
-        gui.AlwaysOnTop = true
-        gui.Parent = playerGui
-
-        local label = Instance.new("TextLabel")
-        label.Name = "emberLabel"
-        label.Size = UDim2.fromScale(1, 1)
-        label.BackgroundTransparency = 1
-        label.TextColor3 = Color3.new(1, 1, 1)
-        label.TextStrokeTransparency = 0
-        label.TextScaled = true
-        label.Font = Enum.Font.GothamBold
-        label.Parent = gui
-
-        local function updateLabel()
-            if not ember.Parent then
-                return
-            end
-
-            label.Text = "ember state: "
-                .. tostring(ember:GetAttribute("State") or "Unknown")
-                .. "\nMovement: "
-                .. tostring(ember:GetAttribute("MovementState") or "Unknown")
-        end
-
-        updateLabel()
-
-        table.insert(emberConnections,
-            ember:GetAttributeChangedSignal("State"):Connect(updateLabel)
-        )
-
-        table.insert(emberConnections,
-            ember:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
-        )
-
-        table.insert(emberConnections, ember.Destroying:Connect(function()
-            for _, conn in ipairs(emberConnections) do
-                conn:Disconnect()
-            end
-
-            table.clear(emberConnections)
-            gui:Destroy()
-        end))
-    end,
-})
-
-
-local Lighting = game:GetService("Lighting")
-
-local removeChase = false
-local connection = nil
-
-local function removeChaseFX()
-    for _, v in ipairs(Lighting:GetDescendants()) do
-        if v.Name == "HollowEnemyChaseCorrection" then
-            v:Destroy()
-        end
-    end
-
-    local direct = Lighting:FindFirstChild("HollowEnemyChaseCorrection")
-    if direct then
-        direct:Destroy()
-    end
-end
-
-Tab:CreateButton({
-    Name = "Toggle Remove Chase FX",
-    Callback = function()
-        removeChase = not removeChase
-
-        if removeChase then
-            removeChaseFX()
-
-            if connection then
-                connection:Disconnect()
-            end
-
-            connection = Lighting.DescendantAdded:Connect(function(descendant)
-                if removeChase and descendant.Name == "HollowEnemyChaseCorrection" then
-                    task.defer(function()
-                        if descendant.Parent then
-                            descendant:Destroy()
-                        end
-                    end)
-                end
-            end)
-
-            print("Remove Chase FX: ON")
-        else
-            if connection then
-                connection:Disconnect()
-                connection = nil
-            end
-
-            print("Remove Chase FX: OFF")
-        end
-    end,
-})
-
-Tab:CreateButton({
-    Name = "Teleport to Tombstone",
-    Callback = function()
-        local character = player.Character
-        local hrp = character and character:FindFirstChild("HumanoidRootPart")
-
-        if not hrp then
-            warn("Character / HumanoidRootPart not found")
-            return
-        end
-
-        local tombstone = workspace:FindFirstChild("GR_Demon_2_-3", true)
-
-        if not tombstone then
-            warn("GR_Demon_2_-3 not found in Workspace")
-            return
-        end
-
-        if tombstone:IsA("Model") then
-            hrp.CFrame = tombstone:GetPivot() + Vector3.new(0, 5, 0)
-        elseif tombstone:IsA("BasePart") then
-            hrp.CFrame = tombstone.CFrame + Vector3.new(0, 5, 0)
-        else
-            warn("Tombstone is not a Model or BasePart:", tombstone.ClassName)
-            return
-        end
-
-        print("Teleported to Tombstone")
-    end,
-})
-
-
-local Floor4Section = Tab:CreateSection("Floor 4")
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
-local juniperESPEnabled = false
-local juniperConnections = {}
-local juniperHighlight
-local juniperGui
-local juniperLabel
-local currentJuniper
-local juniperWatcher
-
-local function disconnectJuniperConnections()
-    for _, conn in ipairs(juniperConnections) do
-        pcall(function()
-            conn:Disconnect()
-        end)
-    end
-
-    table.clear(juniperConnections)
-end
-
-local function cleanupJuniperESP()
-    disconnectJuniperConnections()
-
-    if juniperHighlight then
-        juniperHighlight:Destroy()
-        juniperHighlight = nil
-    end
-
-    if juniperGui then
-        juniperGui:Destroy()
-        juniperGui = nil
-    end
-
-    juniperLabel = nil
-    currentJuniper = nil
-end
-
-local function attachJuniperESP(juniper)
-    if not juniperESPEnabled or not juniper or not juniper.Parent then
-        return
-    end
-
-    if currentJuniper == juniper and juniperHighlight and juniperHighlight.Parent then
-        return
-    end
-
-    cleanupJuniperESP()
-    currentJuniper = juniper
-
-    local adornee = juniper:FindFirstChild("Head", true)
-        or juniper:FindFirstChildWhichIsA("BasePart", true)
-
-    local highlight = Instance.new("Highlight")
-    highlight.Name = "juniperESP"
-    highlight.Adornee = juniper
-    highlight.FillColor = Color3.fromRGB(255, 0, 0)
-    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    highlight.Parent = juniper
-    juniperHighlight = highlight
-
-    if adornee then
-        local gui = Instance.new("BillboardGui")
-        gui.Name = "juniperName"
-        gui.Adornee = adornee
-        gui.Size = UDim2.fromOffset(260, 65)
-        gui.StudsOffset = Vector3.new(0, 3, 0)
-        gui.AlwaysOnTop = true
-        gui.Parent = playerGui
-        juniperGui = gui
-
-        local label = Instance.new("TextLabel")
-        label.Name = "juniperLabel"
-        label.Size = UDim2.fromScale(1, 1)
-        label.BackgroundTransparency = 1
-        label.TextColor3 = Color3.new(1, 1, 1)
-        label.TextStrokeTransparency = 0
-        label.TextScaled = true
-        label.Font = Enum.Font.GothamBold
-        label.Parent = gui
-        juniperLabel = label
-    end
-
-    local function updateLabel()
-        if not juniperESPEnabled or currentJuniper ~= juniper then
-            return
-        end
-
-        if not juniper.Parent then
-            return
-        end
-
-        if juniperLabel then
-            juniperLabel.Text =
-                "Juniper State: " ..
-                tostring(juniper:GetAttribute("State") or "Unknown") ..
-                "\nMovement: " ..
-                tostring(juniper:GetAttribute("MovementState") or "Unknown")
-        end
-    end
-
-    updateLabel()
-
-    table.insert(juniperConnections,
-        juniper:GetAttributeChangedSignal("State"):Connect(updateLabel)
-    )
-
-    table.insert(juniperConnections,
-        juniper:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
-    )
-
-    table.insert(juniperConnections, juniper.Destroying:Connect(function()
-        if currentJuniper == juniper then
-            cleanupJuniperESP()
-        end
-    end))
-end
-
-local function findJuniper()
-    local mobsFolder = workspace:FindFirstChild("Mobs")
-    if not mobsFolder then
-        return nil
-    end
-
-    return mobsFolder:FindFirstChild("Juniper")
-end
-
-local function startJuniperWatcher()
-    if juniperWatcher then
-        return
-    end
-
-    juniperWatcher = task.spawn(function()
-        while juniperESPEnabled do
-            local juniper = findJuniper()
-
-            if juniper then
-                attachJuniperESP(juniper)
-            elseif currentJuniper then
-                cleanupJuniperESP()
-            end
-
-            task.wait(0.5)
-        end
-
-        juniperWatcher = nil
-    end)
-end
-
-Tab:CreateButton({
-    Name = "Juniper ESP: Toggle",
-    Callback = function()
-        juniperESPEnabled = not juniperESPEnabled
-
-        if juniperESPEnabled then
-            local juniper = findJuniper()
-
-            if juniper then
-                attachJuniperESP(juniper)
-            end
-
-            startJuniperWatcher()
-            print("Juniper ESP enabled")
-        else
-            cleanupJuniperESP()
-            print("Juniper ESP disabled")
-        end
-    end,
-})
-
-Tab:CreateButton({
-    Name = "Teleport to Zombie Maze End",
-    Callback = function()
-        local character = player.Character
-        local hrp = character and character:FindFirstChild("HumanoidRootPart")
-
-        if not hrp then
-            warn("Character / HumanoidRootPart not found")
-            return
-        end
-
-        local bridge = Vector3.new(-52, 4, 7670)
-
-        hrp.CFrame = CFrame.new(bridge + Vector3.new(0, 5, 0))
-        print("Teleported to Zombie Maze End")
-    end,
-})
-
-local entrance = Vector3.new(271, 4, 7999)
-
-Tab:CreateButton({
-    Name = "Teleport to Theater Entrance",
-    Callback = function()
-        local character = player.Character
-        local hrp = character and character:FindFirstChild("HumanoidRootPart")
-
-        if not hrp then
-            warn("Character / HumanoidRootPart not found")
-            return
-        end
-
-        hrp.CFrame = CFrame.new(entrance + Vector3.new(0, 5, 0))
-        print("Teleported to Theater Entrance")
-    end,
-})
-
-
-local Floor5Section = Tab:CreateSection("Floor 5")
-
-------------------------------
--- Onyx ESP
-------------------------------
-local veilConnections = {}
-
-Tab:CreateButton({
-    Name = "Veil ESP",
-    Callback = function()
-        local Veil = mobs:FindFirstChild("Veil")
-
-        if not Veil then
-            warn("Veil was not found in workspace.Mobs")
-            return
-        end
-
-        for _, conn in ipairs(veilConnections) do
-            conn:Disconnect()
-        end
-        table.clear(veilConnections)
-
-        local oldHighlight = Veil:FindFirstChild("veilESP")
-        if oldHighlight then
-            oldHighlight:Destroy()
-        end
-
-        local playerGui = player:WaitForChild("PlayerGui")
-        local oldGui = playerGui:FindFirstChild("veilName")
-
-        if oldGui then
-            oldGui:Destroy()
-        end
-
-        local adornee = Veil:FindFirstChild("Head")
-            or Veil:FindFirstChildWhichIsA("BasePart", true)
-
-        if not adornee then
-            warn("No valid Veil part found")
-            return
-        end
-
-        local esp = Instance.new("Highlight")
-        esp.Name = "veilESP"
-        esp.Adornee = Veil
-        esp.FillColor = Color3.fromRGB(255, 0, 0)
-        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
-        esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        esp.Parent = Veil
-
-        local gui = Instance.new("BillboardGui")
-        gui.Name = "veilName"
-        gui.Adornee = adornee
-        gui.Size = UDim2.fromOffset(220, 60)
-        gui.StudsOffset = Vector3.new(0, 3, 0)
-        gui.AlwaysOnTop = true
-        gui.Parent = playerGui
-
-        local label = Instance.new("TextLabel")
-        label.Name = "veilLabel"
-        label.Size = UDim2.fromScale(1, 1)
-        label.BackgroundTransparency = 1
-        label.TextColor3 = Color3.new(1, 1, 1)
-        label.TextStrokeTransparency = 0
-        label.TextScaled = true
-        label.Font = Enum.Font.GothamBold
-        label.Parent = gui
-
-        local function updateLabel()
-            if not Veil.Parent then
-                return
-            end
-
-            label.Text = "veil state: "
-                .. tostring(Veil:GetAttribute("State") or "Unknown")
-                .. "\nMovement: "
-                .. tostring(Veil:GetAttribute("MovementState") or "Unknown")
-        end
-
-        updateLabel()
-
-        table.insert(veilConnections,
-            Veil:GetAttributeChangedSignal("State"):Connect(updateLabel)
-        )
-
-        table.insert(veilConnections,
-            Veil:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
-        )
-
-        table.insert(veilConnections, Veil.Destroying:Connect(function()
-            for _, conn in ipairs(veilConnections) do
-                conn:Disconnect()
-            end
-
-            table.clear(veilConnections)
-            gui:Destroy()
-        end))
-    end,
-})
-
-
-Tab:CreateButton({
-    Name = "Teleport to mirror area",
-    Callback = function()
-        local character = player.Character
-        local hrp = character and character:FindFirstChild("HumanoidRootPart")
-
-        if not hrp then
-            warn("Character / HumanoidRootPart not found")
-            return
-        end
-
-        local entrance = Vector3.new(-201, 4, 9744)
-
-        hrp.CFrame = CFrame.new(entrance + Vector3.new(0, 5, 0))
-        print("Teleported to mirror part idk")
-    end,
-})
-
-local Floor6Section = Tab:CreateSection("Floor 6")
-
-------------------------------
--- Onyx ESP
-------------------------------
-local marrowConnections = {}
-
-Tab:CreateButton({
-    Name = "marrorw ESP",
-    Callback = function()
-        local marrow = mobs:FindFirstChild("Marrow")
-
-        if not marrow then
-            warn("Marrow was not found in workspace.Mobs")
-            return
-        end
-
-        for _, conn in ipairs(marrowConnections) do
-            conn:Disconnect()
-        end
-        table.clear(marrowConnections)
-
-        local oldHighlight = marrow:FindFirstChild("marrowESP")
-        if oldHighlight then
-            oldHighlight:Destroy()
-        end
-
-        local playerGui = player:WaitForChild("PlayerGui")
-        local oldGui = playerGui:FindFirstChild("marrowName")
-
-        if oldGui then
-            oldGui:Destroy()
-        end
-
-        local adornee = marrow:FindFirstChild("Head")
-            or marrow:FindFirstChildWhichIsA("BasePart", true)
-
-        if not adornee then
-            warn("No valid Marrow part found")
-            return
-        end
-
-        local esp = Instance.new("Highlight")
-        esp.Name = "marrowESP"
-        esp.Adornee = marrow
-        esp.FillColor = Color3.fromRGB(255, 0, 0)
-        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
-        esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        esp.Parent = marrow
-
-        local gui = Instance.new("BillboardGui")
-        gui.Name = "marrowName"
-        gui.Adornee = adornee
-        gui.Size = UDim2.fromOffset(220, 60)
-        gui.StudsOffset = Vector3.new(0, 3, 0)
-        gui.AlwaysOnTop = true
-        gui.Parent = playerGui
-
-        local label = Instance.new("TextLabel")
-        label.Name = "marrowLabel"
-        label.Size = UDim2.fromScale(1, 1)
-        label.BackgroundTransparency = 1
-        label.TextColor3 = Color3.new(1, 1, 1)
-        label.TextStrokeTransparency = 0
-        label.TextScaled = true
-        label.Font = Enum.Font.GothamBold
-        label.Parent = gui
-
-        local function updateLabel()
-            if not marrow.Parent then
-                return
-            end
-
-            label.Text = "marrow state: "
-                .. tostring(marrow:GetAttribute("State") or "Unknown")
-                .. "\nMovement: "
-                .. tostring(marrow:GetAttribute("MovementState") or "Unknown")
-        end
-
-        updateLabel()
-
-        table.insert(marrowConnections,
-            Marrow:GetAttributeChangedSignal("State"):Connect(updateLabel)
-        )
-
-        table.insert(marrowConnections,
-            Marrow:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
-        )
-
-        table.insert(marrowConnections, Marrow.Destroying:Connect(function()
-            for _, conn in ipairs(marrowConnections) do
-                conn:Disconnect()
-            end
-
-            table.clear(marrowConnections)
-            gui:Destroy()
-        end))
-    end,
-})
-
-Tab:CreateButton({
-    Name = "Teleport to Animal Hospital Spot",
-    Callback = function()
-        local character = player.Character
-        local hrp = character and character:FindFirstChild("HumanoidRootPart")
-
-        if not hrp then
-            warn("Character / HumanoidRootPart not found")
-            return
-        end
-
-        local hospital = workspace:GetChildren()[12]:FindFirstChild("GR_AnimalHospital_-1_-3")
-
-        if not hospital then
-            warn("Animal Hospital model not found")
-            return
-        end
-
-        local entrance = hospital:GetPivot()
-        hrp.CFrame = CFrame.new(entrance.Position + Vector3.new(0, 5, 0))
-
-        print("Teleported to Animal Hospital Spot")
-    end,
-})
-
-local Floor7Section = Tab:CreateSection("Floor 7")
-
-------------------------------
--- Watch ESP
-------------------------------
-local watchConnections = {}
-local watchESPEnabled = false
-
-Tab:CreateButton({
-    Name = "Watch ESP",
-    Callback = function()
-        local Watch = mobs:FindFirstChild("Watch")
-
-        if not Watch then
-            warn("[Watch ESP] Watch not found in workspace.Mobs")
-            return
-        end
-
-        -- Toggle OFF
-        if watchESPEnabled then
-            for _, conn in ipairs(watchConnections) do
-                conn:Disconnect()
-            end
-            table.clear(watchConnections)
-
-            local oldHighlight = Watch:FindFirstChild("watchESP")
-            if oldHighlight then
-                oldHighlight:Destroy()
-            end
-
-            local playerGui = player:FindFirstChild("PlayerGui")
-            if playerGui then
-                local oldGui = playerGui:FindFirstChild("watchName")
-                if oldGui then
-                    oldGui:Destroy()
-                end
-            end
-
-            watchESPEnabled = false
-            print("[Watch ESP] Disabled")
-            return
-        end
-
-        -- Toggle ON
-        for _, conn in ipairs(watchConnections) do
-            conn:Disconnect()
-        end
-        table.clear(watchConnections)
-
-        local oldHighlight = Watch:FindFirstChild("watchESP")
-        if oldHighlight then
-            oldHighlight:Destroy()
-        end
-
-        local playerGui = player:WaitForChild("PlayerGui")
-        local oldGui = playerGui:FindFirstChild("watchName")
-        if oldGui then
-            oldGui:Destroy()
-        end
-
-        local adornee = Watch:FindFirstChild("Head")
-            or Watch:FindFirstChildWhichIsA("BasePart", true)
-
-        if not adornee then
-            warn("[Watch ESP] No valid part found on Watch")
-            return
-        end
-
-        local esp = Instance.new("Highlight")
-        esp.Name = "watchESP"
-        esp.Adornee = Watch
-        esp.FillColor = Color3.fromRGB(255, 0, 0)
-        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
-        esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        esp.Parent = Watch
-
-        local gui = Instance.new("BillboardGui")
-        gui.Name = "watchName"
-        gui.Adornee = adornee
-        gui.Size = UDim2.fromOffset(220, 60)
-        gui.StudsOffset = Vector3.new(0, 3, 0)
-        gui.AlwaysOnTop = true
-        gui.Parent = playerGui
-
-        local label = Instance.new("TextLabel")
-        label.Name = "watchLabel"
-        label.Size = UDim2.fromScale(1, 1)
-        label.BackgroundTransparency = 1
-        label.TextColor3 = Color3.new(1, 1, 1)
-        label.TextStrokeTransparency = 0
-        label.TextScaled = true
-        label.Font = Enum.Font.GothamBold
-        label.Parent = gui
-
-        local function updateLabel()
-            if not Watch or not Watch.Parent then
-                return
-            end
-
-            label.Text = "State: " .. tostring(Watch:GetAttribute("State") or "Unknown")
-                .. "\nMovement: " .. tostring(Watch:GetAttribute("MovementState") or "Unknown")
-        end
-
-        updateLabel()
-
-        table.insert(watchConnections, Watch:GetAttributeChangedSignal("State"):Connect(updateLabel))
-        table.insert(watchConnections, Watch:GetAttributeChangedSignal("MovementState"):Connect(updateLabel))
-
-        table.insert(watchConnections, Watch.Destroying:Connect(function()
-            for _, conn in ipairs(watchConnections) do
-                conn:Disconnect()
-            end
-            table.clear(watchConnections)
-
-            if gui and gui.Parent then
-                gui:Destroy()
-            end
-
-            watchESPEnabled = false
-        end))
-
-        watchESPEnabled = true
-        print("[Watch ESP] Enabled")
-    end,
-})
-
-Tab:CreateButton({
-    Name = "Teleport to SSK",
-    Callback = function()
-        local Players = game:GetService("Players")
-        local player = Players.LocalPlayer
-
-        local character = player.Character
-        local hrp = character and character:FindFirstChild("HumanoidRootPart")
-
-        if not hrp then
-            warn("Character / HumanoidRootPart not found")
-            return
-        end
-
-        local sidewalk = workspace:GetChildren()[8]["GR_Shawarma_0_-3"].Kit.Street.Sidewalks:GetChildren()[15]
-
-        if not sidewalk then
-            warn("Sidewalk not found")
-            return
-        end
-
-        local targetCFrame = sidewalk:IsA("Model") and sidewalk:GetPivot() or sidewalk.CFrame
-
-        hrp.CFrame = targetCFrame + Vector3.new(0, 5, 0)
-        print("Teleported to SSK")
-    end,
-})
-
-Tab:CreateButton({
-    Name = "Activate Pumpkins (hold out torch)",
-    Callback = function()
-        local Players = game:GetService("Players")
-        local player = Players.LocalPlayer
-
-        local pack = workspace:GetChildren()[8]
-        if not pack then
-            warn("Pack not found")
-            return
-        end
-
-        local pumpkinsActivated = {}
-        for _, v in ipairs(pack:GetDescendants()) do
-            if v:IsA("RemoteFunction") and v.Parent and v.Parent:IsA("MeshPart") then
-                table.insert(pumpkinsActivated, v)
-            end
-        end
-
-        local character = player.Character or player.CharacterAdded:Wait()
-        local hrp = character:WaitForChild("HumanoidRootPart")
-        local originalCFrame = hrp.CFrame
-
-        for _, pumpkin in ipairs(pumpkinsActivated) do
-            if not pumpkin.Parent then
-                continue
-            end
-
-            character = player.Character
-            if not character then
-                break
-            end
-
-            hrp = character:FindFirstChild("HumanoidRootPart")
-            if not hrp then
-                break
-            end
-
-            local pumpkinPart = pumpkin.Parent
-            if not pumpkinPart:IsA("BasePart") then
-                continue
-            end
-
-            hrp.CFrame = pumpkinPart.CFrame + Vector3.new(0, 4, 0)
-            task.wait(0.15)
-
-            local success, result = pcall(function()
-                return pumpkin:InvokeServer()
-            end)
-
-            if not success then
-                warn("Pumpkin activation failed:", result)
-            end
-
-            task.wait(0.15)
-        end
-
-        character = player.Character
-        hrp = character and character:FindFirstChild("HumanoidRootPart")
-        if hrp then
-            hrp.CFrame = originalCFrame
-        end
-    end,
-})
-
-local Floor8Section = Tab:CreateSection("Floor 8")
-
-------------------------------
--- Quartz ESP
-------------------------------
-local quartzConnections = {}
-local quartzESPEnabled = false
-
-Tab:CreateButton({
-    Name = "Quartz ESP",
-    Callback = function()
-        local Quartz = mobs:FindFirstChild("Quartz")
-
-        if not Quartz then
-            warn("[Quartz ESP] Quartz not found in workspace.Mobs")
-            return
-        end
-
-        -- Toggle OFF
-        if quartzESPEnabled then
-            for _, conn in ipairs(quartzConnections) do
-                conn:Disconnect()
-            end
-            table.clear(quartzConnections)
-
-            local oldHighlight = Quartz:FindFirstChild("quartzESP")
-            if oldHighlight then
-                oldHighlight:Destroy()
-            end
-
-            local playerGui = player:FindFirstChild("PlayerGui")
-            if playerGui then
-                local oldGui = playerGui:FindFirstChild("quartzName")
-                if oldGui then
-                    oldGui:Destroy()
-                end
-            end
-
-            quartzESPEnabled = false
-            print("[Quartz ESP] Disabled")
-            return
-        end
-
-        -- Toggle ON
-        for _, conn in ipairs(quartzConnections) do
-            conn:Disconnect()
-        end
-        table.clear(quartzConnections)
-
-        local oldHighlight = Quartz:FindFirstChild("quartzESP")
-        if oldHighlight then
-            oldHighlight:Destroy()
-        end
-
-        local playerGui = player:WaitForChild("PlayerGui")
-        local oldGui = playerGui:FindFirstChild("quartzName")
-        if oldGui then
-            oldGui:Destroy()
-        end
-
-        local adornee = Quartz:FindFirstChild("Head")
-            or Quartz:FindFirstChildWhichIsA("BasePart", true)
-
-        if not adornee then
-            warn("[Quartz ESP] No valid part found on Quartz")
-            return
-        end
-
-        local esp = Instance.new("Highlight")
-        esp.Name = "quartzESP"
-        esp.Adornee = Quartz
-        esp.FillColor = Color3.fromRGB(255, 0, 0)
-        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
-        esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        esp.Parent = Quartz
-
-        local gui = Instance.new("BillboardGui")
-        gui.Name = "quartzName"
-        gui.Adornee = adornee
-        gui.Size = UDim2.fromOffset(220, 60)
-        gui.StudsOffset = Vector3.new(0, 3, 0)
-        gui.AlwaysOnTop = true
-        gui.Parent = playerGui
-
-        local label = Instance.new("TextLabel")
-        label.Name = "quartzLabel"
-        label.Size = UDim2.fromScale(1, 1)
-        label.BackgroundTransparency = 1
-        label.TextColor3 = Color3.new(1, 1, 1)
-        label.TextStrokeTransparency = 0
-        label.TextScaled = true
-        label.Font = Enum.Font.GothamBold
-        label.Parent = gui
-
-        local function updateLabel()
-            if not Quartz or not Quartz.Parent then
-                return
-            end
-
-            label.Text = "State: " .. tostring(Quartz:GetAttribute("State") or "Unknown")
-                .. "\nMovement: " .. tostring(Quartz:GetAttribute("MovementState") or "Unknown")
-        end
-
-        updateLabel()
-
-        table.insert(quartzConnections, Quartz:GetAttributeChangedSignal("State"):Connect(updateLabel))
-        table.insert(quartzConnections, Quartz:GetAttributeChangedSignal("MovementState"):Connect(updateLabel))
-
-        table.insert(quartzConnections, Quartz.Destroying:Connect(function()
-            for _, conn in ipairs(quartzConnections) do
-                conn:Disconnect()
-            end
-            table.clear(quartzConnections)
-
-            if gui and gui.Parent then
-                gui:Destroy()
-            end
-
-            quartzESPEnabled = false
-        end))
-
-        quartzESPEnabled = true
-        print("[Quartz ESP] Enabled")
-    end,
-})
-
-------------------------------
--- Altar Helper
-------------------------------
-local altar = workspace:WaitForChild("OfferingAltar")
-local totalCoaster = {}
-
-local function getPedestal()
-    local pedestals = {}
-
-    for _, v in ipairs(workspace:GetDescendants()) do
-        if v.Name == "OfferingPedestal" then
-            table.insert(pedestals, v)
-        end
-    end
-
-    return pedestals
-end
-
-local function doAllAltar()
-    table.clear(totalCoaster)
-
-    for _, v in ipairs(altar:GetDescendants()) do
-        if v:IsA("ProximityPrompt") then
-            table.insert(totalCoaster, v)
-        end
-    end
-
-    local pedestals = getPedestal()
-
-    if #pedestals == 0 then
-        warn("[Altar] No OfferingPedestal found")
-        return
-    end
-
-    if #totalCoaster == 0 then
-        warn("[Altar] No ProximityPrompts found inside OfferingAltar")
-        return
-    end
-
-    local activated = 0
-
-    for _, prompt in ipairs(totalCoaster) do
-        if prompt and prompt.Parent and prompt.Enabled then
-            local promptPart = prompt.Parent
-
-            if promptPart:IsA("Attachment") then
-                promptPart = promptPart.Parent
-            end
-
-            if promptPart and promptPart:IsA("BasePart") then
-                local closestPedestal
-                local shortestDistance = math.huge
-
-                for _, pedestal in ipairs(pedestals) do
-                    local distance = (pedestal:GetPivot().Position - promptPart.Position).Magnitude
-                    if distance < shortestDistance then
-                        shortestDistance = distance
-                        closestPedestal = pedestal
-                    end
-                end
-
-                if closestPedestal then
-                    hrp.CFrame = closestPedestal:GetPivot() * CFrame.new(0, 3, 0)
-                    task.wait(0.25)
-
-                    fireproximityprompt(prompt)
-                    activated += 1
-
-                    task.wait(0.3)
-                end
-            end
-        end
-    end
-
-    print("[Altar] Activated " .. activated .. "/" .. #totalCoaster .. " prompts")
-end
-
-Tab:CreateButton({
-    Name = "Do All Altars",
-    Callback = function()
-        doAllAltar()
-    end,
-})
-
- 
+	local resetEvent = game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("PuzzleReset", 5)
+	if resetEvent then
+		resetEvent.OnClientEvent:Connect(function()
+			print("[Pillar] Puzzle was reset")
+		end)
+	end
+
+	Tab:CreateButton({
+		Name = "Do the Pillars",
+		Callback = function()
+			doPillars()
+		end,
+	})
+
+	Tab:CreateButton({
+		Name = "Teleport to Spawn",
+		Callback = function()
+			local hrp = getHRP()
+			if not hrp then
+				warn("Character / HumanoidRootPart not found")
+				return
+			end
+
+			local spawnLocation = workspace:FindFirstChild("SpawnLocation")
+			if spawnLocation and spawnLocation:IsA("BasePart") then
+				hrp.CFrame = CFrame.new(spawnLocation.Position + Vector3.new(0, 5, 0))
+			else
+				hrp.CFrame = CFrame.new(-1519, 5, -979)
+			end
+			print("Teleported to spawn")
+		end,
+	})
+
+	----------------------------------------------------------------
+	-- FLOOR 3
+	----------------------------------------------------------------
+	local Floor3Section = Tab:CreateSection("Floor 3")
+
+	------------------------------
+	-- Ember ESP
+	------------------------------
+	local emberConnections = {}
+	local emberESPEnabled = false
+
+	Tab:CreateButton({
+		Name = "Ember ESP",
+		Callback = function()
+			local ember = mobs:FindFirstChild("Ember")
+			if not ember then
+				warn("[Ember ESP] Ember not found")
+				return
+			end
+
+			if emberESPEnabled then
+				for _, conn in ipairs(emberConnections) do conn:Disconnect() end
+				table.clear(emberConnections)
+
+				local oldHighlight = ember:FindFirstChild("emberESP")
+				if oldHighlight then oldHighlight:Destroy() end
+
+				local oldGui = player.PlayerGui:FindFirstChild("emberName")
+				if oldGui then oldGui:Destroy() end
+
+				emberESPEnabled = false
+				print("[Ember ESP] Disabled")
+				return
+			end
+
+			for _, conn in ipairs(emberConnections) do conn:Disconnect() end
+			table.clear(emberConnections)
+
+			local oldHighlight = ember:FindFirstChild("emberESP")
+			if oldHighlight then oldHighlight:Destroy() end
+
+			local oldGui = player.PlayerGui:FindFirstChild("emberName")
+			if oldGui then oldGui:Destroy() end
+
+			local adornee = ember:FindFirstChild("Head") or ember:FindFirstChildWhichIsA("BasePart", true)
+			if not adornee then
+				warn("[Ember ESP] No valid part found")
+				return
+			end
+
+			local esp = Instance.new("Highlight")
+			esp.Name = "emberESP"
+			esp.Adornee = ember
+			esp.FillColor = Color3.fromRGB(255, 0, 0)
+			esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+			esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			esp.Parent = ember
+
+			local gui = Instance.new("BillboardGui")
+			gui.Name = "emberName"
+			gui.Adornee = adornee
+			gui.Size = UDim2.fromOffset(220, 60)
+			gui.StudsOffset = Vector3.new(0, 3, 0)
+			gui.AlwaysOnTop = true
+			gui.Parent = player.PlayerGui
+
+			local label = Instance.new("TextLabel")
+			label.Size = UDim2.fromScale(1, 1)
+			label.BackgroundTransparency = 1
+			label.TextColor3 = Color3.new(1, 1, 1)
+			label.TextStrokeTransparency = 0
+			label.TextScaled = true
+			label.Font = Enum.Font.GothamBold
+			label.Parent = gui
+
+			local function updateLabel()
+				if not ember or not ember.Parent then return end
+				label.Text = "State: " .. tostring(ember:GetAttribute("State") or "Unknown")
+					.. "\nMovement: " .. tostring(ember:GetAttribute("MovementState") or "Unknown")
+			end
+
+			updateLabel()
+			table.insert(emberConnections, ember:GetAttributeChangedSignal("State"):Connect(updateLabel))
+			table.insert(emberConnections, ember:GetAttributeChangedSignal("MovementState"):Connect(updateLabel))
+			table.insert(emberConnections, ember.Destroying:Connect(function()
+				for _, conn in ipairs(emberConnections) do conn:Disconnect() end
+				table.clear(emberConnections)
+				if gui then gui:Destroy() end
+				emberESPEnabled = false
+			end))
+
+			emberESPEnabled = true
+			print("[Ember ESP] Enabled")
+		end,
+	})
+
+	------------------------------
+	-- Remove Chase FX
+	------------------------------
+	local Lighting = game:GetService("Lighting")
+	local removeChase = false
+	local chaseConnection = nil
+
+	local function removeChaseFX()
+		for _, v in ipairs(Lighting:GetDescendants()) do
+			if v.Name == "HollowEnemyChaseCorrection" then
+				v:Destroy()
+			end
+		end
+		local direct = Lighting:FindFirstChild("HollowEnemyChaseCorrection")
+		if direct then direct:Destroy() end
+	end
+
+	Tab:CreateButton({
+		Name = "Toggle Remove Chase FX",
+		Callback = function()
+			removeChase = not removeChase
+			if removeChase then
+				removeChaseFX()
+				if chaseConnection then chaseConnection:Disconnect() end
+				chaseConnection = Lighting.DescendantAdded:Connect(function(descendant)
+					if removeChase and descendant.Name == "HollowEnemyChaseCorrection" then
+						task.defer(function()
+							if descendant.Parent then
+								descendant:Destroy()
+							end
+						end)
+					end
+				end)
+				print("Remove Chase FX: ON")
+			else
+				if chaseConnection then
+					chaseConnection:Disconnect()
+					chaseConnection = nil
+				end
+				print("Remove Chase FX: OFF")
+			end
+		end,
+	})
+
+	Tab:CreateButton({
+		Name = "Teleport to Tombstone",
+		Callback = function()
+			local hrp = getHRP()
+			if not hrp then
+				warn("Character / HumanoidRootPart not found")
+				return
+			end
+
+			local tombstone = workspace:FindFirstChild("GR_Demon_2_-3", true)
+			if not tombstone then
+				warn("GR_Demon_2_-3 not found")
+				return
+			end
+
+			if tombstone:IsA("Model") then
+				hrp.CFrame = tombstone:GetPivot() + Vector3.new(0, 5, 0)
+			elseif tombstone:IsA("BasePart") then
+				hrp.CFrame = tombstone.CFrame + Vector3.new(0, 5, 0)
+			else
+				warn("Tombstone is not a Model or BasePart")
+				return
+			end
+			print("Teleported to Tombstone")
+		end,
+	})
+
+	----------------------------------------------------------------
+	-- FLOOR 4
+	----------------------------------------------------------------
+	local Floor4Section = Tab:CreateSection("Floor 4")
+
+	------------------------------
+	-- Juniper ESP (advanced)
+	------------------------------
+	local juniperESPEnabled = false
+	local juniperConnections = {}
+	local juniperHighlight
+	local juniperGui
+	local juniperLabel
+	local currentJuniper
+	local juniperWatcher
+
+	local function disconnectJuniperConnections()
+		for _, conn in ipairs(juniperConnections) do
+			pcall(function() conn:Disconnect() end)
+		end
+		table.clear(juniperConnections)
+	end
+
+	local function cleanupJuniperESP()
+		disconnectJuniperConnections()
+		if juniperHighlight then
+			juniperHighlight:Destroy()
+			juniperHighlight = nil
+		end
+		if juniperGui then
+			juniperGui:Destroy()
+			juniperGui = nil
+		end
+		juniperLabel = nil
+		currentJuniper = nil
+	end
+
+	local function attachJuniperESP(juniper)
+		if not juniperESPEnabled or not juniper or not juniper.Parent then return end
+		if currentJuniper == juniper and juniperHighlight and juniperHighlight.Parent then return end
+
+		cleanupJuniperESP()
+		currentJuniper = juniper
+
+		local adornee = juniper:FindFirstChild("Head", true) or juniper:FindFirstChildWhichIsA("BasePart", true)
+
+		local highlight = Instance.new("Highlight")
+		highlight.Name = "juniperESP"
+		highlight.Adornee = juniper
+		highlight.FillColor = Color3.fromRGB(255, 0, 0)
+		highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+		highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+		highlight.Parent = juniper
+		juniperHighlight = highlight
+
+		if adornee then
+			local gui = Instance.new("BillboardGui")
+			gui.Name = "juniperName"
+			gui.Adornee = adornee
+			gui.Size = UDim2.fromOffset(260, 65)
+			gui.StudsOffset = Vector3.new(0, 3, 0)
+			gui.AlwaysOnTop = true
+			gui.Parent = player.PlayerGui
+			juniperGui = gui
+
+			local label = Instance.new("TextLabel")
+			label.Size = UDim2.fromScale(1, 1)
+			label.BackgroundTransparency = 1
+			label.TextColor3 = Color3.new(1, 1, 1)
+			label.TextStrokeTransparency = 0
+			label.TextScaled = true
+			label.Font = Enum.Font.GothamBold
+			label.Parent = gui
+			juniperLabel = label
+		end
+
+		local function updateLabel()
+			if not juniperESPEnabled or currentJuniper ~= juniper then return end
+			if not juniper.Parent then return end
+			if juniperLabel then
+				juniperLabel.Text = "Juniper State: " .. tostring(juniper:GetAttribute("State") or "Unknown")
+					.. "\nMovement: " .. tostring(juniper:GetAttribute("MovementState") or "Unknown")
+			end
+		end
+
+		updateLabel()
+		table.insert(juniperConnections, juniper:GetAttributeChangedSignal("State"):Connect(updateLabel))
+		table.insert(juniperConnections, juniper:GetAttributeChangedSignal("MovementState"):Connect(updateLabel))
+		table.insert(juniperConnections, juniper.Destroying:Connect(function()
+			if currentJuniper == juniper then
+				cleanupJuniperESP()
+			end
+		end))
+	end
+
+	local function findJuniper()
+		local mobsFolder = workspace:FindFirstChild("Mobs")
+		return mobsFolder and mobsFolder:FindFirstChild("Juniper")
+	end
+
+	local function startJuniperWatcher()
+		if juniperWatcher then return end
+		juniperWatcher = task.spawn(function()
+			while juniperESPEnabled do
+				local juniper = findJuniper()
+				if juniper then
+					attachJuniperESP(juniper)
+				elseif currentJuniper then
+					cleanupJuniperESP()
+				end
+				task.wait(0.5)
+			end
+			juniperWatcher = nil
+		end)
+	end
+
+	Tab:CreateButton({
+		Name = "Juniper ESP: Toggle",
+		Callback = function()
+			juniperESPEnabled = not juniperESPEnabled
+			if juniperESPEnabled then
+				local juniper = findJuniper()
+				if juniper then attachJuniperESP(juniper) end
+				startJuniperWatcher()
+				print("Juniper ESP enabled")
+			else
+				cleanupJuniperESP()
+				print("Juniper ESP disabled")
+			end
+		end,
+	})
+
+	Tab:CreateButton({
+		Name = "Teleport to Zombie Maze End",
+		Callback = function()
+			local hrp = getHRP()
+			if not hrp then
+				warn("Character / HumanoidRootPart not found")
+				return
+			end
+			hrp.CFrame = CFrame.new(Vector3.new(-52, 4, 7670) + Vector3.new(0, 5, 0))
+			print("Teleported to Zombie Maze End")
+		end,
+	})
+
+	Tab:CreateButton({
+		Name = "Teleport to Theater Entrance",
+		Callback = function()
+			local hrp = getHRP()
+			if not hrp then
+				warn("Character / HumanoidRootPart not found")
+				return
+			end
+			hrp.CFrame = CFrame.new(Vector3.new(271, 4, 7999) + Vector3.new(0, 5, 0))
+			print("Teleported to Theater Entrance")
+		end,
+	})
+
+	----------------------------------------------------------------
+	-- FLOOR 5
+	----------------------------------------------------------------
+	local Floor5Section = Tab:CreateSection("Floor 5")
+
+	------------------------------
+	-- Veil ESP
+	------------------------------
+	local veilConnections = {}
+	local veilESPEnabled = false
+
+	Tab:CreateButton({
+		Name = "Veil ESP",
+		Callback = function()
+			local Veil = mobs:FindFirstChild("Veil")
+			if not Veil then
+				warn("[Veil ESP] Veil not found")
+				return
+			end
+
+			if veilESPEnabled then
+				for _, conn in ipairs(veilConnections) do conn:Disconnect() end
+				table.clear(veilConnections)
+
+				local oldHighlight = Veil:FindFirstChild("veilESP")
+				if oldHighlight then oldHighlight:Destroy() end
+
+				local oldGui = player.PlayerGui:FindFirstChild("veilName")
+				if oldGui then oldGui:Destroy() end
+
+				veilESPEnabled = false
+				print("[Veil ESP] Disabled")
+				return
+			end
+
+			for _, conn in ipairs(veilConnections) do conn:Disconnect() end
+			table.clear(veilConnections)
+
+			local oldHighlight = Veil:FindFirstChild("veilESP")
+			if oldHighlight then oldHighlight:Destroy() end
+
+			local oldGui = player.PlayerGui:FindFirstChild("veilName")
+			if oldGui then oldGui:Destroy() end
+
+			local adornee = Veil:FindFirstChild("Head") or Veil:FindFirstChildWhichIsA("BasePart", true)
+			if not adornee then
+				warn("[Veil ESP] No valid part found")
+				return
+			end
+
+			local esp = Instance.new("Highlight")
+			esp.Name = "veilESP"
+			esp.Adornee = Veil
+			esp.FillColor = Color3.fromRGB(255, 0, 0)
+			esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+			esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			esp.Parent = Veil
+
+			local gui = Instance.new("BillboardGui")
+			gui.Name = "veilName"
+			gui.Adornee = adornee
+			gui.Size = UDim2.fromOffset(220, 60)
+			gui.StudsOffset = Vector3.new(0, 3, 0)
+			gui.AlwaysOnTop = true
+			gui.Parent = player.PlayerGui
+
+			local label = Instance.new("TextLabel")
+			label.Size = UDim2.fromScale(1, 1)
+			label.BackgroundTransparency = 1
+			label.TextColor3 = Color3.new(1, 1, 1)
+			label.TextStrokeTransparency = 0
+			label.TextScaled = true
+			label.Font = Enum.Font.GothamBold
+			label.Parent = gui
+
+			local function updateLabel()
+				if not Veil or not Veil.Parent then return end
+				label.Text = "State: " .. tostring(Veil:GetAttribute("State") or "Unknown")
+					.. "\nMovement: " .. tostring(Veil:GetAttribute("MovementState") or "Unknown")
+			end
+
+			updateLabel()
+			table.insert(veilConnections, Veil:GetAttributeChangedSignal("State"):Connect(updateLabel))
+			table.insert(veilConnections, Veil:GetAttributeChangedSignal("MovementState"):Connect(updateLabel))
+			table.insert(veilConnections, Veil.Destroying:Connect(function()
+				for _, conn in ipairs(veilConnections) do conn:Disconnect() end
+				table.clear(veilConnections)
+				if gui then gui:Destroy() end
+				veilESPEnabled = false
+			end))
+
+			veilESPEnabled = true
+			print("[Veil ESP] Enabled")
+		end,
+	})
+
+	Tab:CreateButton({
+		Name = "Teleport to Mirror Area",
+		Callback = function()
+			local hrp = getHRP()
+			if not hrp then
+				warn("Character / HumanoidRootPart not found")
+				return
+			end
+			hrp.CFrame = CFrame.new(Vector3.new(-201, 4, 9744) + Vector3.new(0, 5, 0))
+			print("Teleported to Mirror Area")
+		end,
+	})
+
+	----------------------------------------------------------------
+	-- FLOOR 6
+	----------------------------------------------------------------
+	local Floor6Section = Tab:CreateSection("Floor 6")
+
+	------------------------------
+	-- Marrow ESP
+	------------------------------
+	local marrowConnections = {}
+	local marrowESPEnabled = false
+
+	Tab:CreateButton({
+		Name = "Marrow ESP",
+		Callback = function()
+			local marrow = mobs:FindFirstChild("Marrow")
+			if not marrow then
+				warn("[Marrow ESP] Marrow not found")
+				return
+			end
+
+			if marrowESPEnabled then
+				for _, conn in ipairs(marrowConnections) do conn:Disconnect() end
+				table.clear(marrowConnections)
+
+				local oldHighlight = marrow:FindFirstChild("marrowESP")
+				if oldHighlight then oldHighlight:Destroy() end
+
+				local oldGui = player.PlayerGui:FindFirstChild("marrowName")
+				if oldGui then oldGui:Destroy() end
+
+				marrowESPEnabled = false
+				print("[Marrow ESP] Disabled")
+				return
+			end
+
+			for _, conn in ipairs(marrowConnections) do conn:Disconnect() end
+			table.clear(marrowConnections)
+
+			local oldHighlight = marrow:FindFirstChild("marrowESP")
+			if oldHighlight then oldHighlight:Destroy() end
+
+			local oldGui = player.PlayerGui:FindFirstChild("marrowName")
+			if oldGui then oldGui:Destroy() end
+
+			local adornee = marrow:FindFirstChild("Head") or marrow:FindFirstChildWhichIsA("BasePart", true)
+			if not adornee then
+				warn("[Marrow ESP] No valid part found")
+				return
+			end
+
+			local esp = Instance.new("Highlight")
+			esp.Name = "marrowESP"
+			esp.Adornee = marrow
+			esp.FillColor = Color3.fromRGB(255, 0, 0)
+			esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+			esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			esp.Parent = marrow
+
+			local gui = Instance.new("BillboardGui")
+			gui.Name = "marrowName"
+			gui.Adornee = adornee
+			gui.Size = UDim2.fromOffset(220, 60)
+			gui.StudsOffset = Vector3.new(0, 3, 0)
+			gui.AlwaysOnTop = true
+			gui.Parent = player.PlayerGui
+
+			local label = Instance.new("TextLabel")
+			label.Size = UDim2.fromScale(1, 1)
+			label.BackgroundTransparency = 1
+			label.TextColor3 = Color3.new(1, 1, 1)
+			label.TextStrokeTransparency = 0
+			label.TextScaled = true
+			label.Font = Enum.Font.GothamBold
+			label.Parent = gui
+
+			local function updateLabel()
+				if not marrow or not marrow.Parent then return end
+				label.Text = "State: " .. tostring(marrow:GetAttribute("State") or "Unknown")
+					.. "\nMovement: " .. tostring(marrow:GetAttribute("MovementState") or "Unknown")
+			end
+
+			updateLabel()
+			table.insert(marrowConnections, marrow:GetAttributeChangedSignal("State"):Connect(updateLabel))
+			table.insert(marrowConnections, marrow:GetAttributeChangedSignal("MovementState"):Connect(updateLabel))
+			table.insert(marrowConnections, marrow.Destroying:Connect(function()
+				for _, conn in ipairs(marrowConnections) do conn:Disconnect() end
+				table.clear(marrowConnections)
+				if gui then gui:Destroy() end
+				marrowESPEnabled = false
+			end))
+
+			marrowESPEnabled = true
+			print("[Marrow ESP] Enabled")
+		end,
+	})
+
+	Tab:CreateButton({
+		Name = "Teleport to Animal Hospital Spot",
+		Callback = function()
+			local hrp = getHRP()
+			if not hrp then
+				warn("Character / HumanoidRootPart not found")
+				return
+			end
+
+			local hospital = workspace:GetChildren()[12] and workspace:GetChildren()[12]:FindFirstChild("GR_AnimalHospital_-1_-3")
+			if not hospital then
+				warn("Animal Hospital model not found")
+				return
+			end
+
+			hrp.CFrame = CFrame.new(hospital:GetPivot().Position + Vector3.new(0, 5, 0))
+			print("Teleported to Animal Hospital Spot")
+		end,
+	})
+
+	----------------------------------------------------------------
+	-- FLOOR 7
+	----------------------------------------------------------------
+	local Floor7Section = Tab:CreateSection("Floor 7")
+
+	------------------------------
+	-- Watch ESP
+	------------------------------
+	local watchConnections = {}
+	local watchESPEnabled = false
+
+	Tab:CreateButton({
+		Name = "Watch ESP",
+		Callback = function()
+			local Watch = mobs:FindFirstChild("Watch")
+			if not Watch then
+				warn("[Watch ESP] Watch not found")
+				return
+			end
+
+			if watchESPEnabled then
+				for _, conn in ipairs(watchConnections) do conn:Disconnect() end
+				table.clear(watchConnections)
+
+				local oldHighlight = Watch:FindFirstChild("watchESP")
+				if oldHighlight then oldHighlight:Destroy() end
+
+				local oldGui = player.PlayerGui:FindFirstChild("watchName")
+				if oldGui then oldGui:Destroy() end
+
+				watchESPEnabled = false
+				print("[Watch ESP] Disabled")
+				return
+			end
+
+			for _, conn in ipairs(watchConnections) do conn:Disconnect() end
+			table.clear(watchConnections)
+
+			local oldHighlight = Watch:FindFirstChild("watchESP")
+			if oldHighlight then oldHighlight:Destroy() end
+
+			local oldGui = player.PlayerGui:FindFirstChild("watchName")
+			if oldGui then oldGui:Destroy() end
+
+			local adornee = Watch:FindFirstChild("Head") or Watch:FindFirstChildWhichIsA("BasePart", true)
+			if not adornee then
+				warn("[Watch ESP] No valid part found")
+				return
+			end
+
+			local esp = Instance.new("Highlight")
+			esp.Name = "watchESP"
+			esp.Adornee = Watch
+			esp.FillColor = Color3.fromRGB(255, 0, 0)
+			esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+			esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			esp.Parent = Watch
+
+			local gui = Instance.new("BillboardGui")
+			gui.Name = "watchName"
+			gui.Adornee = adornee
+			gui.Size = UDim2.fromOffset(220, 60)
+			gui.StudsOffset = Vector3.new(0, 3, 0)
+			gui.AlwaysOnTop = true
+			gui.Parent = player.PlayerGui
+
+			local label = Instance.new("TextLabel")
+			label.Size = UDim2.fromScale(1, 1)
+			label.BackgroundTransparency = 1
+			label.TextColor3 = Color3.new(1, 1, 1)
+			label.TextStrokeTransparency = 0
+			label.TextScaled = true
+			label.Font = Enum.Font.GothamBold
+			label.Parent = gui
+
+			local function updateLabel()
+				if not Watch or not Watch.Parent then return end
+				label.Text = "State: " .. tostring(Watch:GetAttribute("State") or "Unknown")
+					.. "\nMovement: " .. tostring(Watch:GetAttribute("MovementState") or "Unknown")
+			end
+
+			updateLabel()
+			table.insert(watchConnections, Watch:GetAttributeChangedSignal("State"):Connect(updateLabel))
+			table.insert(watchConnections, Watch:GetAttributeChangedSignal("MovementState"):Connect(updateLabel))
+			table.insert(watchConnections, Watch.Destroying:Connect(function()
+				for _, conn in ipairs(watchConnections) do conn:Disconnect() end
+				table.clear(watchConnections)
+				if gui then gui:Destroy() end
+				watchESPEnabled = false
+			end))
+
+			watchESPEnabled = true
+			print("[Watch ESP] Enabled")
+		end,
+	})
+
+	Tab:CreateButton({
+		Name = "Teleport to SSK",
+		Callback = function()
+			local hrp = getHRP()
+			if not hrp then
+				warn("Character / HumanoidRootPart not found")
+				return
+			end
+
+			local pack = workspace:GetChildren()[8]
+			local sidewalk = pack and pack:FindFirstChild("GR_Shawarma_0_-3")
+				and pack["GR_Shawarma_0_-3"].Kit
+				and pack["GR_Shawarma_0_-3"].Kit.Street
+				and pack["GR_Shawarma_0_-3"].Kit.Street.Sidewalks
+				and pack["GR_Shawarma_0_-3"].Kit.Street.Sidewalks:GetChildren()[15]
+
+			if not sidewalk then
+				warn("Sidewalk not found")
+				return
+			end
+
+			local targetCFrame = sidewalk:IsA("Model") and sidewalk:GetPivot() or sidewalk.CFrame
+			hrp.CFrame = targetCFrame + Vector3.new(0, 5, 0)
+			print("Teleported to SSK")
+		end,
+	})
+
+	Tab:CreateButton({
+		Name = "Activate Pumpkins (hold out torch)",
+		Callback = function()
+			local pack = workspace:GetChildren()[8]
+			if not pack then
+				warn("Pack not found")
+				return
+			end
+
+			local pumpkins = {}
+			for _, v in ipairs(pack:GetDescendants()) do
+				if v:IsA("RemoteFunction") and v.Parent and v.Parent:IsA("MeshPart") then
+					table.insert(pumpkins, v)
+				end
+			end
+
+			local hrp = getHRP()
+			if not hrp then return end
+			local originalCFrame = hrp.CFrame
+
+			for _, pumpkin in ipairs(pumpkins) do
+				if not pumpkin.Parent then continue end
+
+				hrp = getHRP()
+				if not hrp then break end
+
+				local pumpkinPart = pumpkin.Parent
+				if not pumpkinPart:IsA("BasePart") then continue end
+
+				hrp.CFrame = pumpkinPart.CFrame + Vector3.new(0, 4, 0)
+				task.wait(0.15)
+
+				local success, result = pcall(function()
+					return pumpkin:InvokeServer()
+				end)
+
+				if not success then
+					warn("Pumpkin activation failed:", result)
+				end
+				task.wait(0.15)
+			end
+
+			hrp = getHRP()
+			if hrp then
+				hrp.CFrame = originalCFrame
+			end
+		end,
+	})
+
+	----------------------------------------------------------------
+	-- FLOOR 8
+	----------------------------------------------------------------
+	local Floor8Section = Tab:CreateSection("Floor 8")
+
+	------------------------------
+	-- Quartz ESP
+	------------------------------
+	local quartzConnections = {}
+	local quartzESPEnabled = false
+
+	Tab:CreateButton({
+		Name = "Quartz ESP",
+		Callback = function()
+			local Quartz = mobs:FindFirstChild("Quartz")
+			if not Quartz then
+				warn("[Quartz ESP] Quartz not found")
+				return
+			end
+
+			if quartzESPEnabled then
+				for _, conn in ipairs(quartzConnections) do conn:Disconnect() end
+				table.clear(quartzConnections)
+
+				local oldHighlight = Quartz:FindFirstChild("quartzESP")
+				if oldHighlight then oldHighlight:Destroy() end
+
+				local oldGui = player.PlayerGui:FindFirstChild("quartzName")
+				if oldGui then oldGui:Destroy() end
+
+				quartzESPEnabled = false
+				print("[Quartz ESP] Disabled")
+				return
+			end
+
+			for _, conn in ipairs(quartzConnections) do conn:Disconnect() end
+			table.clear(quartzConnections)
+
+			local oldHighlight = Quartz:FindFirstChild("quartzESP")
+			if oldHighlight then oldHighlight:Destroy() end
+
+			local oldGui = player.PlayerGui:FindFirstChild("quartzName")
+			if oldGui then oldGui:Destroy() end
+
+			local adornee = Quartz:FindFirstChild("Head") or Quartz:FindFirstChildWhichIsA("BasePart", true)
+			if not adornee then
+				warn("[Quartz ESP] No valid part found")
+				return
+			end
+
+			local esp = Instance.new("Highlight")
+			esp.Name = "quartzESP"
+			esp.Adornee = Quartz
+			esp.FillColor = Color3.fromRGB(255, 0, 0)
+			esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+			esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			esp.Parent = Quartz
+
+			local gui = Instance.new("BillboardGui")
+			gui.Name = "quartzName"
+			gui.Adornee = adornee
+			gui.Size = UDim2.fromOffset(220, 60)
+			gui.StudsOffset = Vector3.new(0, 3, 0)
+			gui.AlwaysOnTop = true
+			gui.Parent = player.PlayerGui
+
+			local label = Instance.new("TextLabel")
+			label.Size = UDim2.fromScale(1, 1)
+			label.BackgroundTransparency = 1
+			label.TextColor3 = Color3.new(1, 1, 1)
+			label.TextStrokeTransparency = 0
+			label.TextScaled = true
+			label.Font = Enum.Font.GothamBold
+			label.Parent = gui
+
+			local function updateLabel()
+				if not Quartz or not Quartz.Parent then return end
+				label.Text = "State: " .. tostring(Quartz:GetAttribute("State") or "Unknown")
+					.. "\nMovement: " .. tostring(Quartz:GetAttribute("MovementState") or "Unknown")
+			end
+
+			updateLabel()
+			table.insert(quartzConnections, Quartz:GetAttributeChangedSignal("State"):Connect(updateLabel))
+			table.insert(quartzConnections, Quartz:GetAttributeChangedSignal("MovementState"):Connect(updateLabel))
+			table.insert(quartzConnections, Quartz.Destroying:Connect(function()
+				for _, conn in ipairs(quartzConnections) do conn:Disconnect() end
+				table.clear(quartzConnections)
+				if gui then gui:Destroy() end
+				quartzESPEnabled = false
+			end))
+
+			quartzESPEnabled = true
+			print("[Quartz ESP] Enabled")
+		end,
+	})
+
+	------------------------------
+	-- Altar Helper
+	------------------------------
+	local altar = workspace:WaitForChild("OfferingAltar")
+	local totalCoaster = {}
+
+	local function getPedestal()
+		local pedestals = {}
+		for _, v in ipairs(workspace:GetDescendants()) do
+			if v.Name == "OfferingPedestal" then
+				table.insert(pedestals, v)
+			end
+		end
+		return pedestals
+	end
+
+	local function doAllAltar()
+		table.clear(totalCoaster)
+
+		for _, v in ipairs(altar:GetDescendants()) do
+			if v:IsA("ProximityPrompt") then
+				table.insert(totalCoaster, v)
+			end
+		end
+
+		local pedestals = getPedestal()
+		if #pedestals == 0 then
+			warn("[Altar] No OfferingPedestal found")
+			return
+		end
+		if #totalCoaster == 0 then
+			warn("[Altar] No ProximityPrompts found")
+			return
+		end
+
+		local hrp = getHRP()
+		if not hrp then
+			warn("[Altar] HumanoidRootPart not found")
+			return
+		end
+
+		local activated = 0
+
+		for _, prompt in ipairs(totalCoaster) do
+			if prompt and prompt.Parent and prompt.Enabled then
+				local promptPart = prompt.Parent
+				if promptPart:IsA("Attachment") then
+					promptPart = promptPart.Parent
+				end
+
+				if promptPart and promptPart:IsA("BasePart") then
+					local closestPedestal
+					local shortestDistance = math.huge
+
+					for _, pedestal in ipairs(pedestals) do
+						local distance = (pedestal:GetPivot().Position - promptPart.Position).Magnitude
+						if distance < shortestDistance then
+							shortestDistance = distance
+							closestPedestal = pedestal
+						end
+					end
+
+					if closestPedestal then
+						hrp.CFrame = closestPedestal:GetPivot() * CFrame.new(0, 3, 0)
+						task.wait(0.25)
+						fireproximityprompt(prompt)
+						activated += 1
+						task.wait(0.3)
+					end
+				end
+			end
+		end
+
+		print("[Altar] Activated " .. activated .. "/" .. #totalCoaster .. " prompts")
+	end
+
+	Tab:CreateButton({
+		Name = "Do All Altars",
+		Callback = function()
+			doAllAltar()
+		end,
+	})
 end
 
 
