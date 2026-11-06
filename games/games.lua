@@ -18976,7 +18976,7 @@ Tab:CreateButton({
 })
 
 
-local Floor2Section = Tab:CreateSection("Floor 5")
+local Floor5Section = Tab:CreateSection("Floor 5")
 
 ------------------------------
 -- Onyx ESP
@@ -19095,7 +19095,7 @@ Tab:CreateButton({
     end,
 })
 
-local Floor2Section = Tab:CreateSection("Floor 6")
+local Floor6Section = Tab:CreateSection("Floor 6")
 
 ------------------------------
 -- Onyx ESP
@@ -19220,23 +19220,50 @@ Tab:CreateButton({
     end,
 })
 
-local Floor2Section = Tab:CreateSection("Floor 7")
+local Floor7Section = Tab:CreateSection("Floor 7")
 
 ------------------------------
--- Onyx ESP
+-- Watch ESP
 ------------------------------
 local watchConnections = {}
+local watchESPEnabled = false
 
 Tab:CreateButton({
-    Name = "watch ESP",
+    Name = "Watch ESP",
     Callback = function()
         local Watch = mobs:FindFirstChild("Watch")
 
         if not Watch then
-            warn("Watch was not found in workspace.Mobs")
+            warn("[Watch ESP] Watch not found in workspace.Mobs")
             return
         end
 
+        -- Toggle OFF
+        if watchESPEnabled then
+            for _, conn in ipairs(watchConnections) do
+                conn:Disconnect()
+            end
+            table.clear(watchConnections)
+
+            local oldHighlight = Watch:FindFirstChild("watchESP")
+            if oldHighlight then
+                oldHighlight:Destroy()
+            end
+
+            local playerGui = player:FindFirstChild("PlayerGui")
+            if playerGui then
+                local oldGui = playerGui:FindFirstChild("watchName")
+                if oldGui then
+                    oldGui:Destroy()
+                end
+            end
+
+            watchESPEnabled = false
+            print("[Watch ESP] Disabled")
+            return
+        end
+
+        -- Toggle ON
         for _, conn in ipairs(watchConnections) do
             conn:Disconnect()
         end
@@ -19249,7 +19276,6 @@ Tab:CreateButton({
 
         local playerGui = player:WaitForChild("PlayerGui")
         local oldGui = playerGui:FindFirstChild("watchName")
-
         if oldGui then
             oldGui:Destroy()
         end
@@ -19258,7 +19284,7 @@ Tab:CreateButton({
             or Watch:FindFirstChildWhichIsA("BasePart", true)
 
         if not adornee then
-            warn("No valid Watch part found")
+            warn("[Watch ESP] No valid part found on Watch")
             return
         end
 
@@ -19289,129 +19315,129 @@ Tab:CreateButton({
         label.Parent = gui
 
         local function updateLabel()
-            if not Watch.Parent then
+            if not Watch or not Watch.Parent then
                 return
             end
 
-            label.Text = "watch state: "
-                .. tostring(Watch:GetAttribute("State") or "Unknown")
-                .. "\nMovement: "
-                .. tostring(Watch:GetAttribute("MovementState") or "Unknown")
+            label.Text = "State: " .. tostring(Watch:GetAttribute("State") or "Unknown")
+                .. "\nMovement: " .. tostring(Watch:GetAttribute("MovementState") or "Unknown")
         end
 
         updateLabel()
 
-        table.insert(watchConnections,
-            Watch:GetAttributeChangedSignal("State"):Connect(updateLabel)
-        )
-
-        table.insert(watchConnections,
-            Watch:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
-        )
+        table.insert(watchConnections, Watch:GetAttributeChangedSignal("State"):Connect(updateLabel))
+        table.insert(watchConnections, Watch:GetAttributeChangedSignal("MovementState"):Connect(updateLabel))
 
         table.insert(watchConnections, Watch.Destroying:Connect(function()
             for _, conn in ipairs(watchConnections) do
                 conn:Disconnect()
             end
-
             table.clear(watchConnections)
-            gui:Destroy()
+
+            if gui and gui.Parent then
+                gui:Destroy()
+            end
+
+            watchESPEnabled = false
         end))
+
+        watchESPEnabled = true
+        print("[Watch ESP] Enabled")
     end,
 })
 
 Tab:CreateButton({
-	Name = "Teleport to SSK",
-	Callback = function()
-		local Players = game:GetService("Players")
-		local player = Players.LocalPlayer
+    Name = "Teleport to SSK",
+    Callback = function()
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
 
-		local character = player.Character
-		local hrp = character and character:FindFirstChild("HumanoidRootPart")
+        local character = player.Character
+        local hrp = character and character:FindFirstChild("HumanoidRootPart")
 
-		if not hrp then
-			warn("Character / HumanoidRootPart not found")
-			return
-		end
+        if not hrp then
+            warn("Character / HumanoidRootPart not found")
+            return
+        end
 
-		local sidewalk = workspace:GetChildren()[8]["GR_Shawarma_0_-3"].Kit.Street.Sidewalks:GetChildren()[15]
+        local sidewalk = workspace:GetChildren()[8]["GR_Shawarma_0_-3"].Kit.Street.Sidewalks:GetChildren()[15]
 
-		if not sidewalk then
-			warn("Sidewalk not found")
-			return
-		end
+        if not sidewalk then
+            warn("Sidewalk not found")
+            return
+        end
 
-		local targetCFrame = sidewalk:IsA("Model") and sidewalk:GetPivot() or sidewalk.CFrame
+        local targetCFrame = sidewalk:IsA("Model") and sidewalk:GetPivot() or sidewalk.CFrame
 
-		hrp.CFrame = targetCFrame + Vector3.new(0, 5, 0)
-		print("Teleported to SSK")
-	end,
+        hrp.CFrame = targetCFrame + Vector3.new(0, 5, 0)
+        print("Teleported to SSK")
+    end,
 })
 
 Tab:CreateButton({
-		Name = "Activate Pumpkins (hold out torch)",
-		Callback = function()
-			local Players = game:GetService("Players")
-			local player = Players.LocalPlayer
+    Name = "Activate Pumpkins (hold out torch)",
+    Callback = function()
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
 
-			local pack = workspace:GetChildren()[8]
-			if not pack then
-				warn("Pack not found")
-				return
-			end
+        local pack = workspace:GetChildren()[8]
+        if not pack then
+            warn("Pack not found")
+            return
+        end
 
-			local pumpkinsActivated = {}
-			for _, v in ipairs(pack:GetDescendants()) do
-				if v:IsA("RemoteFunction") and v.Parent and v.Parent:IsA("MeshPart") then
-					table.insert(pumpkinsActivated, v)
-				end
-			end
+        local pumpkinsActivated = {}
+        for _, v in ipairs(pack:GetDescendants()) do
+            if v:IsA("RemoteFunction") and v.Parent and v.Parent:IsA("MeshPart") then
+                table.insert(pumpkinsActivated, v)
+            end
+        end
 
-			local character = player.Character or player.CharacterAdded:Wait()
-			local hrp = character:WaitForChild("HumanoidRootPart")
-			local originalCFrame = hrp.CFrame
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+        local originalCFrame = hrp.CFrame
 
-			for _, pumpkin in ipairs(pumpkinsActivated) do
-				if not pumpkin.Parent then
-					continue
-				end
+        for _, pumpkin in ipairs(pumpkinsActivated) do
+            if not pumpkin.Parent then
+                continue
+            end
 
-				character = player.Character
-				if not character then
-					break
-				end
+            character = player.Character
+            if not character then
+                break
+            end
 
-				hrp = character:FindFirstChild("HumanoidRootPart")
-				if not hrp then
-					break
-				end
+            hrp = character:FindFirstChild("HumanoidRootPart")
+            if not hrp then
+                break
+            end
 
-				local pumpkinPart = pumpkin.Parent
-				if not pumpkinPart:IsA("BasePart") then
-					continue
-				end
+            local pumpkinPart = pumpkin.Parent
+            if not pumpkinPart:IsA("BasePart") then
+                continue
+            end
 
-				hrp.CFrame = pumpkinPart.CFrame + Vector3.new(0, 4, 0)
-				task.wait(0.15)
+            hrp.CFrame = pumpkinPart.CFrame + Vector3.new(0, 4, 0)
+            task.wait(0.15)
 
-				local success, result = pcall(function()
-					return pumpkin:InvokeServer()
-				end)
+            local success, result = pcall(function()
+                return pumpkin:InvokeServer()
+            end)
 
-				if not success then
-					warn("Pumpkin activation failed:", result)
-				end
+            if not success then
+                warn("Pumpkin activation failed:", result)
+            end
 
-				task.wait(0.15)
-			end
+            task.wait(0.15)
+        end
 
-			character = player.Character
-			hrp = character and character:FindFirstChild("HumanoidRootPart")
-			if hrp then
-				hrp.CFrame = originalCFrame
-			end
-		end,
-	})
+        character = player.Character
+        hrp = character and character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = originalCFrame
+        end
+    end,
+})
 
 local Floor8Section = Tab:CreateSection("Floor 8")
 
