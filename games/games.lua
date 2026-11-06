@@ -19349,7 +19349,7 @@ Tab:CreateButton({
 })
 
 Tab:CreateButton({
-		Name = "Activate Pumpkins",
+		Name = "Activate Pumpkins (hold out torch)",
 		Callback = function()
 			local Players = game:GetService("Players")
 			local player = Players.LocalPlayer
@@ -19413,6 +19413,152 @@ Tab:CreateButton({
 		end,
 	})
 
+	local Floor2Section = Tab:CreateSection("Floor 8")
+
+------------------------------
+-- Onyx ESP
+------------------------------
+local quartzConnections = {}
+
+Tab:CreateButton({
+    Name = "quartz ESP",
+    Callback = function()
+        local Quartz = mobs:FindFirstChild("Quartz")
+
+        if not Quartz then
+            warn("Quartz was not found in workspace.Mobs")
+            return
+        end
+
+        for _, conn in ipairs(quartzConnections) do
+            conn:Disconnect()
+        end
+        table.clear(quartzConnections)
+
+        local oldHighlight = Quartz:FindFirstChild("quartzESP")
+        if oldHighlight then
+            oldHighlight:Destroy()
+        end
+
+        local playerGui = player:WaitForChild("PlayerGui")
+        local oldGui = playerGui:FindFirstChild("quartzName")
+
+        if oldGui then
+            oldGui:Destroy()
+        end
+
+        local adornee = Quartz:FindFirstChild("Head")
+            or Quartz:FindFirstChildWhichIsA("BasePart", true)
+
+        if not adornee then
+            warn("No valid Quartz part found")
+            return
+        end
+
+        local esp = Instance.new("Highlight")
+        esp.Name = "quartzESP"
+        esp.Adornee = Quartz
+        esp.FillColor = Color3.fromRGB(255, 0, 0)
+        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+        esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        esp.Parent = Quartz
+
+        local gui = Instance.new("BillboardGui")
+        gui.Name = "quartzName"
+        gui.Adornee = adornee
+        gui.Size = UDim2.fromOffset(220, 60)
+        gui.StudsOffset = Vector3.new(0, 3, 0)
+        gui.AlwaysOnTop = true
+        gui.Parent = playerGui
+
+        local label = Instance.new("TextLabel")
+        label.Name = "quartzLabel"
+        label.Size = UDim2.fromScale(1, 1)
+        label.BackgroundTransparency = 1
+        label.TextColor3 = Color3.new(1, 1, 1)
+        label.TextStrokeTransparency = 0
+        label.TextScaled = true
+        label.Font = Enum.Font.GothamBold
+        label.Parent = gui
+
+        local function updateLabel()
+            if not Quartz.Parent then
+                return
+            end
+
+            label.Text = "quartz state: "
+                .. tostring(Quartz:GetAttribute("State") or "Unknown")
+                .. "\nMovement: "
+                .. tostring(Quartz:GetAttribute("MovementState") or "Unknown")
+        end
+
+        updateLabel()
+
+        table.insert(quartzConnections,
+            Quartz:GetAttributeChangedSignal("State"):Connect(updateLabel)
+        )
+
+        table.insert(quartzConnections,
+            Quartz:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
+        )
+
+        table.insert(quartzConnections, Quartz.Destroying:Connect(function()
+            for _, conn in ipairs(quartzConnections) do
+                conn:Disconnect()
+            end
+
+            table.clear(quartzConnections)
+            gui:Destroy()
+        end))
+    end,
+})
+
+local altar = workspace.OfferingAltar
+ 
+local totalCoaster = {}
+
+local function getCertainAltar(object)
+    table.clear(totalCoaster)
+
+    for _, v in pairs(altar:GetDescendants()) do
+        if v:IsA("ProximityPrompt") then
+            if v.ObjectText == tostring(object) then
+                table.insert(totalCoaster, v)
+            end
+        end
+    end
+
+    return totalCoaster
+end
+
+local function doAllAltar()
+    local completed = {}
+
+    for _, pedestal in pairs(getPedestal()) do
+        for _, v in pairs(pedestal:GetDescendants()) do
+            if v:IsA("ProximityPrompt") and not completed[v] then
+                hrp.CFrame = pedestal:GetPivot()
+                task.wait(0.2)
+
+                fireproximityprompt(v)
+                completed[v] = true
+
+                task.wait(0.2)
+            end
+        end
+    end
+
+    print("Done all altars")
+end
+
+Tab:CreateButton({
+    Name = "do the altars",
+    Callback = function()
+        doAllAltar()
+    end,
+})
+
+ 
 end
 
 
