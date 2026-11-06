@@ -19355,226 +19355,300 @@ if game.PlaceId == 116463962153167 then
 	})
 
 	------------------------------
-	-- Altar Helper (Floor 8 offerings)
-	------------------------------
-	-- Looked up when used: waiting at load hides the buttons until a floor with
-	-- an OfferingAltar exists.
-	local function getOfferingAltar()
-		return workspace:FindFirstChild("OfferingAltar", true)
-	end
+-- Altar Helper (Floor 8 offerings)
+------------------------------
+-- Looked up when used: waiting at load hides the buttons until a floor with
+-- an OfferingAltar exists.
+local function getOfferingAltar()
+	return workspace:FindFirstChild("OfferingAltar", true)
+end
 
-	local function getAltarPedestals()
-		local pedestals = {}
+local function getAltarPedestals()
+	local pedestals = {}
 
-		for _, v in ipairs(workspace:GetDescendants()) do
-			if v.Name == "OfferingPedestal" then
-				table.insert(pedestals, v)
-			end
-		end
-
-		return pedestals
-	end
-
-	local function getPromptPart(prompt)
-		local part = prompt.Parent
-
-		if part and part:IsA("Attachment") then
-			part = part.Parent
-		end
-
-		if part and part:IsA("BasePart") then
-			return part
-		end
-
-		return nil
-	end
-
-	local function altarPivot(instance)
-		if instance:IsA("Model") or instance:IsA("BasePart") then
-			return instance:GetPivot()
-		end
-
-		return nil
-	end
-
-	local function altarHRP()
-		local character = player.Character
-		return character and character:FindFirstChild("HumanoidRootPart")
-	end
-
-	local function firePrompt(prompt)
-		if fireproximityprompt then
-			fireproximityprompt(prompt)
-		else
-			prompt:InputHoldBegin()
-			task.wait(0.05)
-			prompt:InputHoldEnd()
+	for _, v in ipairs(workspace:GetDescendants()) do
+		if v.Name == "OfferingPedestal" then
+			table.insert(pedestals, v)
 		end
 	end
 
-	local function isHeldByCharacter(instance)
-		if not instance or not instance.Parent then
-			return false
-		end
+	return pedestals
+end
 
-		local character = player.Character
-		if character and instance:IsDescendantOf(character) then
-			return true
-		end
+local function getPromptPart(prompt)
+	local part = prompt.Parent
 
-		local backpack = player:FindFirstChild("Backpack")
-		if backpack and instance:IsDescendantOf(backpack) then
-			return true
-		end
+	if part and part:IsA("Attachment") then
+		part = part.Parent
+	end
 
+	if part and part:IsA("BasePart") then
+		return part
+	end
+
+	return nil
+end
+
+local function altarPivot(instance)
+	if instance:IsA("Model") or instance:IsA("BasePart") then
+		return instance:GetPivot()
+	end
+
+	return nil
+end
+
+local function altarHRP()
+	local character = player.Character
+	return character and character:FindFirstChild("HumanoidRootPart")
+end
+
+local function firePrompt(prompt)
+	if fireproximityprompt then
+		fireproximityprompt(prompt)
+	else
+		prompt:InputHoldBegin()
+		task.wait(0.05)
+		prompt:InputHoldEnd()
+	end
+end
+
+local function isHeldByCharacter(instance)
+	if not instance or not instance.Parent then
 		return false
 	end
 
-	local function collectAltarObjects(altar)
-		local objects = {}
+	local character = player.Character
+	if character and instance:IsDescendantOf(character) then
+		return true
+	end
 
-		for _, v in ipairs(altar:GetDescendants()) do
-			if v:IsA("ProximityPrompt") and v.Enabled then
-				local part = getPromptPart(v)
+	local backpack = player:FindFirstChild("Backpack")
+	if backpack and instance:IsDescendantOf(backpack) then
+		return true
+	end
 
-				if part then
-					table.insert(objects, { prompt = v, part = part })
-				end
+	return false
+end
+
+local function collectAltarObjects(altar)
+	local objects = {}
+
+	for _, v in ipairs(altar:GetDescendants()) do
+		if v:IsA("ProximityPrompt") and v.Enabled then
+			local part = getPromptPart(v)
+
+			if part then
+				table.insert(objects, { prompt = v, part = part })
 			end
 		end
-
-		return objects
 	end
 
-	local function objectPlaced(object, altar)
-		if not object.part or not object.part.Parent then
-			return object.prompt.Enabled
-		end
+	return objects
+end
 
-		if object.part:IsDescendantOf(altar) then
-			return false
-		end
-
-		return not isHeldByCharacter(object.part)
+local function objectPlaced(object, altar)
+	if not object.part or not object.part.Parent then
+		return object.prompt.Enabled
 	end
 
-	------------------------------
-	-- Altar visuals
-	------------------------------
-	local showAltarsEnabled = false
-	local altarHighlights = {}
-
-	local function clearAltarHighlights()
-		for _, obj in ipairs(altarHighlights) do
-			pcall(function()
-				obj:Destroy()
-			end)
-		end
-
-		table.clear(altarHighlights)
+	if object.part:IsDescendantOf(altar) then
+		return false
 	end
 
-	local function tagAltarPart(part, text, color)
-		if not part or not part.Parent then
-			return
-		end
+	return not isHeldByCharacter(object.part)
+end
 
-		local highlight = Instance.new("Highlight")
-		highlight.Name = "altarESP"
-		highlight.Adornee = part
-		highlight.FillColor = color
-		highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-		highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-		highlight.Parent = part
-		table.insert(altarHighlights, highlight)
+------------------------------
+-- Altar visuals
+------------------------------
+local showAltarsEnabled = false
+local altarHighlights = {}
 
-		local gui = Instance.new("BillboardGui")
-		gui.Name = "altarTag"
-		gui.Adornee = part
-		gui.Size = UDim2.fromOffset(220, 40)
-		gui.StudsOffset = Vector3.new(0, 2.5, 0)
-		gui.AlwaysOnTop = true
-		gui.Parent = part
-		table.insert(altarHighlights, gui)
-
-		local label = Instance.new("TextLabel")
-		label.Size = UDim2.fromScale(1, 1)
-		label.BackgroundTransparency = 1
-		label.TextColor3 = color
-		label.TextStrokeTransparency = 0
-		label.TextScaled = true
-		label.Font = Enum.Font.GothamBold
-		label.Text = text
-		label.Parent = gui
-	end
-
-	local function renderAltars()
-		clearAltarHighlights()
-
-		local pedestals = getAltarPedestals()
-		local altar = getOfferingAltar()
-		local objects = altar and collectAltarObjects(altar) or {}
-
-		if #pedestals == 0 and #objects == 0 then
-			warn("[Altar] Nothing to show - load Floor 8 first")
-			return
-		end
-
-		for index, pedestal in ipairs(pedestals) do
-			local part = pedestal:IsA("BasePart") and pedestal or pedestal:FindFirstChildWhichIsA("BasePart", true)
-			tagAltarPart(part, "Altar " .. index, Color3.fromRGB(0, 255, 120))
-		end
-
-		for _, object in ipairs(objects) do
-			tagAltarPart(object.part, object.part.Name, Color3.fromRGB(255, 170, 0))
-		end
-
-		print("[Altar] Showing " .. #pedestals .. " altar(s) and " .. #objects .. " object(s)")
-	end
-
-	local function renderAltarsWithRetry()
-		if #getAltarPedestals() > 0 or getOfferingAltar() then
-			renderAltars()
-			return
-		end
-
-		task.spawn(function()
-			for _ = 1, 5 do
-				task.wait(1)
-
-				if not showAltarsEnabled then
-					return
-				end
-
-				if #getAltarPedestals() > 0 or getOfferingAltar() then
-					renderAltars()
-					return
-				end
-			end
-
-			renderAltars()
+local function clearAltarHighlights()
+	for _, obj in ipairs(altarHighlights) do
+		pcall(function()
+			obj:Destroy()
 		end)
 	end
 
-	------------------------------
-	-- Altar actions
-	------------------------------
-	local function doAllAltar()
-		local altar = getOfferingAltar()
-		if not altar then
-			warn("[Altar] OfferingAltar not found - load Floor 8 first")
-			return
+	table.clear(altarHighlights)
+end
+
+local function tagAltarPart(part, text, color)
+	if not part or not part.Parent then
+		return
+	end
+
+	local highlight = Instance.new("Highlight")
+	highlight.Name = "altarESP"
+	highlight.Adornee = part
+	highlight.FillColor = color
+	highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+	highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	highlight.Parent = part
+	table.insert(altarHighlights, highlight)
+
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "altarTag"
+	gui.Adornee = part
+	gui.Size = UDim2.fromOffset(220, 40)
+	gui.StudsOffset = Vector3.new(0, 2.5, 0)
+	gui.AlwaysOnTop = true
+	gui.Parent = part
+	table.insert(altarHighlights, gui)
+
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundTransparency = 1
+	label.TextColor3 = color
+	label.TextStrokeTransparency = 0
+	label.TextScaled = true
+	label.Font = Enum.Font.GothamBold
+	label.Text = text
+	label.Parent = gui
+end
+
+local function renderAltars()
+	clearAltarHighlights()
+
+	local pedestals = getAltarPedestals()
+	local altar = getOfferingAltar()
+	local objects = altar and collectAltarObjects(altar) or {}
+
+	if #pedestals == 0 and #objects == 0 then
+		warn("[Altar] Nothing to show - load Floor 8 first")
+		return
+	end
+
+	for index, pedestal in ipairs(pedestals) do
+		local part = pedestal:IsA("BasePart") and pedestal or pedestal:FindFirstChildWhichIsA("BasePart", true)
+		tagAltarPart(part, "Altar " .. index, Color3.fromRGB(0, 255, 120))
+	end
+
+	for _, object in ipairs(objects) do
+		tagAltarPart(object.part, object.part.Name, Color3.fromRGB(255, 170, 0))
+	end
+
+	print("[Altar] Showing " .. #pedestals .. " altar(s) and " .. #objects .. " object(s)")
+end
+
+local function renderAltarsWithRetry()
+	if #getAltarPedestals() > 0 or getOfferingAltar() then
+		renderAltars()
+		return
+	end
+
+	task.spawn(function()
+		for _ = 1, 5 do
+			task.wait(1)
+
+			if not showAltarsEnabled then
+				return
+			end
+
+			if #getAltarPedestals() > 0 or getOfferingAltar() then
+				renderAltars()
+				return
+			end
 		end
 
+		renderAltars()
+	end)
+end
+
+------------------------------
+-- Altar actions
+------------------------------
+local function doAllAltar()
+	local altar = getOfferingAltar()
+	if not altar then
+		warn("[Altar] OfferingAltar not found - load Floor 8 first")
+		return
+	end
+
+	local pedestals = getAltarPedestals()
+	if #pedestals == 0 then
+		warn("[Altar] No OfferingPedestal found")
+		return
+	end
+
+	local objects = collectAltarObjects(altar)
+	if #objects == 0 then
+		warn("[Altar] No offering ProximityPrompts found")
+		return
+	end
+
+	local hrp = altarHRP()
+	if not hrp then
+		warn("[Altar] HumanoidRootPart not found")
+		return
+	end
+
+	local placed = 0
+
+	for index, object in ipairs(objects) do
+		hrp = altarHRP()
+		if not hrp then
+			break
+		end
+
+		if not object.part or not object.part.Parent then
+			continue
+		end
+
+		-- Pick the offering up from the altar table first.
+		hrp.CFrame = object.part.CFrame + Vector3.new(0, 4, 0)
+		task.wait(0.4)
+		firePrompt(object.prompt)
+		task.wait(0.5)
+
+		-- Then try the pedestals until one accepts it.
+		for _, pedestal in ipairs(pedestals) do
+			hrp = altarHRP()
+			local pivot = altarPivot(pedestal)
+
+			if hrp and pivot then
+				hrp.CFrame = pivot * CFrame.new(0, 4, 0) -- Fixed: was assigning Vector3
+				task.wait(0.35)
+
+				local pedestalPrompt = pedestal:FindFirstChildWhichIsA("ProximityPrompt", true)
+				if pedestalPrompt and pedestalPrompt.Enabled then
+					firePrompt(pedestalPrompt)
+					task.wait(0.35)
+				end
+
+				if objectPlaced(object, altar) then
+					break
+				end
+			end
+		end
+
+		if objectPlaced(object, altar) then
+			placed = placed + 1
+			print("[Altar] Placed offering " .. index)
+		else
+			warn("[Altar] Could not place offering " .. index .. " (" .. object.part.Name .. ")")
+		end
+	end
+
+	print("[Altar] Placed " .. placed .. "/" .. #objects .. " offerings")
+end
+
+Tab:CreateButton({
+	Name = "Do All Altars",
+	Callback = function()
+		doAllAltar()
+	end,
+})
+
+local altarVisit = 0
+
+Tab:CreateButton({
+	Name = "Teleport to Next Altar",
+	Callback = function()
 		local pedestals = getAltarPedestals()
 		if #pedestals == 0 then
-			warn("[Altar] No OfferingPedestal found")
-			return
-		end
-
-		local objects = collectAltarObjects(altar)
-		if #objects == 0 then
-			warn("[Altar] No offering ProximityPrompts found")
+			warn("[Altar] No OfferingPedestal found - load Floor 8 first")
 			return
 		end
 
@@ -19584,106 +19658,32 @@ if game.PlaceId == 116463962153167 then
 			return
 		end
 
-		local placed = 0
+		altarVisit = altarVisit % #pedestals + 1
 
-		for index, object in ipairs(objects) do
-			hrp = altarHRP()
-			if not hrp then
-				break
-			end
-
-			if not object.part.Parent then
-				continue
-			end
-
-			-- Pick the offering up from the altar table first.
-			hrp.CFrame = object.part.CFrame + Vector3.new(0, 4, 0)
-			task.wait(0.4)
-			firePrompt(object.prompt)
-			task.wait(0.5)
-
-			-- Then try the pedestals until one accepts it.
-			for _, pedestal in ipairs(pedestals) do
-				hrp = altarHRP()
-				local pivot = altarPivot(pedestal)
-
-				if hrp and pivot then
-					hrp.CFrame = pivot.Position + Vector3.new(0, 4, 0)
-					task.wait(0.35)
-
-					local pedestalPrompt = pedestal:FindFirstChildWhichIsA("ProximityPrompt", true)
-					if pedestalPrompt and pedestalPrompt.Enabled then
-						firePrompt(pedestalPrompt)
-						task.wait(0.35)
-					end
-
-					if objectPlaced(object, altar) then
-						break
-					end
-				end
-			end
-
-			if objectPlaced(object, altar) then
-				placed = placed + 1
-				print("[Altar] Placed offering " .. index)
-			else
-				warn("[Altar] Could not place offering " .. index .. " (" .. object.part.Name .. ")")
-			end
+		local pivot = altarPivot(pedestals[altarVisit])
+		if not pivot then
+			warn("[Altar] Pedestal has no pivot")
+			return
 		end
 
-		print("[Altar] Placed " .. placed .. "/" .. #objects .. " offerings")
-	end
+		hrp.CFrame = pivot * CFrame.new(0, 4, 0) -- Fixed: was assigning Vector3
+		print("[Altar] Teleported to altar " .. altarVisit .. "/" .. #pedestals)
+	end,
+})
 
-	Tab:CreateButton({
-		Name = "Do All Altars",
-		Callback = function()
-			doAllAltar()
-		end,
-	})
+Tab:CreateButton({
+	Name = "Show Altars: Toggle",
+	Callback = function()
+		showAltarsEnabled = not showAltarsEnabled
 
-	local altarVisit = 0
-
-	Tab:CreateButton({
-		Name = "Teleport to Next Altar",
-		Callback = function()
-			local pedestals = getAltarPedestals()
-			if #pedestals == 0 then
-				warn("[Altar] No OfferingPedestal found - load Floor 8 first")
-				return
-			end
-
-			local hrp = altarHRP()
-			if not hrp then
-				warn("[Altar] HumanoidRootPart not found")
-				return
-			end
-
-			altarVisit = altarVisit % #pedestals + 1
-
-			local pivot = altarPivot(pedestals[altarVisit])
-			if not pivot then
-				warn("[Altar] Pedestal has no pivot")
-				return
-			end
-
-			hrp.CFrame = pivot.Position + Vector3.new(0, 4, 0)
-			print("[Altar] Teleported to altar " .. altarVisit .. "/" .. #pedestals)
-		end,
-	})
-
-	Tab:CreateButton({
-		Name = "Show Altars: Toggle",
-		Callback = function()
-			showAltarsEnabled = not showAltarsEnabled
-
-			if showAltarsEnabled then
-				renderAltarsWithRetry()
-			else
-				clearAltarHighlights()
-				print("[Altar] Highlights cleared")
-			end
-		end,
-	})
+		if showAltarsEnabled then
+			renderAltarsWithRetry()
+		else
+			clearAltarHighlights()
+			print("[Altar] Highlights cleared")
+		end
+	end,
+})
 end
 
 
