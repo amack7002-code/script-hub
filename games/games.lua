@@ -19437,7 +19437,7 @@ end
 
 local function objectPlaced(object, altar)
 	if not object.part or not object.part.Parent then
-		return object.prompt.Enabled
+		return true -- object disappeared = probably placed
 	end
 	if object.part:IsDescendantOf(altar) then
 		return false
@@ -19540,7 +19540,7 @@ local function renderAltarsWithRetry()
 end
 
 ------------------------------
--- Altar actions (waits only when button is pressed)
+-- Altar actions
 ------------------------------
 local isDoingAltars = false
 
@@ -19556,13 +19556,11 @@ local function doAllAltar()
 
 		local altar = nil
 		local attempts = 0
-		local maxAttempts = 40 -- ~20 seconds
+		local maxAttempts = 40
 
 		while attempts < maxAttempts do
 			altar = getOfferingAltar()
-			if altar then
-				break
-			end
+			if altar then break end
 			attempts += 1
 			task.wait(0.5)
 		end
@@ -19573,7 +19571,7 @@ local function doAllAltar()
 			return
 		end
 
-		print("[Altar] Found OfferingAltar, starting...")
+		print("[Altar] Found OfferingAltar")
 
 		local pedestals = getAltarPedestals()
 		if #pedestals == 0 then
@@ -19584,63 +19582,64 @@ local function doAllAltar()
 
 		local objects = collectAltarObjects(altar)
 		if #objects == 0 then
-			warn("[Altar] No offering ProximityPrompts found")
+			warn("[Altar] No offering objects found")
 			isDoingAltars = false
 			return
 		end
 
-		local hrp = altarHRP()
-		if not hrp then
-			warn("[Altar] HumanoidRootPart not found")
-			isDoingAltars = false
-			return
-		end
+		print("[Altar] Found " .. #objects .. " offerings and " .. #pedestals .. " pedestals")
 
 		local placed = 0
 
+		-- ===== MAIN LOOP =====
+		-- Get ONE offering → try ALL pedestals → then get the next offering
 		for index, object in ipairs(objects) do
-			hrp = altarHRP()
-			if not hrp then
-				break
-			end
+			local hrp = altarHRP()
+			if not hrp then break end
+			if not object.part or not object.part.Parent then continue end
 
-			if not object.part or not object.part.Parent then
-				continue
-			end
+			print("[Altar] Picking up offering " .. index .. " (" .. object.part.Name .. ")")
 
-			-- Pick up
+			-- 1. Go to the offering and pick it up
 			hrp.CFrame = object.part.CFrame + Vector3.new(0, 4, 0)
-			task.wait(0.4)
+			task.wait(0.45)
 			firePrompt(object.prompt)
-			task.wait(0.5)
+			task.wait(0.6)
 
-			-- Try every pedestal
-			for _, pedestal in ipairs(pedestals) do
+			-- 2. Now try every pedestal with this one offering
+			local success = false
+			for pIndex, pedestal in ipairs(pedestals) do
 				hrp = altarHRP()
+				if not hrp then break end
+
 				local pivot = altarPivot(pedestal)
+				if not pivot then continue end
 
-				if hrp and pivot then
-					hrp.CFrame = pivot * CFrame.new(0, 4, 0)
-					task.wait(0.35)
+				print("[Altar] Trying pedestal " .. pIndex .. " with offering " .. index)
 
-					local pedestalPrompt = pedestal:FindFirstChildWhichIsA("ProximityPrompt", true)
-					if pedestalPrompt and pedestalPrompt.Enabled then
-						firePrompt(pedestalPrompt)
-						task.wait(0.35)
-					end
+				hrp.CFrame = pivot * CFrame.new(0, 4, 0)
+				task.wait(0.4)
 
-					if objectPlaced(object, altar) then
-						break
-					end
+				local pedestalPrompt = pedestal:FindFirstChildWhichIsA("ProximityPrompt", true)
+				if pedestalPrompt and pedestalPrompt.Enabled then
+					firePrompt(pedestalPrompt)
+					task.wait(0.4)
+				end
+
+				-- Check if it was placed
+				if objectPlaced(object, altar) then
+					success = true
+					placed += 1
+					print("[Altar] Successfully placed offering " .. index .. " on pedestal " .. pIndex)
+					break -- move on to the next offering
 				end
 			end
 
-			if objectPlaced(object, altar) then
-				placed += 1
-				print("[Altar] Placed offering " .. index)
-			else
-				warn("[Altar] Could not place offering " .. index .. " (" .. object.part.Name .. ")")
+			if not success then
+				warn("[Altar] Failed to place offering " .. index .. " (" .. object.part.Name .. ")")
 			end
+
+			task.wait(0.3) -- small pause before next offering
 		end
 
 		print("[Altar] Finished — placed " .. placed .. "/" .. #objects)
