@@ -19354,11 +19354,9 @@ if game.PlaceId == 116463962153167 then
 		end,
 	})
 
-	------------------------------
+------------------------------
 -- Altar Helper (Floor 8 offerings)
 ------------------------------
--- Looked up when used: waiting at load hides the buttons until a floor with
--- an OfferingAltar exists.
 local function getOfferingAltar()
 	return workspace:FindFirstChild("OfferingAltar", true)
 end
@@ -19560,11 +19558,24 @@ end
 -- Altar actions
 ------------------------------
 local function doAllAltar()
+	print("[Altar] Looking for OfferingAltar...")
+
 	local altar = getOfferingAltar()
+	local attempts = 0
+	local maxAttempts = 30 -- waits up to ~15 seconds
+
+	while not altar and attempts < maxAttempts do
+		attempts += 1
+		task.wait(0.5)
+		altar = getOfferingAltar()
+	end
+
 	if not altar then
-		warn("[Altar] OfferingAltar not found - load Floor 8 first")
+		warn("[Altar] OfferingAltar not found after waiting - make sure Floor 8 is loaded")
 		return
 	end
+
+	print("[Altar] Found OfferingAltar, starting placement...")
 
 	local pedestals = getAltarPedestals()
 	if #pedestals == 0 then
@@ -19608,7 +19619,7 @@ local function doAllAltar()
 			local pivot = altarPivot(pedestal)
 
 			if hrp and pivot then
-				hrp.CFrame = pivot * CFrame.new(0, 4, 0) -- Fixed: was assigning Vector3
+				hrp.CFrame = pivot * CFrame.new(0, 4, 0)
 				task.wait(0.35)
 
 				local pedestalPrompt = pedestal:FindFirstChildWhichIsA("ProximityPrompt", true)
@@ -19666,7 +19677,7 @@ Tab:CreateButton({
 			return
 		end
 
-		hrp.CFrame = pivot * CFrame.new(0, 4, 0) -- Fixed: was assigning Vector3
+		hrp.CFrame = pivot * CFrame.new(0, 4, 0)
 		print("[Altar] Teleported to altar " .. altarVisit .. "/" .. #pedestals)
 	end,
 })
