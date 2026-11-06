@@ -19413,23 +19413,50 @@ Tab:CreateButton({
 		end,
 	})
 
-	local Floor2Section = Tab:CreateSection("Floor 8")
+local Floor8Section = Tab:CreateSection("Floor 8")
 
 ------------------------------
--- Onyx ESP
+-- Quartz ESP
 ------------------------------
 local quartzConnections = {}
+local quartzESPEnabled = false
 
 Tab:CreateButton({
-    Name = "quartz ESP",
+    Name = "Quartz ESP",
     Callback = function()
         local Quartz = mobs:FindFirstChild("Quartz")
 
         if not Quartz then
-            warn("Quartz was not found in workspace.Mobs")
+            warn("[Quartz ESP] Quartz not found in workspace.Mobs")
             return
         end
 
+        -- Toggle OFF
+        if quartzESPEnabled then
+            for _, conn in ipairs(quartzConnections) do
+                conn:Disconnect()
+            end
+            table.clear(quartzConnections)
+
+            local oldHighlight = Quartz:FindFirstChild("quartzESP")
+            if oldHighlight then
+                oldHighlight:Destroy()
+            end
+
+            local playerGui = player:FindFirstChild("PlayerGui")
+            if playerGui then
+                local oldGui = playerGui:FindFirstChild("quartzName")
+                if oldGui then
+                    oldGui:Destroy()
+                end
+            end
+
+            quartzESPEnabled = false
+            print("[Quartz ESP] Disabled")
+            return
+        end
+
+        -- Toggle ON
         for _, conn in ipairs(quartzConnections) do
             conn:Disconnect()
         end
@@ -19442,7 +19469,6 @@ Tab:CreateButton({
 
         local playerGui = player:WaitForChild("PlayerGui")
         local oldGui = playerGui:FindFirstChild("quartzName")
-
         if oldGui then
             oldGui:Destroy()
         end
@@ -19451,7 +19477,7 @@ Tab:CreateButton({
             or Quartz:FindFirstChildWhichIsA("BasePart", true)
 
         if not adornee then
-            warn("No valid Quartz part found")
+            warn("[Quartz ESP] No valid part found on Quartz")
             return
         end
 
@@ -19482,37 +19508,40 @@ Tab:CreateButton({
         label.Parent = gui
 
         local function updateLabel()
-            if not Quartz.Parent then
+            if not Quartz or not Quartz.Parent then
                 return
             end
 
-            label.Text = "quartz state: "
-                .. tostring(Quartz:GetAttribute("State") or "Unknown")
-                .. "\nMovement: "
-                .. tostring(Quartz:GetAttribute("MovementState") or "Unknown")
+            label.Text = "State: " .. tostring(Quartz:GetAttribute("State") or "Unknown")
+                .. "\nMovement: " .. tostring(Quartz:GetAttribute("MovementState") or "Unknown")
         end
 
         updateLabel()
 
-        table.insert(quartzConnections,
-            Quartz:GetAttributeChangedSignal("State"):Connect(updateLabel)
-        )
-
-        table.insert(quartzConnections,
-            Quartz:GetAttributeChangedSignal("MovementState"):Connect(updateLabel)
-        )
+        table.insert(quartzConnections, Quartz:GetAttributeChangedSignal("State"):Connect(updateLabel))
+        table.insert(quartzConnections, Quartz:GetAttributeChangedSignal("MovementState"):Connect(updateLabel))
 
         table.insert(quartzConnections, Quartz.Destroying:Connect(function()
             for _, conn in ipairs(quartzConnections) do
                 conn:Disconnect()
             end
-
             table.clear(quartzConnections)
-            gui:Destroy()
+
+            if gui and gui.Parent then
+                gui:Destroy()
+            end
+
+            quartzESPEnabled = false
         end))
+
+        quartzESPEnabled = true
+        print("[Quartz ESP] Enabled")
     end,
 })
 
+------------------------------
+-- Altar Helper
+------------------------------
 local altar = workspace:WaitForChild("OfferingAltar")
 local totalCoaster = {}
 
@@ -19528,18 +19557,6 @@ local function getPedestal()
     return pedestals
 end
 
-local function getCertainAltar(object)
-    local matching = {}
-
-    for _, v in ipairs(altar:GetDescendants()) do
-        if v:IsA("ProximityPrompt") and v.ObjectText == tostring(object) then
-            table.insert(matching, v)
-        end
-    end
-
-    return matching
-end
-
 local function doAllAltar()
     table.clear(totalCoaster)
 
@@ -19552,19 +19569,19 @@ local function doAllAltar()
     local pedestals = getPedestal()
 
     if #pedestals == 0 then
-        warn("No OfferingPedestal found")
+        warn("[Altar] No OfferingPedestal found")
         return
     end
 
     if #totalCoaster == 0 then
-        warn("No altar prompts found")
+        warn("[Altar] No ProximityPrompts found inside OfferingAltar")
         return
     end
 
-    local completed = {}
+    local activated = 0
 
     for _, prompt in ipairs(totalCoaster) do
-        if prompt.Parent and prompt.Enabled then
+        if prompt and prompt.Parent and prompt.Enabled then
             local promptPart = prompt.Parent
 
             if promptPart:IsA("Attachment") then
@@ -19577,7 +19594,6 @@ local function doAllAltar()
 
                 for _, pedestal in ipairs(pedestals) do
                     local distance = (pedestal:GetPivot().Position - promptPart.Position).Magnitude
-
                     if distance < shortestDistance then
                         shortestDistance = distance
                         closestPedestal = pedestal
@@ -19586,10 +19602,10 @@ local function doAllAltar()
 
                 if closestPedestal then
                     hrp.CFrame = closestPedestal:GetPivot() * CFrame.new(0, 3, 0)
-                    task.wait(0.3)
+                    task.wait(0.25)
 
                     fireproximityprompt(prompt)
-                    completed[prompt] = true
+                    activated += 1
 
                     task.wait(0.3)
                 end
@@ -19597,11 +19613,11 @@ local function doAllAltar()
         end
     end
 
-    print("Activated " .. tostring(#completed) .. "/" .. tostring(#totalCoaster) .. " altars")
+    print("[Altar] Activated " .. activated .. "/" .. #totalCoaster .. " prompts")
 end
 
 Tab:CreateButton({
-    Name = "do the altars",
+    Name = "Do All Altars",
     Callback = function()
         doAllAltar()
     end,
