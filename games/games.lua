@@ -19697,6 +19697,99 @@ Tab:CreateButton({
 		end
 	end,
 })
+
+	local Floor8Section = Tab:CreateSection("Floor 9")
+
+	------------------------------
+	-- Briar ESP
+	------------------------------
+	local briarConnections = {}
+	local briarESPEnabled = false
+
+	Tab:CreateButton({
+		Name = "Briar ESP",
+		Callback = function()
+			local Briar = mobs:FindFirstChild("Briar")
+			if not Briar then
+				warn("[Briar ESP] Briar not found")
+				return
+			end
+
+			if briarESPEnabled then
+				for _, conn in ipairs(briarConnections) do conn:Disconnect() end
+				table.clear(briarConnections)
+
+				local oldHighlight = Briar:FindFirstChild("briarESP")
+				if oldHighlight then oldHighlight:Destroy() end
+
+				local oldGui = player.PlayerGui:FindFirstChild("briarName")
+				if oldGui then oldGui:Destroy() end
+
+				briarESPEnabled = false
+				print("[Briar ESP] Disabled")
+				return
+			end
+
+			for _, conn in ipairs(briarConnections) do conn:Disconnect() end
+			table.clear(briarConnections)
+
+			local oldHighlight = Briar:FindFirstChild("briarESP")
+			if oldHighlight then oldHighlight:Destroy() end
+
+			local oldGui = player.PlayerGui:FindFirstChild("briarName")
+			if oldGui then oldGui:Destroy() end
+
+			local adornee = Briar:FindFirstChild("Head") or Briar:FindFirstChildWhichIsA("BasePart", true)
+			if not adornee then
+				warn("[Briar ESP] No valid part found")
+				return
+			end
+
+			local esp = Instance.new("Highlight")
+			esp.Name = "briarESP"
+			esp.Adornee = Briar
+			esp.FillColor = Color3.fromRGB(255, 0, 0)
+			esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+			esp.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			esp.Parent = Briar
+
+			local gui = Instance.new("BillboardGui")
+			gui.Name = "briarName"
+			gui.Adornee = adornee
+			gui.Size = UDim2.fromOffset(220, 60)
+			gui.StudsOffset = Vector3.new(0, 3, 0)
+			gui.AlwaysOnTop = true
+			gui.Parent = player.PlayerGui
+
+			local label = Instance.new("TextLabel")
+			label.Size = UDim2.fromScale(1, 1)
+			label.BackgroundTransparency = 1
+			label.TextColor3 = Color3.new(1, 1, 1)
+			label.TextStrokeTransparency = 0
+			label.TextScaled = true
+			label.Font = Enum.Font.GothamBold
+			label.Parent = gui
+
+			local function updateLabel()
+				if not Briar or not Briar.Parent then return end
+				label.Text = "State: " .. tostring(Briar:GetAttribute("State") or "Unknown")
+					.. "\nMovement: " .. tostring(Briar:GetAttribute("MovementState") or "Unknown")
+			end
+
+			updateLabel()
+			table.insert(briarConnections, Briar:GetAttributeChangedSignal("State"):Connect(updateLabel))
+			table.insert(briarConnections, Briar:GetAttributeChangedSignal("MovementState"):Connect(updateLabel))
+			table.insert(briarConnections, Briar.Destroying:Connect(function()
+				for _, conn in ipairs(briarConnections) do conn:Disconnect() end
+				table.clear(briarConnections)
+				if gui then gui:Destroy() end
+				briarESPEnabled = false
+			end))
+
+			briarESPEnabled = true
+			print("[Briar ESP] Enabled")
+		end,
+	})
 end
 
 
