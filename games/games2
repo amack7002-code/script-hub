@@ -1,1 +1,7 @@
+local Window = getgenv().RayfieldWindow
+local Rayfield = getgenv().RayfieldLib
 
+if not Window then
+    warn("RayfieldWindow not found! Make sure to run the loader first.")
+    return
+end
