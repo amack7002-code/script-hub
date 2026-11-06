@@ -19513,42 +19513,91 @@ Tab:CreateButton({
     end,
 })
 
-local altar = workspace.OfferingAltar
- 
+local altar = workspace:WaitForChild("OfferingAltar")
 local totalCoaster = {}
 
-local function getCertainAltar(object)
-    table.clear(totalCoaster)
+local function getPedestal()
+    local pedestals = {}
 
-    for _, v in pairs(altar:GetDescendants()) do
-        if v:IsA("ProximityPrompt") then
-            if v.ObjectText == tostring(object) then
-                table.insert(totalCoaster, v)
-            end
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v.Name == "OfferingPedestal" then
+            table.insert(pedestals, v)
         end
     end
 
-    return totalCoaster
+    return pedestals
+end
+
+local function getCertainAltar(object)
+    local matching = {}
+
+    for _, v in ipairs(altar:GetDescendants()) do
+        if v:IsA("ProximityPrompt") and v.ObjectText == tostring(object) then
+            table.insert(matching, v)
+        end
+    end
+
+    return matching
 end
 
 local function doAllAltar()
+    table.clear(totalCoaster)
+
+    for _, v in ipairs(altar:GetDescendants()) do
+        if v:IsA("ProximityPrompt") then
+            table.insert(totalCoaster, v)
+        end
+    end
+
+    local pedestals = getPedestal()
+
+    if #pedestals == 0 then
+        warn("No OfferingPedestal found")
+        return
+    end
+
+    if #totalCoaster == 0 then
+        warn("No altar prompts found")
+        return
+    end
+
     local completed = {}
 
-    for _, pedestal in pairs(getPedestal()) do
-        for _, v in pairs(pedestal:GetDescendants()) do
-            if v:IsA("ProximityPrompt") and not completed[v] then
-                hrp.CFrame = pedestal:GetPivot()
-                task.wait(0.2)
+    for _, prompt in ipairs(totalCoaster) do
+        if prompt.Parent and prompt.Enabled then
+            local promptPart = prompt.Parent
 
-                fireproximityprompt(v)
-                completed[v] = true
+            if promptPart:IsA("Attachment") then
+                promptPart = promptPart.Parent
+            end
 
-                task.wait(0.2)
+            if promptPart and promptPart:IsA("BasePart") then
+                local closestPedestal
+                local shortestDistance = math.huge
+
+                for _, pedestal in ipairs(pedestals) do
+                    local distance = (pedestal:GetPivot().Position - promptPart.Position).Magnitude
+
+                    if distance < shortestDistance then
+                        shortestDistance = distance
+                        closestPedestal = pedestal
+                    end
+                end
+
+                if closestPedestal then
+                    hrp.CFrame = closestPedestal:GetPivot() * CFrame.new(0, 3, 0)
+                    task.wait(0.3)
+
+                    fireproximityprompt(prompt)
+                    completed[prompt] = true
+
+                    task.wait(0.3)
+                end
             end
         end
     end
 
-    print("Done all altars")
+    print("Activated " .. tostring(#completed) .. "/" .. tostring(#totalCoaster) .. " altars")
 end
 
 Tab:CreateButton({
