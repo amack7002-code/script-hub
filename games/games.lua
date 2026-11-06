@@ -19790,6 +19790,128 @@ Tab:CreateButton({
 			print("[Briar ESP] Enabled")
 		end,
 	})
+
+	Tab:CreateSection("Floor ?")
+
+Tab:CreateButton({
+    Name = "first section",
+    Callback = function()
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(-1571, 151, 374)
+        end
+    end,
+})
+
+Tab:CreateButton({
+    Name = "second section",
+    Callback = function()
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(-1002, 237, 374)
+        end
+    end,
+})
+
+Tab:CreateButton({
+    Name = "third section",
+    Callback = function()
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(-303, 375, 480)
+        end
+    end,
+})
+
+Tab:CreateButton({
+    Name = "fourth section",
+    Callback = function()
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(361, 379, 452)
+        end
+    end,
+})
+
+Tab:CreateButton({
+    Name = "fifth section",
+    Callback = function()
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(1195, 826, 485)
+        end
+    end,
+})
+
+Tab:CreateButton({
+    Name = "sixth section",
+    Callback = function()
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(2326, 928, 485)
+        end
+    end,
+})
+
+Tab:CreateButton({
+    Name = "seventh section",
+    Callback = function()
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(3135, 1129, 472)
+        end
+    end,
+})
+
+Tab:CreateButton({
+    Name = "eighth section",
+    Callback = function()
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(4413, 1163, 444)
+        end
+    end,
+})
+
+Tab:CreateButton({
+    Name = "nine section",
+    Callback = function()
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(5182, 1248, 444)
+        end
+    end,
+})
+
+Tab:CreateButton({
+    Name = "ten section",
+    Callback = function()
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(5977, 1385, 609)
+        end
+    end,
+})
+
+Tab:CreateButton({
+    Name = "eleven section",
+    Callback = function()
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(6896, 1435, 568)
+        end
+    end,
+})
+
+Tab:CreateButton({
+    Name = "end section",
+    Callback = function()
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(7353, 1468, 540)
+        end
+    end,
+})
 end
 
 
