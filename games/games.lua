@@ -19363,27 +19363,22 @@ end
 
 local function getAltarPedestals()
 	local pedestals = {}
-
 	for _, v in ipairs(workspace:GetDescendants()) do
 		if v.Name == "OfferingPedestal" then
 			table.insert(pedestals, v)
 		end
 	end
-
 	return pedestals
 end
 
 local function getPromptPart(prompt)
 	local part = prompt.Parent
-
 	if part and part:IsA("Attachment") then
 		part = part.Parent
 	end
-
 	if part and part:IsA("BasePart") then
 		return part
 	end
-
 	return nil
 end
 
@@ -19391,7 +19386,6 @@ local function altarPivot(instance)
 	if instance:IsA("Model") or instance:IsA("BasePart") then
 		return instance:GetPivot()
 	end
-
 	return nil
 end
 
@@ -19430,17 +19424,14 @@ end
 
 local function collectAltarObjects(altar)
 	local objects = {}
-
 	for _, v in ipairs(altar:GetDescendants()) do
 		if v:IsA("ProximityPrompt") and v.Enabled then
 			local part = getPromptPart(v)
-
 			if part then
 				table.insert(objects, { prompt = v, part = part })
 			end
 		end
 	end
-
 	return objects
 end
 
@@ -19448,11 +19439,9 @@ local function objectPlaced(object, altar)
 	if not object.part or not object.part.Parent then
 		return object.prompt.Enabled
 	end
-
 	if object.part:IsDescendantOf(altar) then
 		return false
 	end
-
 	return not isHeldByCharacter(object.part)
 end
 
@@ -19468,7 +19457,6 @@ local function clearAltarHighlights()
 			obj:Destroy()
 		end)
 	end
-
 	table.clear(altarHighlights)
 end
 
@@ -19537,112 +19525,127 @@ local function renderAltarsWithRetry()
 	end
 
 	task.spawn(function()
-		for _ = 1, 5 do
-			task.wait(1)
-
+		for _ = 1, 8 do
+			task.wait(0.75)
 			if not showAltarsEnabled then
 				return
 			end
-
 			if #getAltarPedestals() > 0 or getOfferingAltar() then
 				renderAltars()
 				return
 			end
 		end
-
 		renderAltars()
 	end)
 end
 
 ------------------------------
--- Altar actions
+-- Altar actions (waits only when button is pressed)
 ------------------------------
+local isDoingAltars = false
+
 local function doAllAltar()
-	print("[Altar] Looking for OfferingAltar...")
-
-	local altar = getOfferingAltar()
-	local attempts = 0
-	local maxAttempts = 30 -- waits up to ~15 seconds
-
-	while not altar and attempts < maxAttempts do
-		attempts += 1
-		task.wait(0.5)
-		altar = getOfferingAltar()
-	end
-
-	if not altar then
-		warn("[Altar] OfferingAltar not found after waiting - make sure Floor 8 is loaded")
+	if isDoingAltars then
+		warn("[Altar] Already running")
 		return
 	end
+	isDoingAltars = true
 
-	print("[Altar] Found OfferingAltar, starting placement...")
+	task.spawn(function()
+		print("[Altar] Waiting for OfferingAltar...")
 
-	local pedestals = getAltarPedestals()
-	if #pedestals == 0 then
-		warn("[Altar] No OfferingPedestal found")
-		return
-	end
+		local altar = nil
+		local attempts = 0
+		local maxAttempts = 40 -- ~20 seconds
 
-	local objects = collectAltarObjects(altar)
-	if #objects == 0 then
-		warn("[Altar] No offering ProximityPrompts found")
-		return
-	end
+		while attempts < maxAttempts do
+			altar = getOfferingAltar()
+			if altar then
+				break
+			end
+			attempts += 1
+			task.wait(0.5)
+		end
 
-	local hrp = altarHRP()
-	if not hrp then
-		warn("[Altar] HumanoidRootPart not found")
-		return
-	end
+		if not altar then
+			warn("[Altar] OfferingAltar never appeared. Load Floor 8 first.")
+			isDoingAltars = false
+			return
+		end
 
-	local placed = 0
+		print("[Altar] Found OfferingAltar, starting...")
 
-	for index, object in ipairs(objects) do
-		hrp = altarHRP()
+		local pedestals = getAltarPedestals()
+		if #pedestals == 0 then
+			warn("[Altar] No OfferingPedestal found")
+			isDoingAltars = false
+			return
+		end
+
+		local objects = collectAltarObjects(altar)
+		if #objects == 0 then
+			warn("[Altar] No offering ProximityPrompts found")
+			isDoingAltars = false
+			return
+		end
+
+		local hrp = altarHRP()
 		if not hrp then
-			break
+			warn("[Altar] HumanoidRootPart not found")
+			isDoingAltars = false
+			return
 		end
 
-		if not object.part or not object.part.Parent then
-			continue
-		end
+		local placed = 0
 
-		-- Pick the offering up from the altar table first.
-		hrp.CFrame = object.part.CFrame + Vector3.new(0, 4, 0)
-		task.wait(0.4)
-		firePrompt(object.prompt)
-		task.wait(0.5)
-
-		-- Then try the pedestals until one accepts it.
-		for _, pedestal in ipairs(pedestals) do
+		for index, object in ipairs(objects) do
 			hrp = altarHRP()
-			local pivot = altarPivot(pedestal)
+			if not hrp then
+				break
+			end
 
-			if hrp and pivot then
-				hrp.CFrame = pivot * CFrame.new(0, 4, 0)
-				task.wait(0.35)
+			if not object.part or not object.part.Parent then
+				continue
+			end
 
-				local pedestalPrompt = pedestal:FindFirstChildWhichIsA("ProximityPrompt", true)
-				if pedestalPrompt and pedestalPrompt.Enabled then
-					firePrompt(pedestalPrompt)
+			-- Pick up
+			hrp.CFrame = object.part.CFrame + Vector3.new(0, 4, 0)
+			task.wait(0.4)
+			firePrompt(object.prompt)
+			task.wait(0.5)
+
+			-- Try every pedestal
+			for _, pedestal in ipairs(pedestals) do
+				hrp = altarHRP()
+				local pivot = altarPivot(pedestal)
+
+				if hrp and pivot then
+					hrp.CFrame = pivot * CFrame.new(0, 4, 0)
 					task.wait(0.35)
-				end
 
-				if objectPlaced(object, altar) then
-					break
+					local pedestalPrompt = pedestal:FindFirstChildWhichIsA("ProximityPrompt", true)
+					if pedestalPrompt and pedestalPrompt.Enabled then
+						firePrompt(pedestalPrompt)
+						task.wait(0.35)
+					end
+
+					if objectPlaced(object, altar) then
+						break
+					end
 				end
+			end
+
+			if objectPlaced(object, altar) then
+				placed += 1
+				print("[Altar] Placed offering " .. index)
+			else
+				warn("[Altar] Could not place offering " .. index .. " (" .. object.part.Name .. ")")
 			end
 		end
 
-		if objectPlaced(object, altar) then
-			placed = placed + 1
-			print("[Altar] Placed offering " .. index)
-		else
-			warn("[Altar] Could not place offering " .. index .. " (" .. object.part.Name .. ")")
-		end
-	end
-
-	print("[Altar] Placed " .. placed .. "/" .. #objects .. " offerings")
+		print("[Altar] Finished — placed " .. placed .. "/" .. #objects)
+		isDoingAltars = false
+	end)
 end
 
 Tab:CreateButton({
