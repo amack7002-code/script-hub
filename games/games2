@@ -5,3 +5,26 @@ if not Window then
     warn("RayfieldWindow not found! Make sure to run the loader first.")
     return
 end
+
+if game.PlaceId == 101421882323748 then
+    local mTab = Window:CreateTab("main", "compass")
+    local level0 = workspace.Level0
+    local facelings = level0.Facelings
+
+    local function esp()
+        for i,v in pairs(facelings:GetChildren()) do
+            if v:IsA("Model") then
+                local esp = instance.new("Highlight")
+                esp.parent = v
+                esp.name = "esp"
+            end
+        end
+    end
+
+        mTab:CreateButton({
+        Name = "Monster ESP",
+        Callback = function()
+            esp()
+        end
+    })
+end
