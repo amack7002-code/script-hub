@@ -214,11 +214,11 @@ if game.PlaceId == 119925538689885 then
 
         clearMonsterESP()
     end
-
-    mTab:CreateButton({
+    mTab:CreateToggle({
         Name = "Monster ESP (Toggle)",
-        Callback = function()
-            monsterESPEnabled = not monsterESPEnabled
+        CurrentValue = false, -- optional, starts off
+        Callback = function(Value)
+            monsterESPEnabled = Value
 
             if monsterESPEnabled then
                 startMonsterESP()
