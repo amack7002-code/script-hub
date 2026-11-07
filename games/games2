@@ -6,6 +6,7 @@ if not Window then
     return
 end
 
+-- lights out
 if game.PlaceId == 101421882323748 then
     local mTab = Window:CreateTab("main", "compass")
 
@@ -18,9 +19,16 @@ if game.PlaceId == 101421882323748 then
     local function clearESP()
         for _, v in pairs(facelings:GetChildren()) do
             if v:IsA("Model") then
+                -- Remove Highlight
                 local highlight = v:FindFirstChild("esp")
                 if highlight then
                     highlight:Destroy()
+                end
+
+                -- Remove BillboardGui
+                local billboard = v:FindFirstChild("state")
+                if billboard then
+                    billboard:Destroy()
                 end
             end
         end
@@ -30,6 +38,7 @@ if game.PlaceId == 101421882323748 then
         if not model:IsA("Model") then return end
         if model:FindFirstChild("esp") then return end
 
+        -- Highlight
         local highlight = Instance.new("Highlight")
         highlight.Name = "esp"
         highlight.Adornee = model
@@ -37,6 +46,42 @@ if game.PlaceId == 101421882323748 then
         highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
         highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
         highlight.Parent = model
+
+        -- Find a good part to attach the billboard to
+        local adornee = model:FindFirstChild("HumanoidRootPart")
+            or model:FindFirstChild("Head")
+            or model.PrimaryPart
+            or model:FindFirstChildWhichIsA("BasePart")
+
+        if not adornee then return end
+
+        -- BillboardGui
+        local billboardGui = Instance.new("BillboardGui")
+        billboardGui.Name = "state"
+        billboardGui.Adornee = adornee
+        billboardGui.Size = UDim2.new(0, 120, 0, 40)
+        billboardGui.StudsOffset = Vector3.new(0, 3, 0)
+        billboardGui.AlwaysOnTop = true
+        billboardGui.Parent = model
+
+        local textLabel = Instance.new("TextLabel")
+        textLabel.Size = UDim2.new(1, 0, 1, 0)
+        textLabel.BackgroundTransparency = 1
+        textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        textLabel.TextStrokeTransparency = 0.5
+        textLabel.TextScaled = true
+        textLabel.Font = Enum.Font.GothamBold
+        textLabel.Parent = billboardGui
+
+        local function updateText()
+            local state = model:GetAttribute("State")
+            textLabel.Text = state and tostring(state) or "Unknown"
+        end
+
+        updateText()
+
+        -- Live update when State changes
+        model:GetAttributeChangedSignal("State"):Connect(updateText)
     end
 
     local function startESP()
