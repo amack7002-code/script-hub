@@ -6,8 +6,11 @@ if not Window then
     return
 end
 
+_G.NotGames1 = true
+
 -- prison Life
 if game.PlaceId == 155615604 then
+    _G.NotGames1 = false
     local RunService = game:GetService("RunService")
     local UserInputService = game:GetService("UserInputService")
     local Players = game:GetService("Players")
@@ -352,6 +355,7 @@ end
 
 --// TWISTED
 if game.PlaceId == 14170731342 then 
+	_G.NotGames1 = false
 
 	--// Services
 	local Players = game:GetService("Players")
@@ -517,6 +521,7 @@ end
 
 --// GRACE
 if game.PlaceId == 138837502355157 then 
+	_G.NotGames1 = false
 
 	--// Services
 	local Players = game:GetService("Players")
@@ -698,6 +703,7 @@ end
 
 --the final stand 2
 if game.PlaceId == 2899434514 then
+	_G.NotGames1 = false
 	local EspTab = Window:CreateTab("ESP", "eye")
 	_G.ESPENABLED = true
 
@@ -734,11 +740,13 @@ end
 end
 
 if game.PlaceId == 91095706097751 then
+	_G.NotGames1 = false
 	print("game")
 end
 
 --// Survive BRAINROT in Area 51!
 if game.PlaceId == 95557151887828 then 
+	_G.NotGames1 = false
 
 	--// Services
 	local Players = game:GetService("Players")
@@ -829,6 +837,7 @@ end
 
 --// Zack Service Station (ZSS)
 if game.PlaceId == 9359839118 then 
+	_G.NotGames1 = false
 
 	local FTab = Window:CreateTab("funzy", "eye")
 
@@ -997,6 +1006,7 @@ end
 
 --// 3008
 if game.PlaceId == 2768379856 then 
+	_G.NotGames1 = false
 	IsLoaded = true
 
 	--// Services
@@ -1219,6 +1229,7 @@ end
 
 --brick battles
 if game.PlaceId == 85556817125839 then
+	_G.NotGames1 = false
 	LPTab:CreateToggle({
 		Name = "Auto Tix and Blocks",
 		CurrentValue = false,
@@ -1244,6 +1255,7 @@ end
 
 -- Transfur Outbreak
 if game.PlaceId == 5987922834 then 
+	_G.NotGames1 = false
 
 	local Players = game:GetService("Players")
 	local RunService = game:GetService("RunService")
@@ -1524,6 +1536,7 @@ end
 
 -- Build a Bunker 
 if game.PlaceId == 129125743283781 then
+    _G.NotGames1 = false
     print("🏠 Build a Bunker LOADED! Infinite stats + base TP active!")
 
     local Players = game:GetService("Players")
@@ -1640,6 +1653,7 @@ end
 
 -- FNAF Eternal Nights 
 if game.PlaceId == 76758897829889 then
+    _G.NotGames1 = false
     print("🌙 FNAF Eternal Nights LOADED! ESP + safe zone ready - survive forever!")
 
     local Players = game:GetService("Players")
@@ -1827,6 +1841,7 @@ end
 
 -- FNAF Coop 
 if game.PlaceId == 42034090823 then
+    _G.NotGames1 = false
     print("🐻 FNAF Coop LOADED! Animatronics ESP active - see them coming!")
 
     local Players = game:GetService("Players")
@@ -1989,6 +2004,7 @@ end
 
 -- Baldi Frenzy 
 if game.PlaceId == 14792165933 then
+    _G.NotGames1 = false
     print("📚 Baldi Frenzy LOADED! Infinite speed/boost/stamina active - never get caught!")
 
     local Players = game:GetService("Players")
@@ -2142,6 +2158,7 @@ end
 
 -- Break In 2 
 if game.PlaceId == 13864667823 then
+    _G.NotGames1 = false
     IsLoaded = true
     print("🏠 Break In 2 LOADED! Speed, TPs & items ready - survive the chaos!")
 
@@ -2278,6 +2295,7 @@ end
 
 -- Evade 
 if game.PlaceId == 9872472334 then
+    _G.NotGames1 = false
     print("🏃 Evade LOADED! God speed & jump active - outrun Nextbot!")
 
     local Players = game:GetService("Players")
@@ -2548,6 +2566,7 @@ end
 
 -- Bordr Gam 
 if game.PlaceId == 3411100258 then
+    _G.NotGames1 = false
     print("🏰 Bordr Gam LOADED! Teleports active - rule the borders!")
 
     local Players = game:GetService("Players")
@@ -2588,6 +2607,7 @@ end
 
 -- Bridge Duels 
 if game.PlaceId == 139566161526375 then
+    _G.NotGames1 = false
    
     local Players = game:GetService("Players")
     local RunService = game:GetService("RunService")
@@ -3036,6 +3056,7 @@ end
 
 -- Lifting Simulator 
 if game.PlaceId == 3652625463 then
+    _G.NotGames1 = false
     print("🏋️ Lifting Simulator LOADED! Speed hacks active.")
 
     local Players = game:GetService("Players")
@@ -3123,6 +3144,7 @@ end
 
 --Bedwars
 if game.PlaceId == 6872274481 then
+    _G.NotGames1 = false
     local STab = Window:CreateTab("Scripts", 4483362458)
 	STab:CreateButton({Name = "VoidWare Rewrite", Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VWRewrite/main/NewMainScript.lua", true))() end})
 	STab:CreateButton({Name = "VoidWare Old", Callback = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/vapevoidware/main/NewMainScript.lua", true))() end})
@@ -3134,6 +3156,7 @@ end
 
 -- Infamy 
 if game.PlaceId == 6182305461 then
+    _G.NotGames1 = false
     print("🕵️ Infamy LOADED! Chaos mode activated. Cause havoc!")
 
     local Players = game:GetService("Players")
@@ -3232,6 +3255,7 @@ end
 
 --shoot the boss
 if game.PlaceId == 115196082055466 then
+    _G.NotGames1 = false
 
 
     local Players = game:GetService("Players")
@@ -3310,6 +3334,7 @@ end
 
 -- Jailbreak
 if game.PlaceId == 606849621 then
+    _G.NotGames1 = false
     local RunService = game:GetService("RunService")
     local plr = Players.LocalPlayer
 
@@ -3367,6 +3392,7 @@ end
 
 -- break in 1 Lobby 
 if game.PlaceId == 1318971886 then
+    _G.NotGames1 = false
     IsLoaded = true
     print("Break In 1 Lobby Detected! Waiting for game start...")
     
@@ -3377,6 +3403,7 @@ end
 
 --break in 1
 if game.PlaceId == 4620170611 then
+    _G.NotGames1 = false
     IsLoaded = true
     print("Break In 1 Main Game LOADED! Items & TP features active.")
 
@@ -3494,6 +3521,7 @@ end
 
 -- Survive and Kill the Killers in Area 51 
 if game.PlaceId == 155382109 then
+    _G.NotGames1 = false
     print("🔫 Survive and Kill the Killers in Area 51 LOADED! Features active.")
 
     local Players = game:GetService("Players")
@@ -3653,12 +3681,14 @@ end
 
 --deadly deliverly
 if game.PlaceId == 93044798454681 then
+	_G.NotGames1 = false
 	print("deadly deliverly")
 end
 
 
 --============ 99 NIGHTS IN THE FOREST (Lobby Detection) ============
 if game.PlaceId == 79546208627805 then
+    _G.NotGames1 = false
     print("🌲 99 Nights in the Forest lobby detected! Waiting for game start...")
     local N99Tab = Window:CreateTab("99 Nights", "moon")
     N99Tab:CreateLabel("In lobby - Features will activate when game starts!", "gamepad-2")
@@ -3666,6 +3696,7 @@ end
 
 --============ 99 NIGHTS IN THE FOREST ============
 if game.PlaceId == 126509999114328 then  
+	_G.NotGames1 = false
 	local RunService = game:GetService("RunService")
     -- Tabs
 	local MTab = Window:CreateTab("Main", "gamepad-2")
@@ -4137,12 +4168,14 @@ end
 
 --color or die
 if game.PlaceId == 12931609417 then
+	_G.NotGames1 = false
 	print("color or die")
 end
 
 
 --Legend of the bone sword (LOTBS)
 if game.PlaceId == 428375933 then
+	_G.NotGames1 = false
 	local TeleportList = {
 		CFrame.new(-569.802856, 33.4269905, -419.924835, 0.00419165334, -4.57811353e-08, -0.999991238, 4.82047255e-08, 1, -4.55794797e-08, 0.999991238, -4.80132485e-08, 0.00419165334),
 		CFrame.new(-621.229675, 33.363369, -421.17984, 0.967559278, -4.96804553e-08, -0.252644062, 5.86709774e-08, 1, 2.80520904e-08, 0.252644062, -4.19649346e-08, 0.967559278),
@@ -4651,6 +4684,7 @@ end ]]
 
 -- The Prison Thing
 if game.PlaceId == 73510530738011 then
+    _G.NotGames1 = false
     local RunService = game:GetService("RunService")
     local Players = game:GetService("Players")
     local plr = Players.LocalPlayer
@@ -4704,6 +4738,7 @@ end
 
 --survive 15 minutes
 if game.PlaceId == 135529168948713 then
+	_G.NotGames1 = false
 	local ETab = Window:CreateTab("Enemies", 4483362458)
 
 	ETab:CreateButton({
@@ -4733,6 +4768,7 @@ end
 
 --combat initiation (CI)
 if game.PlaceId == 14582748896 then
+	_G.NotGames1 = false
 	local TPTab = Window:CreateTab("Teleport", 4483362458)
 	local EnemiesTab = Window:CreateTab("Enemies", 4483362458)
 
@@ -5413,6 +5449,7 @@ end
 
 --my noob army
 if game.PlaceId == 111769828221159 then 
+    _G.NotGames1 = false
     local CoinsTab = Window:CreateTab("Coins")
     local ATab = Window:CreateTab("Auto", 4483362458)
 
@@ -5491,6 +5528,7 @@ end
 
 --infamy
 if game.PlaceId == 3104101863 then
+	_G.NotGames1 = false
 	local PTab = Window:CreateTab("Player", "sprout")
 
 	-- LocalScript → Put in StarterPlayer > StarterPlayerScripts
@@ -6261,6 +6299,7 @@ end
 
 --furry infection
 if game.PlaceId == 15491631439 then
+	_G.NotGames1 = false
 	local CTab = Window:CreateTab("Combat", "sprout")
 
 
@@ -6307,6 +6346,7 @@ end
 -- Grow a Garden
 --========================
 if game.PlaceId == 126884695634066 then
+    _G.NotGames1 = false
     IsLoaded = true
     local GrowAGardenTab = Window:CreateTab("Grow A Garden", "sprout")
     local Label = GrowAGardenTab:CreateLabel("The scripts for GAG are still in progress so don't expect them to be good", 4483362458, Color3.fromRGB(0, 0, 0), false)
@@ -6521,6 +6561,7 @@ end
 
 --aniPhobia
 if game.PlaceId == 6788434697 then
+	_G.NotGames1 = false
 	local ITab = Window:CreateTab("Items", 4483362458)
 	local GTab = Window:CreateTab("Guns", 4483362458)
 	local TTab = Window:CreateTab("Teleports", 4483362458)
@@ -6593,6 +6634,7 @@ end
 --MM2
 --========================
 if game.PlaceId == 142823291 then
+    _G.NotGames1 = false
 
     IsLoaded = true
     local AimbotTab = Window:CreateTab("MM2 Aimbot", 4483362458)
@@ -6712,6 +6754,7 @@ end
 
 --idk prob (hell's garden)
 if game.PlaceId == 138150927368356 then
+    _G.NotGames1 = false
     local TTab = Window:CreateTab("tp", "home")
 
     local function FindPart(modelName)
@@ -6761,6 +6804,7 @@ end
 
 --beat gubby in his own home
 if game.PlaceId == 111452220770252 then
+	    _G.NotGames1 = false
 	    TTab:CreateButton({
         Name = "op thing",
         Callback = function()
@@ -6942,6 +6986,7 @@ end
 
 --kick the door
 if game.PlaceId == 91095706097751 then
+	_G.NotGames1 = false
 	TTab:CreateButton({
         Name = "op thing",
         Callback = function()
@@ -7071,6 +7116,7 @@ end
 
 --zombie ressistance
 if game.PlaceId == 12500497961 then
+	_G.NotGames1 = false
 	local CTab = Window:CreateTab("Codes", "home")
 	local BTab = Window:CreateTab("Base", "home")
 	CTab:CreateButton({
@@ -7119,6 +7165,7 @@ end
 
 --ban or get banned
 if game.PlaceId == 96017656548489 then
+	_G.NotGames1 = false
 	local MTab = Window:CreateTab("Money", "home")
 	MTab:CreateButton({
 		Name = "Inf money(you get tp back to spawn after it collects)",
@@ -7164,6 +7211,7 @@ if game.PlaceId == 96017656548489 then
 end
 
 if game.PlaceId == 74407860720916 then
+	_G.NotGames1 = false
 	local ATab = Window:CreateTab("Auto", "home")
 
 	local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -7211,6 +7259,7 @@ end
 
 --tds lobby
 if game.PlaceId == 3260590327 then
+	_G.NotGames1 = false
 	local TTab = Window:CreateTab("troll", "home")
 
 	-- FIXED Party Invite Spammer (Fully Working - No Freezes!)
@@ -7363,6 +7412,7 @@ end
 
 --Knock knock
 if game.PlaceId == 94177325451296 then
+	_G.NotGames1 = false
 	local ATab = Window:CreateTab("ESP", "eye")
 
 	local killers = {
@@ -7431,6 +7481,7 @@ end
 
 --you vs david
 if game.PlaceId == 104744437428142 then
+	_G.NotGames1 = false
 	local ATab = Window:CreateTab("Useful stuff", "eye")
 	ATab:CreateToggle({
 		Name = "Esp",
@@ -7493,6 +7544,7 @@ end
 
 -- dive for brainrots
 if game.PlaceId == 113303333910928 then
+	_G.NotGames1 = false
 	local TTab = Window:CreateTab("TP", 4483362458) -- Title, Image
 	TTab:CreateButton({
 	Name = "Go to OG Spot",
@@ -7523,6 +7575,7 @@ end
 
 --escaoe rising lava for brainrots
 if game.PlaceId == 137723497878181 then 
+	_G.NotGames1 = false
 	local GTab = Window:CreateTab("Get Brainrots", 4483362458) -- Title, Image
 	GTab:CreateButton({
 	Name = "Get zone 9 brainrot(if doesnt do anything then there isnt any)",
@@ -7567,6 +7620,7 @@ end
 
 --Escape Tsunami for Stranger Things
 if game.PlaceId == 88003968263990 then 
+	_G.NotGames1 = false
 	local GTab = Window:CreateTab("Get thing", 4483362458) -- Title, Image
 	GTab:CreateButton({
 	Name = "tp to last zone",
@@ -7582,6 +7636,7 @@ end
 
 --fight your zombie
 if game.PlaceId == 92683694220101 then
+	_G.NotGames1 = false
 	local ATab = Window:CreateTab("Auto", 4483362458) -- Title, Image
 
 	local AutoCollect = false
@@ -7678,6 +7733,7 @@ end
 
 --escape disasters for brainrots
 if game.PlaceId == 83903557857049 then
+	_G.NotGames1 = false
 	local ATab = Window:CreateTab("Get Brainrots", 4483362458)
 
 	ATab:CreateButton({
@@ -7731,6 +7787,7 @@ end
 
 --Dandy's World Lobby
 if game.PlaceId == 16116270224 then
+	_G.NotGames1 = false
 	local MTab = Window:CreateTab("Main", 4483362458)
 
 	MTab:CreateButton({
@@ -7767,6 +7824,7 @@ end
 
 --dandy's world
 if game.PlaceId ==  16552821455 then
+	_G.NotGames1 = false
 	local ETab = Window:CreateTab("Visual", 4483362458)
 	local MTab = Window:CreateTab("Main", 4483362458)
 	local currentroomFolder = workspace.CurrentRoom
@@ -8145,6 +8203,7 @@ end
 
 --1 kill = 1 armor
 if game.PlaceId == 132547252102193 then
+	_G.NotGames1 = false
 	local CTab = Window:CreateTab("Combat", 4483362458)
 	local Players = game:GetService("Players")
 	local rs = game:GetService("ReplicatedStorage")
@@ -8237,6 +8296,7 @@ end
 
 --scary sushi
 if game.PlaceId == 16454414227 then
+	_G.NotGames1 = false
 	local TTab = Window:CreateTab("Teleports", 4483362458)
 
 	local Players = game:GetService("Players")
@@ -8306,6 +8366,7 @@ end
 
 --seeker vs hider
 if game.PlaceId == 18336470541 then
+	_G.NotGames1 = false
 
 	local Players = game:GetService("Players")
 	local RunService = game:GetService("RunService")
@@ -8525,6 +8586,7 @@ end
 
 --RNG Fighting
 if game.PlaceId == 100490989733123 then
+	_G.NotGames1 = false
 	local MTab = Window:CreateTab("Main", 4483362458)
 
 	local rolling = false
@@ -8553,6 +8615,7 @@ end
 
 --Bite By Night
 if game.PlaceId == 70845479499574 then
+    _G.NotGames1 = false
     local Players = game:GetService("Players")
     local RunService = game:GetService("RunService")
     local plr = Players.LocalPlayer
@@ -9653,6 +9716,7 @@ end
 
 --phenomenon
 if game.PlaceId == 115816909322231 then
+	_G.NotGames1 = false
 	local BF = workspace:WaitForChild("BoiledOne")
 
 	local espEnabled = false
@@ -9730,6 +9794,7 @@ end
 
 --home Alone [HORROR]
 if game.PlaceId == 15988754129 then
+	_G.NotGames1 = false
 	local Players = game:GetService("Players")
 	local player = Players.LocalPlayer
 	local PlayerGui = player:WaitForChild("PlayerGui")
@@ -10080,6 +10145,7 @@ end
 
 --lumber tycoon 2
 if game.PlaceId == 13822889 then
+	_G.NotGames1 = false
 	local MTab = Window:CreateTab("Main", 4483362458)
 	local water = workspace.Water
 
@@ -10114,6 +10180,7 @@ end
 
 --mini empire lobby
 if game.PlaceId == 11755449133 then
+	_G.NotGames1 = false
 	local QTab = Window:CreateTab("Queue", 4483362458)
 
 	local selectedQueue = "None"
@@ -10176,6 +10243,7 @@ end
 
 --mini empire
 if game.PlaceId == 13272778002 then
+    _G.NotGames1 = false
     --// TAB INITIALIZATION
     local MTab = Window:CreateTab("Main", 4483362458)
     local BTab = Window:CreateTab("Build", 4483362458)
@@ -10696,6 +10764,7 @@ end
 
 --zoo or oof
 if game.PlaceId == 139233844569220 then
+	_G.NotGames1 = false
 	local VTab = Window:CreateTab("Visual", 4483362458)
 
 	local espList = {}
@@ -10724,6 +10793,7 @@ end
 
 --dig or die
 if game.PlaceId == 87341346192053 then
+	_G.NotGames1 = false
 
 	--[[
 		local function MTA(toolName, attributes)
@@ -10778,6 +10848,7 @@ end
 
 --volleyBall Legends
 if game.PlaceId == 73956553001240 then
+	_G.NotGames1 = false
 	local Services = {
 		Players = game:GetService("Players"),
 		RunService = game:GetService("RunService"),
@@ -11265,6 +11336,7 @@ end
 
 -- spider mines
 if game.PlaceId == 136303206020127 then
+	_G.NotGames1 = false
 
 	local Tab = Window:CreateTab("Main", 4483362458) -- Title, Image
 
@@ -11343,6 +11415,7 @@ if game.PlaceId == 136303206020127 then
 end
 
 if game.PlaceId == 115235776084989 then
+	_G.NotGames1 = false
 	local MTab = Window:CreateTab("Monies", 4483362458) -- Title, Image
 
 	local function getHRP()
@@ -11423,6 +11496,7 @@ end
 
 --# clicks for owner
 if game.PlaceId == 124768944923060 then
+    _G.NotGames1 = false
     local Tab = Window:CreateTab("Auto", 4483362458)
 
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -11459,6 +11533,7 @@ end
 
 --survive in area 51
 if game.PlaceId == 2214661900 then
+	_G.NotGames1 = false
 	local MTab = Window:CreateTab("Main", "sprout")
 	local TTab = Window:CreateTab("Grab Guns", "sprout")
 	local GTab = Window:CreateTab("Gun Mods", "sprout")
@@ -12049,6 +12124,7 @@ end
 
 --you vs homelander
 if game.PlaceId == 74660999483512 then
+    _G.NotGames1 = false
     local Tab = Window:CreateTab("ESP", 4483362458) 
     
 
@@ -12110,6 +12186,7 @@ end
 
 --sell lemons
 if game.PlaceId == 79268393072444 then
+	_G.NotGames1 = false
 	local MTab = Window:CreateTab("Main", "sprout")
 
 	local plr = game.Players.LocalPlayer
@@ -12279,6 +12356,7 @@ if game.PlaceId == 79268393072444 then
 end
 
 if game.PlaceId == 136431686349723 then
+	_G.NotGames1 = false
 	local Players = game:GetService("Players")
 
 	local player = Players.LocalPlayer
@@ -12427,6 +12505,7 @@ local games = {
 }
 
 if game.PlaceId == games["game1"] or game.PlaceId == games["game2"] then
+    _G.NotGames1 = false
 
     local MTab = Window:CreateTab("Main", "sprout")
 
@@ -12627,6 +12706,7 @@ end
 
 --demon slayer burning ashes
 if game.PlaceId == 13985303823 then
+_G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 
 -- Services
@@ -12884,6 +12964,7 @@ end
 
 --survive in area 51 remake
 if game.PlaceId == 13811085661 then
+    _G.NotGames1 = false
     local Tab = Window:CreateTab("Main", 4483362458)
     local GTab = Window:CreateTab("Guns", 4483362458)
     local CTab = Window:CreateTab("Combat", 4483362458)
@@ -13009,6 +13090,7 @@ end
 
 --1+ speed attack on titan game idk this script useless
 if game.PlaceId == 115934904098274 then
+	_G.NotGames1 = false
 	local Tab = Window:CreateTab("Main", 4483362458)
 
 	local active = false
@@ -13032,6 +13114,7 @@ if game.PlaceId == 115934904098274 then
 end
 
 if game.PlaceId == 78079451644610 then
+	_G.NotGames1 = false
 	local Tab = Window:CreateTab("Main", 4483362458)
 
 	local Players = game:GetService("Players")
@@ -13239,6 +13322,7 @@ end
 
 --weird strict dad chapter 1
 if game.PlaceId == 14787381917 then
+_G.NotGames1 = false
 local MainTab = Window:CreateTab("Main", 4483362458) -- You can change the icon ID
 
 local Button = MainTab:CreateButton({
@@ -13631,6 +13715,7 @@ Rayfield:Notify({
 end
 --life in prison
 if game.PlaceId == 72659788689464 then
+	_G.NotGames1 = false
 	local Players = game:GetService("Players")
 	local TweenService = game:GetService("TweenService")
 
@@ -13759,6 +13844,7 @@ Tab:CreateButton({
 end
 
 if game.PlaceId == 6328880674 then
+	_G.NotGames1 = false
 	local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateToggle({
         Name = "Remove VHS effect",
@@ -13779,6 +13865,7 @@ end
 
 --HIDE
 if game.PlaceId == 92556658033628 then
+    _G.NotGames1 = false
     local players = workspace:WaitForChild("Players")
 
     local PESPEnabled = false
@@ -13866,6 +13953,7 @@ end
 
 --Critical tower defence
 if game.PlaceId == 5543622168 then
+    _G.NotGames1 = false
     local Tab = Window:CreateTab("Main", "user")
     local TTab = Window:CreateTab("Tower", "user")
     local shopGUI = game:GetService("Players").LocalPlayer.PlayerGui.Menu.EquipmentFrame.Mainframe.TowersFrame.ListFrame.ScrollFrame
@@ -13958,6 +14046,7 @@ end
 
 --zombie attack
 if game.PlaceId == 1240123653 then
+_G.NotGames1 = false
 local MainTab = Window:CreateTab("Main")
 
 -- ================== ATTACK SETTINGS ==================
@@ -14185,6 +14274,7 @@ end
 
 --bean
 if game.PlaceId == 102028012486873 then
+    _G.NotGames1 = false
     TTab:CreateButton({
         Name = "Goto stage 50",
         CurrentValue = false,
@@ -14198,6 +14288,7 @@ end
 
 --george cooper shooters
 if game.PlaceId == 134285251132058 then
+    _G.NotGames1 = false
     local Tab = Window:CreateTab("Main", 4483362458)
 
     local Players = game:GetService("Players")
@@ -14323,6 +14414,7 @@ end
 
 --backrooms by red panda productions
 if game.PlaceId == 9273658706 then --level 0 spawn backrooms
+	_G.NotGames1 = false
 	local TweenService = game:GetService("TweenService")
 	local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateButton({
@@ -14594,6 +14686,7 @@ Tab:CreateButton({
 end
 
 if game.PlaceId == 92754201181799 then -- funrooms
+	_G.NotGames1 = false
 	local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateButton({
     Name = "Go To Exit",
@@ -14622,6 +14715,7 @@ if game.PlaceId == 92754201181799 then -- funrooms
 end
 
 if game.PlaceId == 93745236275941 then -- level ! run for your life
+    _G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateButton({
     Name = "Go To End",
@@ -14649,6 +14743,7 @@ local Tab = Window:CreateTab("Main", 4483362458)
 end
 
 if game.PlaceId == 9620781650 then -- level 37 poolrooms
+	_G.NotGames1 = false
 	local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateButton({
 	    Name = "Go To Exit",
@@ -14677,6 +14772,7 @@ if game.PlaceId == 9620781650 then -- level 37 poolrooms
 end
 
 if game.PlaceId == 9756952356 then -- level 11 empty city
+    _G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 Tab:CreateButton({
     Name = "Go To Exit",
@@ -14705,6 +14801,7 @@ Tab:CreateButton({
 end
 
 if game.PlaceId == 9519748053 then --level lights out
+    _G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 Tab:CreateButton({
     Name = "Go To Exit",
@@ -14733,6 +14830,7 @@ Tab:CreateButton({
 end
 
 if game.PlaceId == 136339385292679 then --level neighborhood
+    _G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 Tab:CreateButton({
     Name = "Go To Exit",
@@ -14761,6 +14859,7 @@ Tab:CreateButton({
 end
 
 if game.PlaceId == 111722080121979 then -- level 16 cube asylum idk
+    _G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 Tab:CreateButton({
     Name = "Go To somewhat Exit",
@@ -14789,6 +14888,7 @@ Tab:CreateButton({
 end
 
 if game.PlaceId == 71252510406473 then -- level 2 pipe dreams
+    _G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateButton({
     Name = "Go To Exit",
@@ -14816,6 +14916,7 @@ local Tab = Window:CreateTab("Main", 4483362458)
 end
 
 if game.PlaceId == 116551468963338 then --Empty Car park
+    _G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 Tab:CreateButton({
     Name = "Go To Exit",
@@ -14844,6 +14945,7 @@ Tab:CreateButton({
 end
 
 if game.PlaceId == 73571581348211 then --level cabe system
+	_G.NotGames1 = false
 	local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateButton({
 	    Name = "Go To Exit",
@@ -14872,6 +14974,7 @@ if game.PlaceId == 73571581348211 then --level cabe system
 end
 
 if game.PlaceId == 9597801903 then -- level 7 thalassophobia
+    _G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateButton({
     Name = "Go To Exit",
@@ -14899,6 +15002,7 @@ local Tab = Window:CreateTab("Main", 4483362458)
 end
 
 if game.PlaceId == 10481745633 then --pitfall thing
+    _G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateButton({
 	    Name = "Go To Exit",
@@ -14927,6 +15031,7 @@ local Tab = Window:CreateTab("Main", 4483362458)
 end
 
 if game.PlaceId == 9536927575 then --level 7.L opposite oceans
+    _G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateButton({
 	    Name = "Go To Exit",
@@ -14955,6 +15060,7 @@ local Tab = Window:CreateTab("Main", 4483362458)
 end
 
 if game.PlaceId == 9515573665  then --level inf stairway
+    _G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateButton({
     Name = "Go To Exit",
@@ -14982,6 +15088,7 @@ local Tab = Window:CreateTab("Main", 4483362458)
 end
 
 if game.PlaceId == 98147660817272 then -- level duels
+    _G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -15065,6 +15172,7 @@ end)
 end
 
 if game.PlaceId == 9515389204 then -- level ???
+    _G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 Tab:CreateButton({
     Name = "Go To Exit",
@@ -15092,6 +15200,7 @@ Tab:CreateButton({
 end
 
 if game.PlaceId == 121900436480558 then --
+    _G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateButton({
 	    Name = "Go To Exit",
@@ -15120,6 +15229,7 @@ local Tab = Window:CreateTab("Main", 4483362458)
 end
 
 if game.PlaceId == 71063314346913 then --level sewers
+    _G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 Tab:CreateButton({
     Name = "Go To Exit",
@@ -15149,6 +15259,7 @@ end
 
 --Dress to impress
 if game.PlaceId == 110125451314286 then 
+_G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 
 --CREDITS TO VAEHZ
@@ -15231,6 +15342,7 @@ end
 
 --valley Prison
 if game.PlaceId == 15784744207 then
+_G.NotGames1 = false
 local Tab = Window:CreateTab("Main", 4483362458)
 local Players = game:GetService("Players")
 
@@ -15308,6 +15420,7 @@ end
 
 --parkour pandemic
 if game.PlaceId == 128718867767713 then
+	_G.NotGames1 = false
 	local Tab = Window:CreateTab("Main", 4483362458)
 	local collecting = false
 	local antiFall = true
@@ -15379,6 +15492,7 @@ if game.PlaceId == 128718867767713 then
 end
 -- trollge Incident Fights Reborn TIF:R -- 
 if game.PlaceId == 12377995562 then
+	_G.NotGames1 = false
 	local Tab = Window:CreateTab("Main", 4483362458)
 	local Players = game:GetService("Players")
 	local plr = Players.LocalPlayer
@@ -15480,6 +15594,7 @@ end
 
 --clean golf thing
 if game.PlaceId == 124597491375370 then
+	_G.NotGames1 = false
 	local Tab = Window:CreateTab("Main", 4483362458)
 	Tab:CreateButton({
 	   Name = "Op stats",
@@ -15616,6 +15731,7 @@ end
 
 --reminiscence zombies
 if game.PlaceId == 3554092380 then
+	_G.NotGames1 = false
 	for _, v in ipairs(game:GetDescendants()) do
 	    if v.Name:find("AC") then
 	        v:Destroy()
@@ -15677,6 +15793,7 @@ end
 
 --rob it
 if game.PlaceId == 83907398368798 then
+	_G.NotGames1 = false
 	local Tab = Window:CreateTab("Main", 4483362458)
 	local ETab = Window:CreateTab("Esp", 4483362458)
 		Tab:CreateButton({
@@ -15740,6 +15857,7 @@ end
 
 --briskit survival idk
 if game.PlaceId == 100428687810944 then
+	_G.NotGames1 = false
 	local MTab = Window:CreateTab("Main", 4483362458)
 	local Tab = Window:CreateTab("Esp", 4483362458)
 
@@ -15847,6 +15965,7 @@ end
 
 --mid east confict sim
 if game.PlaceId == 9531918774 then
+	_G.NotGames1 = false
 	local Tab = Window:CreateTab("Main", 4483362458)
 	local Players = game:GetService("Players")
 	local Teams = game:GetService("Teams")
@@ -15916,6 +16035,7 @@ end
 
 --backrooms motion
 if game.PlaceId == 17511909357 then
+	_G.NotGames1 = false
 	local Tab = Window:CreateTab("Main", 4483362458)
 
     getgenv().blur = false
@@ -15970,6 +16090,7 @@ end
 -- PIGGY WORKS FOR BOOK 1 AND 2 -- 
 
 if game.PlaceId == 1516533665 then
+	_G.NotGames1 = false
 	local Tab = Window:CreateTab("Main", 4483362458)
 
 	Tab:CreateButton({
@@ -16185,6 +16306,7 @@ end
 
 --crossroad
 if game.PlaceId == 1818 then
+    _G.NotGames1 = false
 
     local Tab = Window:CreateTab("Main", 4483362458)
 
@@ -16291,6 +16413,7 @@ end
 
 --rblx event hunt 20
 if game.PlaceId == 74205509034203 then
+    _G.NotGames1 = false
     local Tab = Window:CreateTab("Main", 4483362458)
 
     local Players = game:GetService("Players")
@@ -16973,6 +17096,7 @@ Tab:CreateToggle({
 end
 
 if game.PlaceId == 107833198839573 then
+	_G.NotGames1 = false
 	local Tab = Window:CreateTab("Main", 4483362458)
 	local pickup = workspace.Pickups
 	local function getallPickups() 
@@ -17029,6 +17153,7 @@ end
 
 --welcome to bloxburg
 if game.PlaceId == 185655149 then
+	_G.NotGames1 = false
 	
 	local Tab = Window:CreateTab("Main", 4483362458)
 	local hrp = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
@@ -17071,6 +17196,7 @@ end
 
 --some lethal ape game
 if game.PlaceId == 117713779364528 then
+    _G.NotGames1 = false
     local Tab = Window:CreateTab("Main", 4483362458)
 
     local monsters = {
@@ -17170,6 +17296,7 @@ end
 
 --save the krust krabs
 if game.PlaceId == 77709018585862 then
+    _G.NotGames1 = false
     local Tab = Window:CreateTab("Main", 4483362458)
 
     local Workspace = game:GetService("Workspace")
@@ -17728,6 +17855,7 @@ end
 
 
 if game.PlaceId == 12931609417 then
+	_G.NotGames1 = false
 	local monsters = workspace.GameplayAssets.Monsters
 	local Tab = Window:CreateTab("Main", 4483362458)
 
@@ -17749,6 +17877,7 @@ end
 
 --dont get fired at work
 if game.PlaceId == 115532003479675 then
+	_G.NotGames1 = false
 	local Tab = Window:CreateTab("Main", 4483362458)
 	local autoWorkGeneration = 0
 
@@ -18077,6 +18206,7 @@ end
 
 --the hollow
 if game.PlaceId == 116463962153167 then
+	_G.NotGames1 = false
 	local Tab = Window:CreateTab("Main", 4483362458)
 	local player = game:GetService("Players").LocalPlayer
 	local mobs = workspace:WaitForChild("Mobs")
@@ -19916,10 +20046,64 @@ end
 
 
 if game.PlaceId == 67 then 
+    _G.NotGames1 = false
     for i = 1, 67 do
     print("lol")
     warn("bruh")
+	end
 end
+
+if not _G.NotGames1 = false then
+	-- Then your download function
+	local function downloadGame(url)
+		url = url or "https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/games/games2"
+
+		local ok, res = pcall(function()
+			return game:HttpGet(url)
+		end)
+
+		if not ok or not res or res == "" then
+			Rayfield:Notify({
+				Title = "Download",
+				Content = "Failed to download games2.lua",
+				Duration = 4,
+			})
+			return false
+		end
+
+		local fn, loadErr = loadstring(res)
+		if not fn then
+			Rayfield:Notify({
+				Title = "Download",
+				Content = "Loadstring error: " .. tostring(loadErr),
+				Duration = 4,
+			})
+			return false
+		end
+
+		-- Execute the downloaded script
+		local success, runErr = pcall(fn)
+		if not success then
+			Rayfield:Notify({
+				Title = "Download",
+				Content = "Runtime error: " .. tostring(runErr),
+				Duration = 4,
+			})
+			return false
+		end
+
+		Rayfield:Notify({
+			Title = "Download",
+			Content = "games2.lua loaded successfully",
+			Duration = 3,
+		})
+
+		return true
+	end
+
+	pcall(function()
+		downloadGame()
+	end)
 end
 --example 
 --[[
