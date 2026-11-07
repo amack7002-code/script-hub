@@ -8,20 +8,26 @@ end
 
 if game.PlaceId == 101421882323748 then
     local mTab = Window:CreateTab("main", "compass")
-    local level0 = workspace.Level0
-    local facelings = level0.Facelings
+    local level0 = workspace:WaitForChild("Level0")
+    local facelings = level0:WaitForChild("Facelings")
 
     local function esp()
-        for i,v in pairs(facelings:GetChildren()) do
+        for _, v in pairs(facelings:GetChildren()) do
             if v:IsA("Model") then
-                local esp = instance.new("Highlight")
-                esp.parent = v
-                esp.name = "esp"
+                if not v:FindFirstChild("esp") then
+                    local highlight = Instance.new("Highlight")
+                    highlight.Name = "esp"
+                    highlight.Adornee = v
+                    highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    highlight.Parent = v
+                end
             end
         end
     end
 
-        mTab:CreateButton({
+    mTab:CreateButton({
         Name = "Monster ESP",
         Callback = function()
             esp()
