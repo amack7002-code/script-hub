@@ -20058,7 +20058,7 @@ if _G.NotGames1 then
     local placeId = tostring(game.PlaceId)
 
     -- Direct raw link to games2 (must return Lua text, e.g. a raw.githubusercontent.com URL)
-    local GAMES2_URL = "https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/games/games2"
+    local GAMES2_URL = "https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/games/games2.lua"
 
     local function downloadGames2()
         if GAMES2_URL == "" then
