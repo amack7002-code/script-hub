@@ -126,3 +126,108 @@ if game.PlaceId == 101421882323748 then
         end
     })
 end
+
+--steal or die
+if game.PlaceId == 119925538689885 then 
+    local mTab = Window:CreateTab("main", "compass")
+    local Players = game:GetService("Players")
+
+    local monsterESPEnabled = false
+    local connections = {}
+
+    local function applyMonsterESP(character)
+        if not character or not character.Parent then return end
+        if character:FindFirstChild("MonsterESP") then return end
+
+        -- Only apply if they have the EntityKind attribute
+        if not character:GetAttribute("EntityKind") then return end
+
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "MonsterESP"
+        highlight.Adornee = character
+        highlight.FillColor = Color3.fromRGB(255, 0, 0)
+        highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
+        highlight.FillTransparency = 0.5
+        highlight.OutlineTransparency = 0.5
+        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        highlight.Enabled = true
+        highlight.Parent = character
+    end
+
+    local function clearMonsterESP()
+        for _, player in ipairs(Players:GetPlayers()) do
+            local character = player.Character
+            if character then
+                local esp = character:FindFirstChild("MonsterESP")
+                if esp then
+                    esp:Destroy()
+                end
+            end
+        end
+    end
+
+    local function onCharacterAdded(character)
+        if not monsterESPEnabled then return end
+
+        -- Wait a tiny bit for attributes to load
+        task.defer(function()
+            applyMonsterESP(character)
+        end)
+
+        -- In case EntityKind is added a bit later
+        local conn
+        conn = character:GetAttributeChangedSignal("EntityKind"):Connect(function()
+            if monsterESPEnabled then
+                applyMonsterESP(character)
+            end
+            if conn then
+                conn:Disconnect()
+            end
+        end)
+    end
+
+    local function startMonsterESP()
+        -- Apply to current players
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player.Character then
+                applyMonsterESP(player.Character)
+            end
+
+            table.insert(connections, player.CharacterAdded:Connect(onCharacterAdded))
+        end
+
+        -- Handle players who join later
+        table.insert(connections, Players.PlayerAdded:Connect(function(player)
+            table.insert(connections, player.CharacterAdded:Connect(onCharacterAdded))
+
+            if player.Character then
+                applyMonsterESP(player.Character)
+            end
+        end))
+    end
+
+    local function stopMonsterESP()
+        for _, conn in ipairs(connections) do
+            conn:Disconnect()
+        end
+        table.clear(connections)
+
+        clearMonsterESP()
+    end
+
+    mTab:CreateButton({
+        Name = "Monster ESP (Toggle)",
+        Callback = function()
+            monsterESPEnabled = not monsterESPEnabled
+
+            if monsterESPEnabled then
+                startMonsterESP()
+                print("[ESP] Monster ESP Enabled")
+            else
+                stopMonsterESP()
+                print("[ESP] Monster ESP Disabled")
+            end
+        end
+    })
+
+end
