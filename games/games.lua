@@ -20050,61 +20050,71 @@ if game.PlaceId == 67 then
     for i = 1, 67 do
     print("lol")
     warn("bruh")
-	end
+end
 end
 
-if not _G.NotGames1 = false then
-	-- Then your download function
-	local function downloadGame(url)
-		url = url or "https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/games/games2"
+-- Not Games 1: runs only when none of the game blocks above matched
+if _G.NotGames1 then
+    local placeId = tostring(game.PlaceId)
 
-		local ok, res = pcall(function()
-			return game:HttpGet(url)
-		end)
+    -- Direct raw link to games2 (must return Lua text, e.g. a raw.githubusercontent.com URL)
+    local GAMES2_URL = "https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/games/games2"
 
-		if not ok or not res or res == "" then
-			Rayfield:Notify({
-				Title = "Download",
-				Content = "Failed to download games2.lua",
-				Duration = 4,
-			})
-			return false
-		end
+    local function downloadGames2()
+        if GAMES2_URL == "" then
+            return false, "GAMES2_URL is empty"
+        end
 
-		local fn, loadErr = loadstring(res)
-		if not fn then
-			Rayfield:Notify({
-				Title = "Download",
-				Content = "Loadstring error: " .. tostring(loadErr),
-				Duration = 4,
-			})
-			return false
-		end
+        local ok, source = pcall(function()
+            return game:HttpGet(GAMES2_URL, true)
+        end)
 
-		-- Execute the downloaded script
-		local success, runErr = pcall(fn)
-		if not success then
-			Rayfield:Notify({
-				Title = "Download",
-				Content = "Runtime error: " .. tostring(runErr),
-				Duration = 4,
-			})
-			return false
-		end
+        if not ok or type(source) ~= "string" or source == "" then
+            return false, "download failed"
+        end
 
-		Rayfield:Notify({
-			Title = "Download",
-			Content = "games2.lua loaded successfully",
-			Duration = 3,
-		})
+        local chunk, err = loadstring(source, "games2")
+        if not chunk then
+            return false, "compile error: " .. tostring(err)
+        end
 
-		return true
-	end
+        local ran, runErr = pcall(chunk)
+        if not ran then
+            return false, "runtime error: " .. tostring(runErr)
+        end
 
-	pcall(function()
-		downloadGame()
-	end)
+        return true
+    end
+
+    warn("[publicHub] NotGames1: this game isn't supported (PlaceId " .. placeId .. ") - downloading games2")
+
+    local loaded, why = downloadGames2()
+
+    if loaded then
+        print("[publicHub] NotGames1: games2 loaded for PlaceId " .. placeId)
+    else
+        warn("[publicHub] NotGames1: games2 not loaded (" .. why .. ")")
+
+        local ok = pcall(function()
+            local NotTab = Window:CreateTab("Not Games1", 4483362458)
+            NotTab:CreateButton({
+                Name = "Unsupported game: " .. placeId .. " (click to copy)",
+                Callback = function()
+                    if setclipboard then
+                        setclipboard(placeId)
+                    else
+                        print("[publicHub] NotGames1 PlaceId: " .. placeId)
+                    end
+                end,
+            })
+        end)
+
+        if not ok then
+            print("[publicHub] NotGames1: fallback tab failed to create")
+        end
+    end
 end
+
 --example 
 --[[
 https://docs.sirius.menu/rayfield/elements/interactive
