@@ -8,29 +8,76 @@ end
 
 if game.PlaceId == 101421882323748 then
     local mTab = Window:CreateTab("main", "compass")
+
     local level0 = workspace:WaitForChild("Level0")
     local facelings = level0:WaitForChild("Facelings")
 
-    local function esp()
+    local espEnabled = false
+    local espConnection = nil
+
+    local function clearESP()
         for _, v in pairs(facelings:GetChildren()) do
             if v:IsA("Model") then
-                if not v:FindFirstChild("esp") then
-                    local highlight = Instance.new("Highlight")
-                    highlight.Name = "esp"
-                    highlight.Adornee = v
-                    highlight.FillColor = Color3.fromRGB(255, 0, 0)
-                    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-                    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                    highlight.Parent = v
+                local highlight = v:FindFirstChild("esp")
+                if highlight then
+                    highlight:Destroy()
                 end
             end
         end
     end
 
+    local function applyESP(model)
+        if not model:IsA("Model") then return end
+        if model:FindFirstChild("esp") then return end
+
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "esp"
+        highlight.Adornee = model
+        highlight.FillColor = Color3.fromRGB(255, 0, 0)
+        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        highlight.Parent = model
+    end
+
+    local function startESP()
+        -- Apply to existing ones
+        for _, v in pairs(facelings:GetChildren()) do
+            applyESP(v)
+        end
+
+        -- Watch for new ones
+        if espConnection then
+            espConnection:Disconnect()
+        end
+
+        espConnection = facelings.ChildAdded:Connect(function(child)
+            if espEnabled then
+                task.wait(0.1) -- small delay so the model fully loads
+                applyESP(child)
+            end
+        end)
+    end
+
+    local function stopESP()
+        if espConnection then
+            espConnection:Disconnect()
+            espConnection = nil
+        end
+        clearESP()
+    end
+
     mTab:CreateButton({
-        Name = "Monster ESP",
+        Name = "Monster ESP (Toggle)",
         Callback = function()
-            esp()
+            espEnabled = not espEnabled
+
+            if espEnabled then
+                startESP()
+                print("[ESP] Monster ESP Enabled")
+            else
+                stopESP()
+                print("[ESP] Monster ESP Disabled")
+            end
         end
     })
 end
