@@ -231,3 +231,16 @@ if game.PlaceId == 119925538689885 then
     })
 
 end
+
+--strafex i dont care about ts + vibecoded game
+if game.PlaceId == 129861507977954 then
+    local plr = game.Players.LocalPlayer
+    local function detectOffhand(item)
+        local offhand = plr:GetAttribute("Offhand")
+        return offhand == item
+    end
+
+    if not detectOffhand("Totem") then
+        return
+    end
+end
