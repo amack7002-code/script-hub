@@ -358,117 +358,183 @@ if game.PlaceId == 129861507977954 then
 end
 
 
+
 -- =========================================================
 -- DING DONG DITCH
+-- HOTEL + NEIGHBORHOOD
 -- =========================================================
 
 if game.PlaceId == 92551591080135 then
     _G.NotGames2 = false
 
-    local HotelTab = Window:CreateTab("Hotel", "compass")
-    local neighborhoodTab = Window:CreateTab("neighborhood", "compass")
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
     local player = Players.LocalPlayer
-    local houses = workspace:WaitForChild("Map", 9e9):WaitForChild("Houses", 9e9)
+    local map = workspace:WaitForChild("Map")
 
-    local getknocked = false
-    local autoescape = true
-    local partyRoomPriority = false
-    local autoFarm = false
+    -- =====================================================
+    -- TABS
+    -- =====================================================
 
-    local partTransparency = 0
+    local HotelTab = Window:CreateTab("Hotel", "compass")
+    local NeighborhoodTab = Window:CreateTab("Neighborhood", "compass")
 
-    local matchInfo = ReplicatedStorage:WaitForChild("MatchInfo", 9e9)
-    local exitopen = matchInfo:WaitForChild("ExitOpen", 9e9)
-
-    local escapeHotel = workspace
-        :WaitForChild("Map", 9e9)
-        :WaitForChild("Environment", 9e9)
-        :WaitForChild("NorthStairs", 9e9)
-        :WaitForChild("StreetDoor", 9e9)
-
-    local totalPrompts = {}
-
-    -- CLEAN UP PREVIOUS INSTANCE
+    -- =====================================================
+    -- PREVIOUS INSTANCE CLEANUP
+    -- =====================================================
 
     if shared.DingDongDitchState then
-        shared.DingDongDitchState.running = false
+        local oldState = shared.DingDongDitchState
+        oldState.running = false
 
-        local oldSafeSpot = shared.DingDongDitchState.safeSpotHotel
+        if oldState.safeSpotHotel then
+            oldState.safeSpotHotel:Destroy()
+        end
 
-        if oldSafeSpot and oldSafeSpot.Parent then
-            oldSafeSpot:Destroy()
+        if oldState.safeSpotNeighborhood then
+            oldState.safeSpotNeighborhood:Destroy()
         end
     end
 
     local runState = {
         running = true,
-        safeSpotHotel = nil
+        safeSpotHotel = nil,
+        safeSpotNeighborhood = nil
     }
 
     shared.DingDongDitchState = runState
 
-    -- SAFE SPOT
+    -- =====================================================
+    -- HOTEL REFERENCES
+    -- =====================================================
 
-    if escapeHotel then
-        local safeSpotHotel = Instance.new("Part")
-        safeSpotHotel.Name = "safeHotel"
-        safeSpotHotel.Size = Vector3.new(1000, 1, 1000)
-        safeSpotHotel.Anchored = true
-        safeSpotHotel.CFrame = CFrame.new(0, 200, 0)
-        safeSpotHotel.Transparency = partTransparency
-        safeSpotHotel.Parent = workspace
+    local hotelHouses = map:WaitForChild("Houses")
+
+    local hotelMatchInfo = ReplicatedStorage:WaitForChild("MatchInfo")
+    local hotelExitOpen = hotelMatchInfo:WaitForChild("ExitOpen")
+
+    local escapeHotel = map
+        :WaitForChild("Environment")
+        :WaitForChild("NorthStairs")
+        :WaitForChild("StreetDoor")
+
+    -- =====================================================
+    -- NEIGHBORHOOD REFERENCES
+    -- =====================================================
+
+    local neighborhoodHouses = map:WaitForChild("Houses")
+
+    local escapeNeighborhood = map
+        :WaitForChild("Escape")
+        :WaitForChild("EscapeZone")
+
+    -- =====================================================
+    -- HOTEL SETTINGS
+    -- =====================================================
+
+    local hotelSettings = {
+        autoFarm = false,
+        getKnocked = false,
+        autoEscape = true,
+        partyRoomPriority = false,
+        transparency = 0
+    }
+
+    -- =====================================================
+    -- NEIGHBORHOOD SETTINGS
+    -- =====================================================
+
+    local neighborhoodSettings = {
+        autoFarm = false,
+        getKnocked = false,
+        autoEscape = true,
+        partyRoomPriority = false,
+        transparency = 0
+    }
+
+    -- =====================================================
+    -- SAFE SPOT CREATION
+    -- =====================================================
+
+    local function createSafeSpot(name, parentState)
+        local part = Instance.new("Part")
+
+        part.Name = name
+        part.Size = Vector3.new(1000, 1, 1000)
+        part.Anchored = true
+        part.CanCollide = true
+        part.Transparency = 0
+        part.CFrame = CFrame.new(0, 200, 0)
+        part.Parent = workspace
+
+        return part
     end
-        
+
+    local safeSpotHotel = createSafeSpot("safeHotel")
+    local safeSpotNeighborhood = createSafeSpot("safeNeighborhood")
+
     runState.safeSpotHotel = safeSpotHotel
+    runState.safeSpotNeighborhood = safeSpotNeighborhood
 
-    -- AUTOMATIC TRANSPARENCY UPDATE
+    -- =====================================================
+    -- TRANSPARENCY UPDATES
+    -- =====================================================
 
-    local function updateSafeSpotTransparency()
+    local function updateHotelTransparency()
         if safeSpotHotel and safeSpotHotel.Parent then
-            safeSpotHotel.Transparency = partTransparency
+            safeSpotHotel.Transparency = hotelSettings.transparency
         end
     end
 
-    -- RAYFIELD UI
+    local function updateNeighborhoodTransparency()
+        if safeSpotNeighborhood and safeSpotNeighborhood.Parent then
+            safeSpotNeighborhood.Transparency =
+                neighborhoodSettings.transparency
+        end
+    end
+
+    -- =====================================================
+    -- HOTEL UI
+    -- =====================================================
 
     HotelTab:CreateToggle({
         Name = "Auto Farm",
         CurrentValue = false,
-        Flag = "AutoFarm",
+        Flag = "HotelAutoFarm",
 
         Callback = function(value)
-            autoFarm = value
+            hotelSettings.autoFarm = value
         end
     })
 
     HotelTab:CreateToggle({
         Name = "Get already Knocked",
         CurrentValue = false,
-        Flag = "GetKnocked",
+        Flag = "HotelGetKnocked",
 
         Callback = function(value)
-            getknocked = value
+            hotelSettings.getKnocked = value
         end
     })
 
     HotelTab:CreateToggle({
         Name = "Auto Escape",
         CurrentValue = true,
-        Flag = "AutoEscape",
+        Flag = "HotelAutoEscape",
 
         Callback = function(value)
-            autoescape = value
+            hotelSettings.autoEscape = value
         end
     })
 
     HotelTab:CreateToggle({
         Name = "Party Room Priority",
         CurrentValue = false,
-        Flag = "PartyRoomPriority",
+        Flag = "HotelPartyRoomPriority",
 
         Callback = function(value)
-            partyRoomPriority = value
+            hotelSettings.partyRoomPriority = value
         end
     })
 
@@ -478,31 +544,89 @@ if game.PlaceId == 92551591080135 then
         Increment = 0.1,
         Suffix = "",
         CurrentValue = 0,
-        Flag = "SafeSpotTransparency",
+        Flag = "HotelSafeSpotTransparency",
 
         Callback = function(value)
-            partTransparency = value
-            updateSafeSpotTransparency()
+            hotelSettings.transparency = value
+            updateHotelTransparency()
         end
     })
 
-    -- PROMPT FINDER
+    -- =====================================================
+    -- NEIGHBORHOOD UI
+    -- =====================================================
 
-    local function getdoorProxPrompt()
-        table.clear(totalPrompts)
+    NeighborhoodTab:CreateToggle({
+        Name = "Auto Farm",
+        CurrentValue = false,
+        Flag = "NeighborhoodAutoFarm",
 
+        Callback = function(value)
+            neighborhoodSettings.autoFarm = value
+        end
+    })
+
+    NeighborhoodTab:CreateToggle({
+        Name = "Get already Knocked",
+        CurrentValue = false,
+        Flag = "NeighborhoodGetKnocked",
+
+        Callback = function(value)
+            neighborhoodSettings.getKnocked = value
+        end
+    })
+
+    NeighborhoodTab:CreateToggle({
+        Name = "Auto Escape",
+        CurrentValue = true,
+        Flag = "NeighborhoodAutoEscape",
+
+        Callback = function(value)
+            neighborhoodSettings.autoEscape = value
+        end
+    })
+
+    NeighborhoodTab:CreateToggle({
+        Name = "Party Room Priority",
+        CurrentValue = false,
+        Flag = "NeighborhoodPartyRoomPriority",
+
+        Callback = function(value)
+            neighborhoodSettings.partyRoomPriority = value
+        end
+    })
+
+    NeighborhoodTab:CreateSlider({
+        Name = "Safe Spot Transparency",
+        Range = {0, 1},
+        Increment = 0.1,
+        Suffix = "",
+        CurrentValue = 0,
+        Flag = "NeighborhoodSafeSpotTransparency",
+
+        Callback = function(value)
+            neighborhoodSettings.transparency = value
+            updateNeighborhoodTransparency()
+        end
+    })
+
+    -- =====================================================
+    -- HOTEL PROMPT FINDER
+    -- =====================================================
+
+    local function getHotelPrompts()
         local partyPrompts = {}
         local normalPrompts = {}
 
-        for _, prompt in ipairs(houses:GetDescendants()) do
+        for _, prompt in ipairs(hotelHouses:GetDescendants()) do
             if prompt:IsA("ProximityPrompt")
                 and prompt.Name == "KnockPrompt" then
 
                 local knocked = prompt:GetAttribute("Knocked") == true
                 local party = prompt:GetAttribute("Party") == true
 
-                if not getknocked or knocked then
-                    if partyRoomPriority and party then
+                if not hotelSettings.getKnocked or knocked then
+                    if hotelSettings.partyRoomPriority and party then
                         table.insert(partyPrompts, prompt)
                     else
                         table.insert(normalPrompts, prompt)
@@ -511,109 +635,89 @@ if game.PlaceId == 92551591080135 then
             end
         end
 
+        local results = {}
+
         for _, prompt in ipairs(partyPrompts) do
-            table.insert(totalPrompts, prompt)
+            table.insert(results, prompt)
         end
 
         for _, prompt in ipairs(normalPrompts) do
-            table.insert(totalPrompts, prompt)
+            table.insert(results, prompt)
         end
 
-        return totalPrompts
+        return results
     end
 
-    -- CHARACTER
+    -- =====================================================
+    -- NEIGHBORHOOD PROMPT FINDER
+    -- =====================================================
 
-    local function getRoot()
-        local character = player.Character or player.CharacterAdded:Wait()
-        return character:WaitForChild("HumanoidRootPart")
-    end
+    local function getNeighborhoodPrompts()
+        local partyPrompts = {}
+        local normalPrompts = {}
 
-    -- TELEPORT
+        for _, prompt in ipairs(neighborhoodHouses:GetDescendants()) do
+            if prompt:IsA("ProximityPrompt")
+                and prompt.Name == "KnockPrompt" then
 
-    local function teleportTo(part)
-        if not part or not part.Parent then
-            return
-        end
+                local knocked = prompt:GetAttribute("Knocked") == true
+                local party = prompt:GetAttribute("Party") == true
 
-        local root = getRoot()
-
-        if part:IsA("BasePart") then
-            root.CFrame = part.CFrame + Vector3.new(0, 1, 0)
-        elseif part:IsA("Model") then
-            root.CFrame = part:GetPivot() + Vector3.new(0, 1, 0)
-        end
-    end
-
-    -- PROMPT ACTIVATION
-
-    local function activatePrompt(prompt)
-        if not prompt or not prompt.Parent then
-            return
-        end
-
-        if not prompt.Enabled then
-            return
-        end
-
-        fireproximityprompt(prompt)
-    end
-
-    -- AUTO FARM LOOP
-    local function hotel()
-        task.spawn(function()
-            while runState.running do
-                -- Keep transparency synchronized
-                updateSafeSpotTransparency()
-    
-                if not autoFarm then
-                    task.wait(0.2)
-                    continue
-                end
-    
-                if autoescape and exitopen.Value == true then
-                    teleportTo(escapeHotel)
-                    task.wait(0.5)
-                    continue
-                end
-    
-                local prompts = getdoorProxPrompt()
-    
-                for _, prompt in ipairs(prompts) do
-                    if not runState.running or not autoFarm then
-                        break
-                    end
-    
-                    updateSafeSpotTransparency()
-    
-                    if autoescape and exitopen.Value == true then
-                        break
-                    end
-    
-                    if not prompt.Parent or not prompt.Enabled then
-                        continue
-                    end
-    
-                    local door = prompt.Parent.Parent
-    
-                    if door then
-                        teleportTo(door)
-                        task.wait(0.2)
-    
-                        activatePrompt(prompt)
-                        task.wait(0.2)
-    
-                        updateSafeSpotTransparency()
-                        teleportTo(safeSpotHotel)
-    
-                        task.wait(5)
+                if not neighborhoodSettings.getKnocked or knocked then
+                    if neighborhoodSettings.partyRoomPriority and party then
+                        table.insert(partyPrompts, prompt)
+                    else
+                        table.insert(normalPrompts, prompt)
                     end
                 end
-    
-                task.wait(0.5)
             end
-        end)
+        end
+
+        local results = {}
+
+        for _, prompt in ipairs(partyPrompts) do
+            table.insert(results, prompt)
+        end
+
+        for _, prompt in ipairs(normalPrompts) do
+            table.insert(results, prompt)
+        end
+
+        return results
     end
+
+    -- =====================================================
+    -- CONTINUOUS TRANSPARENCY SYNC
+    -- =====================================================
+
+    task.spawn(function()
+        while runState.running do
+            updateHotelTransparency()
+            updateNeighborhoodTransparency()
+
+            task.wait(0.2)
+        end
+    end)
+
+    -- =====================================================
+    -- CLEANUP
+    -- =====================================================
+
+    task.spawn(function()
+        while runState.running do
+            task.wait(1)
+        end
+
+        if safeSpotHotel and safeSpotHotel.Parent then
+            safeSpotHotel:Destroy()
+        end
+
+        if safeSpotNeighborhood and safeSpotNeighborhood.Parent then
+            safeSpotNeighborhood:Destroy()
+        end
+    end)
+
+    print("[Ding Dong Ditch] Hotel and Neighborhood loaded")
 end
 
 
