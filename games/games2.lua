@@ -8,6 +8,7 @@ end
 
 -- lights out
 if game.PlaceId == 101421882323748 then
+    _G.NotGames1 = false
     local mTab = Window:CreateTab("main", "compass")
 
     local level0 = workspace:WaitForChild("Level0")
@@ -129,6 +130,7 @@ end
 
 --steal or die
 if game.PlaceId == 119925538689885 then 
+    _G.NotGames1 = false
     local mTab = Window:CreateTab("main", "compass")
     local Players = game:GetService("Players")
 
@@ -234,6 +236,7 @@ end
 
 --strafex i dont care about ts + vibecoded game
 if game.PlaceId == 129861507977954 then
+    _G.NotGames1 = false
     local plr = game.Players.LocalPlayer
     local function detectOffhand(item)
         local offhand = plr:GetAttribute("Offhand")
@@ -245,7 +248,9 @@ if game.PlaceId == 129861507977954 then
     end
 end
 
+--ding dong ditch idk game
 if game.PlaceId == 92551591080135 then
+    _G.NotGames1 = false
     -- im the best vibe coder trust
     
     local Players = game:GetService("Players")
