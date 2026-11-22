@@ -362,6 +362,7 @@ end
 
 
 
+
 -- =========================================================
 -- DING DONG DITCH
 -- HOTEL + NEIGHBORHOOD
@@ -490,7 +491,6 @@ if game.PlaceId == 92551591080135 then
 
     local neighborhoodSettings = {
         autoFarm = false,
-        getKnocked = false,
         autoEscape = true,
         partyRoomPriority = false,
         transparency = 0
@@ -644,16 +644,6 @@ if game.PlaceId == 92551591080135 then
             })
 
             NeighborhoodTab:CreateToggle({
-                Name = "Get already Knocked",
-                CurrentValue = false,
-                Flag = "NeighborhoodGetKnocked",
-
-                Callback = function(value)
-                    neighborhoodSettings.getKnocked = value
-                end
-            })
-
-            NeighborhoodTab:CreateToggle({
                 Name = "Auto Escape",
                 CurrentValue = true,
                 Flag = "NeighborhoodAutoEscape",
@@ -740,6 +730,7 @@ if game.PlaceId == 92551591080135 then
     -- =====================================================
     -- NEIGHBORHOOD PROMPT FINDER
     -- SEARCHES HOUSE103, HOUSE104, ETC.
+    -- ALWAYS SKIPS ALREADY-KNOCKED
     -- =====================================================
 
     local function getNeighborhoodPrompts()
@@ -760,7 +751,7 @@ if game.PlaceId == 92551591080135 then
                         local knocked = prompt:GetAttribute("Knocked") == true
                         local party = prompt:GetAttribute("Party") == true
 
-                        if not neighborhoodSettings.getKnocked or knocked then
+                        if not knocked then
                             if neighborhoodSettings.partyRoomPriority and party then
                                 table.insert(partyPrompts, prompt)
                             else
