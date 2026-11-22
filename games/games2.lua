@@ -244,3 +244,135 @@ if game.PlaceId == 129861507977954 then
         return
     end
 end
+
+if game.PlaceId == 92551591080135 then
+    
+-- im the best vibe coder trust
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+local houses = workspace.Map.Houses
+
+local getknocked = false
+local autoescape = true
+local partyRoomPriority = false
+
+local partTransparency = 0
+
+local exitopen = ReplicatedStorage.MatchInfo.ExitOpen
+local escape = workspace.Map.Environment.NorthStairs.StreetDoor
+
+local totalPrompts = {}
+local running = true
+
+local safeSpot = Instance.new("Part")
+safeSpot.Name = "safe"
+safeSpot.Size = Vector3.new(1000, 1, 1000)
+safeSpot.Anchored = true
+safeSpot.CFrame = CFrame.new(0, 200, 0)
+safeSpot.Parent = workspace
+safeSpot.Transparency = partTransparency 
+
+local function getdoorProxPrompt()
+    table.clear(totalPrompts)
+
+    local partyPrompts = {}
+    local normalPrompts = {}
+
+    for _, v in pairs(houses:GetDescendants()) do
+        if v:IsA("ProximityPrompt") and v.Name == "KnockPrompt" then
+
+            local knocked = v:GetAttribute("Knocked") == true
+            local party = v:GetAttribute("Party") == true
+
+            if not getknocked or knocked then
+                if partyRoomPriority and party then
+                    table.insert(partyPrompts, v)
+                else
+                    table.insert(normalPrompts, v)
+                end
+            end
+        end
+    end
+
+    -- Party rooms first
+    for _, v in ipairs(partyPrompts) do
+        table.insert(totalPrompts, v)
+    end
+
+    -- Other rooms afterward
+    for _, v in ipairs(normalPrompts) do
+        table.insert(totalPrompts, v)
+    end
+
+    return totalPrompts
+end
+
+local function getRoot()
+    local character = player.Character or player.CharacterAdded:Wait()
+    return character:WaitForChild("HumanoidRootPart")
+end
+
+local function teleportTo(part)
+    if not part then
+        return
+    end
+
+    if part:IsA("BasePart") then
+        getRoot().CFrame = part.CFrame + Vector3.new(0, 1, 0)
+
+    elseif part:IsA("Model") then
+        getRoot().CFrame = part:GetPivot() + Vector3.new(0, 1, 0)
+    end
+end
+
+local function activatePrompt(prompt)
+    if prompt and prompt.Parent and prompt.Enabled then
+        fireproximityprompt(prompt)
+    end
+end
+
+while running do
+    if autoescape and exitopen.Value == true then
+        teleportTo(escape)
+        task.wait(0.5)
+
+    else
+        local prompts = getdoorProxPrompt()
+
+        for _, prompt in ipairs(prompts) do
+            if not running then
+                break
+            end
+
+            -- Check escape before processing another door
+            if autoescape and exitopen.Value == true then
+                break
+            end
+
+            local door = prompt.Parent and prompt.Parent.Parent
+
+            if door and prompt.Enabled then
+                -- Teleport to door
+                teleportTo(door)
+
+                task.wait(0.2)
+
+                -- Activate prompt
+                activatePrompt(prompt)
+
+                task.wait(0.2)
+
+                -- Return to safe spot
+                teleportTo(safeSpot)
+
+                task.wait(5)
+            end
+        end
+
+        task.wait(0.5)
+    end
+end
+end
