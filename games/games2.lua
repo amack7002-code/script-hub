@@ -251,6 +251,7 @@ end
 --ding dong ditch idk game
 if game.PlaceId == 92551591080135 then
     _G.NotGames2 = false
+    local mTab = Window:CreateTab("main", "compass")
     -- im the best vibe coder trust
     
     local Players = game:GetService("Players")
@@ -283,7 +284,7 @@ if game.PlaceId == 92551591080135 then
     
     -- RAYFIELD GEN 1
     
-    Etab:CreateToggle({
+    mTab:CreateToggle({
         Name = "Auto Farm",
         CurrentValue = false,
         Flag = "AutoFarm",
@@ -292,7 +293,7 @@ if game.PlaceId == 92551591080135 then
         end
     })
     
-    Etab:CreateToggle({
+    mTab:CreateToggle({
         Name = "Get already Knocked",
         CurrentValue = false,
         Flag = "GetKnocked",
@@ -301,7 +302,7 @@ if game.PlaceId == 92551591080135 then
         end
     })
     
-    Etab:CreateToggle({
+    mTab:CreateToggle({
         Name = "Auto Escape",
         CurrentValue = true,
         Flag = "AutoEscape",
@@ -310,7 +311,7 @@ if game.PlaceId == 92551591080135 then
         end
     })
     
-    Etab:CreateToggle({
+    mTab:CreateToggle({
         Name = "Party Room Priority",
         CurrentValue = false,
         Flag = "PartyRoomPriority",
@@ -319,7 +320,7 @@ if game.PlaceId == 92551591080135 then
         end
     })
     
-    Etab:CreateSlider({
+    mTab:CreateSlider({
         Name = "Safe Spot Transparency",
         Range = {0, 1},
         Increment = 0.1,
