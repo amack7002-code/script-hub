@@ -360,6 +360,7 @@ end
 
 
 
+
 -- =========================================================
 -- DING DONG DITCH
 -- HOTEL + NEIGHBORHOOD
@@ -374,12 +375,7 @@ if game.PlaceId == 92551591080135 then
     local player = Players.LocalPlayer
     local map = workspace:WaitForChild("Map")
 
-    -- =====================================================
-    -- TABS
-    -- =====================================================
-
-    local HotelTab = Window:CreateTab("Hotel", "compass")
-    local NeighborhoodTab = Window:CreateTab("Neighborhood", "compass")
+    print("[Ding Dong Ditch] Starting...")
 
     -- =====================================================
     -- PREVIOUS INSTANCE CLEANUP
@@ -389,12 +385,13 @@ if game.PlaceId == 92551591080135 then
         local oldState = shared.DingDongDitchState
         oldState.running = false
 
-        if oldState.safeSpotHotel then
-            oldState.safeSpotHotel:Destroy()
-        end
-
-        if oldState.safeSpotNeighborhood then
-            oldState.safeSpotNeighborhood:Destroy()
+        for _, name in ipairs({"safeSpotHotel", "safeSpotNeighborhood"}) do
+            local part = oldState[name]
+            if part then
+                pcall(function()
+                    part:Destroy()
+                end)
+            end
         end
     end
 
@@ -407,43 +404,20 @@ if game.PlaceId == 92551591080135 then
     shared.DingDongDitchState = runState
 
     -- =====================================================
-    -- HOTEL REFERENCES
+    -- SAFE SPOT
     -- =====================================================
 
-    local hotelHouses
-    local hotelExitOpen
-    local escapeHotel
-
-    local function setupHotel()
-        hotelHouses = map:FindFirstChild("Houses")
-
-        local matchInfo = ReplicatedStorage:FindFirstChild("MatchInfo")
-        hotelExitOpen = matchInfo and matchInfo:FindFirstChild("ExitOpen")
-
-        local environment = map:FindFirstChild("Environment")
-        local northStairs = environment and environment:FindFirstChild("NorthStairs")
-
-        escapeHotel = northStairs and northStairs:FindFirstChild("StreetDoor")
-
-        if not hotelHouses or not hotelExitOpen or not escapeHotel then
-            warn("[Ding Dong Ditch] Hotel not found. Skipping Hotel.")
-            return false
-        end
-
-        return true
+    local function createSafeSpot(name)
+        local part = Instance.new("Part")
+        part.Name = name
+        part.Size = Vector3.new(1000, 1, 1000)
+        part.Anchored = true
+        part.CanCollide = true
+        part.Transparency = 0
+        part.CFrame = CFrame.new(0, 200, 0)
+        part.Parent = workspace
+        return part
     end
-
-    local hotelFound = setupHotel()
-
-    -- =====================================================
-    -- NEIGHBORHOOD REFERENCES
-    -- =====================================================
-
-    local neighborhoodHouses = map:FindFirstChild("Houses")
-
-    local escapeNeighborhood = map
-        :WaitForChild("Escape")
-        :WaitForChild("EscapeZone")
 
     -- =====================================================
     -- SETTINGS
@@ -466,36 +440,95 @@ if game.PlaceId == 92551591080135 then
     }
 
     -- =====================================================
-    -- SAFE SPOT CREATION
+    -- HOTEL REFERENCES
     -- =====================================================
 
-    local function createSafeSpot(name)
-        local part = Instance.new("Part")
+    local hotelHouses
+    local hotelExitOpen
+    local escapeHotel
 
-        part.Name = name
-        part.Size = Vector3.new(1000, 1, 1000)
-        part.Anchored = true
-        part.CanCollide = true
-        part.Transparency = 0
-        part.CFrame = CFrame.new(0, 200, 0)
-        part.Parent = workspace
+    local function setupHotel()
+        local success, result = pcall(function()
+            hotelHouses = map:FindFirstChild("Houses")
 
-        return part
+            local matchInfo = ReplicatedStorage:FindFirstChild("MatchInfo")
+            hotelExitOpen = matchInfo and matchInfo:FindFirstChild("ExitOpen")
+
+            local environment = map:FindFirstChild("Environment")
+            local stairs = environment and environment:FindFirstChild("NorthStairs")
+            escapeHotel = stairs and stairs:FindFirstChild("StreetDoor")
+
+            if not hotelHouses then
+                error("Hotel Houses folder not found")
+            end
+
+            if not hotelExitOpen then
+                error("Hotel MatchInfo.ExitOpen not found")
+            end
+
+            if not escapeHotel then
+                error("Hotel StreetDoor not found")
+            end
+
+            return true
+        end)
+
+        if not success then
+            warn("[Ding Dong Ditch] Hotel skipped: " .. tostring(result))
+            return false
+        end
+
+        print("[Ding Dong Ditch] Hotel references loaded")
+        return true
     end
+
+    local hotelFound = setupHotel()
+
+    -- =====================================================
+    -- NEIGHBORHOOD REFERENCES
+    -- =====================================================
+
+    local neighborhoodHouses = map:FindFirstChild("Houses")
+
+    local escapeFolder = map:FindFirstChild("Escape")
+    local escapeNeighborhood = escapeFolder
+        and escapeFolder:FindFirstChild("EscapeZone")
+
+    if not escapeNeighborhood then
+        warn("[Ding Dong Ditch] Neighborhood EscapeZone not found")
+    else
+        print("[Ding Dong Ditch] Neighborhood exit found")
+    end
+
+    -- =====================================================
+    -- CREATE SAFE SPOTS
+    -- =====================================================
 
     local safeSpotHotel
     local safeSpotNeighborhood
 
     if hotelFound then
-        safeSpotHotel = createSafeSpot("safeHotel")
-        runState.safeSpotHotel = safeSpotHotel
+        local success, result = pcall(function()
+            safeSpotHotel = createSafeSpot("safeHotel")
+            runState.safeSpotHotel = safeSpotHotel
+        end)
+
+        if not success then
+            warn("[Ding Dong Ditch] Hotel safe spot error: " .. tostring(result))
+        end
     end
 
-    safeSpotNeighborhood = createSafeSpot("safeNeighborhood")
-    runState.safeSpotNeighborhood = safeSpotNeighborhood
+    local neighborhoodSafeSuccess, neighborhoodSafeError = pcall(function()
+        safeSpotNeighborhood = createSafeSpot("safeNeighborhood")
+        runState.safeSpotNeighborhood = safeSpotNeighborhood
+    end)
+
+    if not neighborhoodSafeSuccess then
+        warn("[Ding Dong Ditch] Neighborhood safe spot error: " .. tostring(neighborhoodSafeError))
+    end
 
     -- =====================================================
-    -- TRANSPARENCY UPDATES
+    -- TRANSPARENCY
     -- =====================================================
 
     local function updateHotelTransparency()
@@ -511,124 +544,139 @@ if game.PlaceId == 92551591080135 then
     end
 
     -- =====================================================
-    -- HOTEL UI
+    -- CREATE TABS INDEPENDENTLY
     -- =====================================================
 
+    local HotelTab
+    local NeighborhoodTab
+
     if hotelFound then
-        HotelTab:CreateToggle({
-            Name = "Auto Farm",
-            CurrentValue = false,
-            Flag = "HotelAutoFarm",
+        local success, result = pcall(function()
+            HotelTab = Window:CreateTab("Hotel", "compass")
 
-            Callback = function(value)
-                hotelSettings.autoFarm = value
-            end
-        })
+            HotelTab:CreateToggle({
+                Name = "Auto Farm",
+                CurrentValue = false,
+                Flag = "HotelAutoFarm",
+                Callback = function(value)
+                    hotelSettings.autoFarm = value
+                end
+            })
 
-        HotelTab:CreateToggle({
-            Name = "Get already Knocked",
-            CurrentValue = false,
-            Flag = "HotelGetKnocked",
+            HotelTab:CreateToggle({
+                Name = "Get already Knocked",
+                CurrentValue = false,
+                Flag = "HotelGetKnocked",
+                Callback = function(value)
+                    hotelSettings.getKnocked = value
+                end
+            })
 
-            Callback = function(value)
-                hotelSettings.getKnocked = value
-            end
-        })
+            HotelTab:CreateToggle({
+                Name = "Auto Escape",
+                CurrentValue = true,
+                Flag = "HotelAutoEscape",
+                Callback = function(value)
+                    hotelSettings.autoEscape = value
+                end
+            })
 
-        HotelTab:CreateToggle({
-            Name = "Auto Escape",
-            CurrentValue = true,
-            Flag = "HotelAutoEscape",
+            HotelTab:CreateToggle({
+                Name = "Party Room Priority",
+                CurrentValue = false,
+                Flag = "HotelPartyRoomPriority",
+                Callback = function(value)
+                    hotelSettings.partyRoomPriority = value
+                end
+            })
 
-            Callback = function(value)
-                hotelSettings.autoEscape = value
-            end
-        })
+            HotelTab:CreateSlider({
+                Name = "Safe Spot Transparency",
+                Range = {0, 1},
+                Increment = 0.1,
+                Suffix = "",
+                CurrentValue = 0,
+                Flag = "HotelSafeSpotTransparency",
+                Callback = function(value)
+                    hotelSettings.transparency = value
+                    updateHotelTransparency()
+                end
+            })
+        end)
 
-        HotelTab:CreateToggle({
-            Name = "Party Room Priority",
-            CurrentValue = false,
-            Flag = "HotelPartyRoomPriority",
-
-            Callback = function(value)
-                hotelSettings.partyRoomPriority = value
-            end
-        })
-
-        HotelTab:CreateSlider({
-            Name = "Safe Spot Transparency",
-            Range = {0, 1},
-            Increment = 0.1,
-            Suffix = "",
-            CurrentValue = 0,
-            Flag = "HotelSafeSpotTransparency",
-
-            Callback = function(value)
-                hotelSettings.transparency = value
-                updateHotelTransparency()
-            end
-        })
+        if not success then
+            warn("[Ding Dong Ditch] Hotel UI error: " .. tostring(result))
+        else
+            print("[Ding Dong Ditch] Hotel UI loaded")
+        end
     else
-        warn("[Ding Dong Ditch] Hotel tab skipped because Hotel references were not found.")
+        print("[Ding Dong Ditch] Skipping Hotel and continuing...")
     end
 
     -- =====================================================
     -- NEIGHBORHOOD UI
     -- =====================================================
 
-    NeighborhoodTab:CreateToggle({
-        Name = "Auto Farm",
-        CurrentValue = false,
-        Flag = "NeighborhoodAutoFarm",
+    do
+        local success, result = pcall(function()
+            NeighborhoodTab = Window:CreateTab("Neighborhood", "compass")
 
-        Callback = function(value)
-            neighborhoodSettings.autoFarm = value
+            NeighborhoodTab:CreateToggle({
+                Name = "Auto Farm",
+                CurrentValue = false,
+                Flag = "NeighborhoodAutoFarm",
+                Callback = function(value)
+                    neighborhoodSettings.autoFarm = value
+                end
+            })
+
+            NeighborhoodTab:CreateToggle({
+                Name = "Get already Knocked",
+                CurrentValue = false,
+                Flag = "NeighborhoodGetKnocked",
+                Callback = function(value)
+                    neighborhoodSettings.getKnocked = value
+                end
+            })
+
+            NeighborhoodTab:CreateToggle({
+                Name = "Auto Escape",
+                CurrentValue = true,
+                Flag = "NeighborhoodAutoEscape",
+                Callback = function(value)
+                    neighborhoodSettings.autoEscape = value
+                end
+            })
+
+            NeighborhoodTab:CreateToggle({
+                Name = "Party Room Priority",
+                CurrentValue = false,
+                Flag = "NeighborhoodPartyRoomPriority",
+                Callback = function(value)
+                    neighborhoodSettings.partyRoomPriority = value
+                end
+            })
+
+            NeighborhoodTab:CreateSlider({
+                Name = "Safe Spot Transparency",
+                Range = {0, 1},
+                Increment = 0.1,
+                Suffix = "",
+                CurrentValue = 0,
+                Flag = "NeighborhoodSafeSpotTransparency",
+                Callback = function(value)
+                    neighborhoodSettings.transparency = value
+                    updateNeighborhoodTransparency()
+                end
+            })
+        end)
+
+        if not success then
+            warn("[Ding Dong Ditch] Neighborhood UI error: " .. tostring(result))
+        else
+            print("[Ding Dong Ditch] Neighborhood UI loaded")
         end
-    })
-
-    NeighborhoodTab:CreateToggle({
-        Name = "Get already Knocked",
-        CurrentValue = false,
-        Flag = "NeighborhoodGetKnocked",
-
-        Callback = function(value)
-            neighborhoodSettings.getKnocked = value
-        end
-    })
-
-    NeighborhoodTab:CreateToggle({
-        Name = "Auto Escape",
-        CurrentValue = true,
-        Flag = "NeighborhoodAutoEscape",
-
-        Callback = function(value)
-            neighborhoodSettings.autoEscape = value
-        end
-    })
-
-    NeighborhoodTab:CreateToggle({
-        Name = "Party Room Priority",
-        CurrentValue = false,
-        Flag = "NeighborhoodPartyRoomPriority",
-
-        Callback = function(value)
-            neighborhoodSettings.partyRoomPriority = value
-        end
-    })
-
-    NeighborhoodTab:CreateSlider({
-        Name = "Safe Spot Transparency",
-        Range = {0, 1},
-        Increment = 0.1,
-        Suffix = "",
-        CurrentValue = 0,
-        Flag = "NeighborhoodSafeSpotTransparency",
-
-        Callback = function(value)
-            neighborhoodSettings.transparency = value
-            updateNeighborhoodTransparency()
-        end
-    })
+    end
 
     -- =====================================================
     -- HOTEL PROMPT FINDER
@@ -722,7 +770,6 @@ if game.PlaceId == 92551591080135 then
         while runState.running do
             updateHotelTransparency()
             updateNeighborhoodTransparency()
-
             task.wait(0.2)
         end
     end)
@@ -745,15 +792,13 @@ if game.PlaceId == 92551591080135 then
         end
     end)
 
-    print("[Ding Dong Ditch] Loaded")
+    -- =====================================================
+    -- FINISHED
+    -- =====================================================
 
-    if hotelFound then
-        print("[Ding Dong Ditch] Hotel loaded")
-    else
-        print("[Ding Dong Ditch] Hotel skipped; continuing with Neighborhood")
-    end
-
-    print("[Ding Dong Ditch] Neighborhood loaded")
+    print("[Ding Dong Ditch] Loading finished")
+    print("[Ding Dong Ditch] Hotel found: " .. tostring(hotelFound))
+    print("[Ding Dong Ditch] Neighborhood exit found: " .. tostring(escapeNeighborhood ~= nil))
 end
 
 
