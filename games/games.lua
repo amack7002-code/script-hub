@@ -20054,7 +20054,7 @@ end
 end
 
 -- Not Games 1: runs only when none of the game blocks above matched
-if _G.NotGames1 then
+if _G.NotGames1 or _G.Ganes2 then -- global var ar so detected but idc
     local placeId = tostring(game.PlaceId)
 
     -- Direct raw link to games2 (must return Lua text, e.g. a raw.githubusercontent.com URL)
