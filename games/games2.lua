@@ -246,218 +246,215 @@ if game.PlaceId == 129861507977954 then
 end
 
 if game.PlaceId == 92551591080135 then
+    -- im the best vibe coder trust
     
-
--- im the best vibe coder trust
-
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local player = Players.LocalPlayer
-local houses = workspace.Map.Houses
-
-local getknocked = false
-local autoescape = true
-local partyRoomPriority = false
-local autoFarm = false
-
-local partTransparency = 0
-
-local exitopen = ReplicatedStorage.MatchInfo.ExitOpen
-local escape = workspace.Map.Environment.NorthStairs.StreetDoor
-
-local totalPrompts = {}
-
--- SAFE SPOT
-
-local safeSpot = Instance.new("Part")
-safeSpot.Name = "safe"
-safeSpot.Size = Vector3.new(1000, 1, 1000)
-safeSpot.Anchored = true
-safeSpot.CFrame = CFrame.new(0, 200, 0)
-safeSpot.Transparency = partTransparency
-safeSpot.Parent = workspace
-
--- RAYFIELD GEN 1
-
-Etab:CreateToggle({
-    Name = "Auto Farm",
-    CurrentValue = false,
-    Flag = "AutoFarm",
-    Callback = function(value)
-        autoFarm = value
-    end
-})
-
-Etab:CreateToggle({
-    Name = "Get already Knocked",
-    CurrentValue = false,
-    Flag = "GetKnocked",
-    Callback = function(value)
-        getknocked = value
-    end
-})
-
-Etab:CreateToggle({
-    Name = "Auto Escape",
-    CurrentValue = true,
-    Flag = "AutoEscape",
-    Callback = function(value)
-        autoescape = value
-    end
-})
-
-Etab:CreateToggle({
-    Name = "Party Room Priority",
-    CurrentValue = false,
-    Flag = "PartyRoomPriority",
-    Callback = function(value)
-        partyRoomPriority = value
-    end
-})
-
-Etab:CreateSlider({
-    Name = "Safe Spot Transparency",
-    Range = {0, 1},
-    Increment = 0.1,
-    Suffix = "",
-    CurrentValue = 0,
-    Flag = "SafeSpotTransparency",
-    Callback = function(value)
-        partTransparency = value
-        safeSpot.Transparency = value
-    end
-})
-
--- PROMPT FINDER
-
-local function getdoorProxPrompt()
-    table.clear(totalPrompts)
-
-    local partyPrompts = {}
-    local normalPrompts = {}
-
-    for _, v in pairs(houses:GetDescendants()) do
-        if v:IsA("ProximityPrompt") and v.Name == "KnockPrompt" then
-
-            local knocked = v:GetAttribute("Knocked") == true
-            local party = v:GetAttribute("Party") == true
-
-            if not getknocked or knocked then
-                if partyRoomPriority and party then
-                    table.insert(partyPrompts, v)
-                else
-                    table.insert(normalPrompts, v)
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    
+    local player = Players.LocalPlayer
+    local houses = workspace.Map.Houses
+    
+    local getknocked = false
+    local autoescape = true
+    local partyRoomPriority = false
+    local autoFarm = false
+    
+    local partTransparency = 0
+    
+    local exitopen = ReplicatedStorage.MatchInfo.ExitOpen
+    local escape = workspace.Map.Environment.NorthStairs.StreetDoor
+    
+    local totalPrompts = {}
+    
+    -- SAFE SPOT
+    
+    local safeSpot = Instance.new("Part")
+    safeSpot.Name = "safe"
+    safeSpot.Size = Vector3.new(1000, 1, 1000)
+    safeSpot.Anchored = true
+    safeSpot.CFrame = CFrame.new(0, 200, 0)
+    safeSpot.Transparency = partTransparency
+    safeSpot.Parent = workspace
+    
+    -- RAYFIELD GEN 1
+    
+    Etab:CreateToggle({
+        Name = "Auto Farm",
+        CurrentValue = false,
+        Flag = "AutoFarm",
+        Callback = function(value)
+            autoFarm = value
+        end
+    })
+    
+    Etab:CreateToggle({
+        Name = "Get already Knocked",
+        CurrentValue = false,
+        Flag = "GetKnocked",
+        Callback = function(value)
+            getknocked = value
+        end
+    })
+    
+    Etab:CreateToggle({
+        Name = "Auto Escape",
+        CurrentValue = true,
+        Flag = "AutoEscape",
+        Callback = function(value)
+            autoescape = value
+        end
+    })
+    
+    Etab:CreateToggle({
+        Name = "Party Room Priority",
+        CurrentValue = false,
+        Flag = "PartyRoomPriority",
+        Callback = function(value)
+            partyRoomPriority = value
+        end
+    })
+    
+    Etab:CreateSlider({
+        Name = "Safe Spot Transparency",
+        Range = {0, 1},
+        Increment = 0.1,
+        Suffix = "",
+        CurrentValue = 0,
+        Flag = "SafeSpotTransparency",
+        Callback = function(value)
+            partTransparency = value
+            safeSpot.Transparency = value
+        end
+    })
+    
+    -- PROMPT FINDER
+    
+    local function getdoorProxPrompt()
+        table.clear(totalPrompts)
+    
+        local partyPrompts = {}
+        local normalPrompts = {}
+    
+        for _, v in pairs(houses:GetDescendants()) do
+            if v:IsA("ProximityPrompt") and v.Name == "KnockPrompt" then
+    
+                local knocked = v:GetAttribute("Knocked") == true
+                local party = v:GetAttribute("Party") == true
+    
+                if not getknocked or knocked then
+                    if partyRoomPriority and party then
+                        table.insert(partyPrompts, v)
+                    else
+                        table.insert(normalPrompts, v)
+                    end
                 end
             end
         end
-    end
-
-    -- PARTY ROOMS FIRST
-
-    for _, v in ipairs(partyPrompts) do
-        table.insert(totalPrompts, v)
-    end
-
-    -- NORMAL ROOMS AFTERWARD
-
-    for _, v in ipairs(normalPrompts) do
-        table.insert(totalPrompts, v)
-    end
-
-    return totalPrompts
-end
-
--- CHARACTER
-
-local function getRoot()
-    local character = player.Character or player.CharacterAdded:Wait()
-    return character:WaitForChild("HumanoidRootPart")
-end
-
--- TELEPORT
-
-local function teleportTo(part)
-    if not part then
-        return
-    end
-
-    if part:IsA("BasePart") then
-        getRoot().CFrame = part.CFrame + Vector3.new(0, 1, 0)
-
-    elseif part:IsA("Model") then
-        getRoot().CFrame = part:GetPivot() + Vector3.new(0, 1, 0)
-    end
-end
-
--- PROMPT ACTIVATION
-
-local function activatePrompt(prompt)
-    if prompt and prompt.Parent and prompt.Enabled then
-        fireproximityprompt(prompt)
-    end
-end
-
--- AUTO FARM LOOP
-
-task.spawn(function()
-    while true do
-        if not autoFarm then
-            task.wait(0.2)
-            continue
+    
+        -- PARTY ROOMS FIRST
+    
+        for _, v in ipairs(partyPrompts) do
+            table.insert(totalPrompts, v)
         end
-
-        -- AUTO ESCAPE
-
-        if autoescape and exitopen.Value == true then
-            teleportTo(escape)
-            task.wait(0.5)
-            continue
+    
+        -- NORMAL ROOMS AFTERWARD
+    
+        for _, v in ipairs(normalPrompts) do
+            table.insert(totalPrompts, v)
         end
-
-        local prompts = getdoorProxPrompt()
-
-        for _, prompt in ipairs(prompts) do
-
+    
+        return totalPrompts
+    end
+    
+    -- CHARACTER
+    
+    local function getRoot()
+        local character = player.Character or player.CharacterAdded:Wait()
+        return character:WaitForChild("HumanoidRootPart")
+    end
+    
+    -- TELEPORT
+    
+    local function teleportTo(part)
+        if not part then
+            return
+        end
+    
+        if part:IsA("BasePart") then
+            getRoot().CFrame = part.CFrame + Vector3.new(0, 1, 0)
+    
+        elseif part:IsA("Model") then
+            getRoot().CFrame = part:GetPivot() + Vector3.new(0, 1, 0)
+        end
+    end
+    
+    -- PROMPT ACTIVATION
+    
+    local function activatePrompt(prompt)
+        if prompt and prompt.Parent and prompt.Enabled then
+            fireproximityprompt(prompt)
+        end
+    end
+    
+    -- AUTO FARM LOOP
+    
+    task.spawn(function()
+        while true do
             if not autoFarm then
-                break
-            end
-
-            -- CHECK EXIT
-
-            if autoescape and exitopen.Value == true then
-                break
-            end
-
-            if not prompt.Parent or not prompt.Enabled then
+                task.wait(0.2)
                 continue
             end
-
-            local door = prompt.Parent.Parent
-
-            if door then
-                -- TELEPORT TO DOOR
-
-                teleportTo(door)
-
-                task.wait(0.2)
-
-                -- ACTIVATE PROMPT
-
-                activatePrompt(prompt)
-
-                task.wait(0.2)
-
-                -- RETURN TO SAFE SPOT
-
-                teleportTo(safeSpot)
-
-                task.wait(5)
+    
+            -- AUTO ESCAPE
+    
+            if autoescape and exitopen.Value == true then
+                teleportTo(escape)
+                task.wait(0.5)
+                continue
             end
+    
+            local prompts = getdoorProxPrompt()
+    
+            for _, prompt in ipairs(prompts) do
+    
+                if not autoFarm then
+                    break
+                end
+    
+                -- CHECK EXIT
+    
+                if autoescape and exitopen.Value == true then
+                    break
+                end
+    
+                if not prompt.Parent or not prompt.Enabled then
+                    continue
+                end
+    
+                local door = prompt.Parent.Parent
+    
+                if door then
+                    -- TELEPORT TO DOOR
+    
+                    teleportTo(door)
+    
+                    task.wait(0.2)
+    
+                    -- ACTIVATE PROMPT
+    
+                    activatePrompt(prompt)
+    
+                    task.wait(0.2)
+    
+                    -- RETURN TO SAFE SPOT
+    
+                    teleportTo(safeSpot)
+    
+                    task.wait(5)
+                end
+            end
+    
+            task.wait(0.5)
         end
-
-        task.wait(0.5)
-    end
-end)
-
+    end)
 end
