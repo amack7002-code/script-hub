@@ -361,6 +361,7 @@ end
 
 
 
+
 -- =========================================================
 -- DING DONG DITCH
 -- HOTEL + NEIGHBORHOOD
@@ -385,8 +386,12 @@ if game.PlaceId == 92551591080135 then
         local oldState = shared.DingDongDitchState
         oldState.running = false
 
-        for _, name in ipairs({"safeSpotHotel", "safeSpotNeighborhood"}) do
+        for _, name in ipairs({
+            "safeSpotHotel",
+            "safeSpotNeighborhood"
+        }) do
             local part = oldState[name]
+
             if part then
                 pcall(function()
                     part:Destroy()
@@ -402,42 +407,6 @@ if game.PlaceId == 92551591080135 then
     }
 
     shared.DingDongDitchState = runState
-
-    -- =====================================================
-    -- SAFE SPOT
-    -- =====================================================
-
-    local function createSafeSpot(name)
-        local part = Instance.new("Part")
-        part.Name = name
-        part.Size = Vector3.new(1000, 1, 1000)
-        part.Anchored = true
-        part.CanCollide = true
-        part.Transparency = 0
-        part.CFrame = CFrame.new(0, 200, 0)
-        part.Parent = workspace
-        return part
-    end
-
-    -- =====================================================
-    -- SETTINGS
-    -- =====================================================
-
-    local hotelSettings = {
-        autoFarm = false,
-        getKnocked = false,
-        autoEscape = true,
-        partyRoomPriority = false,
-        transparency = 0
-    }
-
-    local neighborhoodSettings = {
-        autoFarm = false,
-        getKnocked = false,
-        autoEscape = true,
-        partyRoomPriority = false,
-        transparency = 0
-    }
 
     -- =====================================================
     -- HOTEL REFERENCES
@@ -456,6 +425,7 @@ if game.PlaceId == 92551591080135 then
 
             local environment = map:FindFirstChild("Environment")
             local stairs = environment and environment:FindFirstChild("NorthStairs")
+
             escapeHotel = stairs and stairs:FindFirstChild("StreetDoor")
 
             if not hotelHouses then
@@ -494,15 +464,55 @@ if game.PlaceId == 92551591080135 then
     local escapeNeighborhood = escapeFolder
         and escapeFolder:FindFirstChild("EscapeZone")
 
-    if not escapeNeighborhood then
-        warn("[Ding Dong Ditch] Neighborhood EscapeZone not found")
-    else
+    if escapeNeighborhood then
         print("[Ding Dong Ditch] Neighborhood exit found")
+    else
+        warn("[Ding Dong Ditch] Neighborhood EscapeZone not found")
+    end
+
+    if neighborhoodHouses then
+        print("[Ding Dong Ditch] Neighborhood Houses folder found")
+    else
+        warn("[Ding Dong Ditch] Neighborhood Houses folder not found")
     end
 
     -- =====================================================
-    -- CREATE SAFE SPOTS
+    -- SETTINGS
     -- =====================================================
+
+    local hotelSettings = {
+        autoFarm = false,
+        getKnocked = false,
+        autoEscape = true,
+        partyRoomPriority = false,
+        transparency = 0
+    }
+
+    local neighborhoodSettings = {
+        autoFarm = false,
+        getKnocked = false,
+        autoEscape = true,
+        partyRoomPriority = false,
+        transparency = 0
+    }
+
+    -- =====================================================
+    -- SAFE SPOT CREATION
+    -- =====================================================
+
+    local function createSafeSpot(name)
+        local part = Instance.new("Part")
+
+        part.Name = name
+        part.Size = Vector3.new(1000, 1, 1000)
+        part.Anchored = true
+        part.CanCollide = true
+        part.Transparency = 0
+        part.CFrame = CFrame.new(0, 200, 0)
+        part.Parent = workspace
+
+        return part
+    end
 
     local safeSpotHotel
     local safeSpotNeighborhood
@@ -544,20 +554,18 @@ if game.PlaceId == 92551591080135 then
     end
 
     -- =====================================================
-    -- CREATE TABS INDEPENDENTLY
+    -- HOTEL UI
     -- =====================================================
-
-    local HotelTab
-    local NeighborhoodTab
 
     if hotelFound then
         local success, result = pcall(function()
-            HotelTab = Window:CreateTab("Hotel", "compass")
+            local HotelTab = Window:CreateTab("Hotel", "compass")
 
             HotelTab:CreateToggle({
                 Name = "Auto Farm",
                 CurrentValue = false,
                 Flag = "HotelAutoFarm",
+
                 Callback = function(value)
                     hotelSettings.autoFarm = value
                 end
@@ -567,6 +575,7 @@ if game.PlaceId == 92551591080135 then
                 Name = "Get already Knocked",
                 CurrentValue = false,
                 Flag = "HotelGetKnocked",
+
                 Callback = function(value)
                     hotelSettings.getKnocked = value
                 end
@@ -576,6 +585,7 @@ if game.PlaceId == 92551591080135 then
                 Name = "Auto Escape",
                 CurrentValue = true,
                 Flag = "HotelAutoEscape",
+
                 Callback = function(value)
                     hotelSettings.autoEscape = value
                 end
@@ -585,6 +595,7 @@ if game.PlaceId == 92551591080135 then
                 Name = "Party Room Priority",
                 CurrentValue = false,
                 Flag = "HotelPartyRoomPriority",
+
                 Callback = function(value)
                     hotelSettings.partyRoomPriority = value
                 end
@@ -597,6 +608,7 @@ if game.PlaceId == 92551591080135 then
                 Suffix = "",
                 CurrentValue = 0,
                 Flag = "HotelSafeSpotTransparency",
+
                 Callback = function(value)
                     hotelSettings.transparency = value
                     updateHotelTransparency()
@@ -619,12 +631,13 @@ if game.PlaceId == 92551591080135 then
 
     do
         local success, result = pcall(function()
-            NeighborhoodTab = Window:CreateTab("Neighborhood", "compass")
+            local NeighborhoodTab = Window:CreateTab("Neighborhood", "compass")
 
             NeighborhoodTab:CreateToggle({
                 Name = "Auto Farm",
                 CurrentValue = false,
                 Flag = "NeighborhoodAutoFarm",
+
                 Callback = function(value)
                     neighborhoodSettings.autoFarm = value
                 end
@@ -634,6 +647,7 @@ if game.PlaceId == 92551591080135 then
                 Name = "Get already Knocked",
                 CurrentValue = false,
                 Flag = "NeighborhoodGetKnocked",
+
                 Callback = function(value)
                     neighborhoodSettings.getKnocked = value
                 end
@@ -643,6 +657,7 @@ if game.PlaceId == 92551591080135 then
                 Name = "Auto Escape",
                 CurrentValue = true,
                 Flag = "NeighborhoodAutoEscape",
+
                 Callback = function(value)
                     neighborhoodSettings.autoEscape = value
                 end
@@ -652,6 +667,7 @@ if game.PlaceId == 92551591080135 then
                 Name = "Party Room Priority",
                 CurrentValue = false,
                 Flag = "NeighborhoodPartyRoomPriority",
+
                 Callback = function(value)
                     neighborhoodSettings.partyRoomPriority = value
                 end
@@ -664,6 +680,7 @@ if game.PlaceId == 92551591080135 then
                 Suffix = "",
                 CurrentValue = 0,
                 Flag = "NeighborhoodSafeSpotTransparency",
+
                 Callback = function(value)
                     neighborhoodSettings.transparency = value
                     updateNeighborhoodTransparency()
@@ -722,6 +739,7 @@ if game.PlaceId == 92551591080135 then
 
     -- =====================================================
     -- NEIGHBORHOOD PROMPT FINDER
+    -- SEARCHES HOUSE103, HOUSE104, ETC.
     -- =====================================================
 
     local function getNeighborhoodPrompts()
@@ -732,18 +750,23 @@ if game.PlaceId == 92551591080135 then
         local partyPrompts = {}
         local normalPrompts = {}
 
-        for _, prompt in ipairs(neighborhoodHouses:GetDescendants()) do
-            if prompt:IsA("ProximityPrompt")
-                and prompt.Name == "KnockPrompt" then
+        for _, house in ipairs(neighborhoodHouses:GetChildren()) do
+            if house.Name:match("^House%d+$") then
 
-                local knocked = prompt:GetAttribute("Knocked") == true
-                local party = prompt:GetAttribute("Party") == true
+                for _, prompt in ipairs(house:GetDescendants()) do
+                    if prompt:IsA("ProximityPrompt")
+                        and prompt.Name == "KnockPrompt" then
 
-                if not neighborhoodSettings.getKnocked or knocked then
-                    if neighborhoodSettings.partyRoomPriority and party then
-                        table.insert(partyPrompts, prompt)
-                    else
-                        table.insert(normalPrompts, prompt)
+                        local knocked = prompt:GetAttribute("Knocked") == true
+                        local party = prompt:GetAttribute("Party") == true
+
+                        if not neighborhoodSettings.getKnocked or knocked then
+                            if neighborhoodSettings.partyRoomPriority and party then
+                                table.insert(partyPrompts, prompt)
+                            else
+                                table.insert(normalPrompts, prompt)
+                            end
+                        end
                     end
                 end
             end
@@ -770,6 +793,7 @@ if game.PlaceId == 92551591080135 then
         while runState.running do
             updateHotelTransparency()
             updateNeighborhoodTransparency()
+
             task.wait(0.2)
         end
     end)
@@ -800,5 +824,6 @@ if game.PlaceId == 92551591080135 then
     print("[Ding Dong Ditch] Hotel found: " .. tostring(hotelFound))
     print("[Ding Dong Ditch] Neighborhood exit found: " .. tostring(escapeNeighborhood ~= nil))
 end
+
 
 
