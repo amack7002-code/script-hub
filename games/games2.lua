@@ -247,6 +247,7 @@ end
 
 if game.PlaceId == 92551591080135 then
     
+
 -- im the best vibe coder trust
 
 local Players = game:GetService("Players")
@@ -258,6 +259,7 @@ local houses = workspace.Map.Houses
 local getknocked = false
 local autoescape = true
 local partyRoomPriority = false
+local autoFarm = false
 
 local partTransparency = 0
 
@@ -265,15 +267,69 @@ local exitopen = ReplicatedStorage.MatchInfo.ExitOpen
 local escape = workspace.Map.Environment.NorthStairs.StreetDoor
 
 local totalPrompts = {}
-local running = true
+
+-- SAFE SPOT
 
 local safeSpot = Instance.new("Part")
 safeSpot.Name = "safe"
 safeSpot.Size = Vector3.new(1000, 1, 1000)
 safeSpot.Anchored = true
 safeSpot.CFrame = CFrame.new(0, 200, 0)
+safeSpot.Transparency = partTransparency
 safeSpot.Parent = workspace
-safeSpot.Transparency = partTransparency 
+
+-- RAYFIELD GEN 1
+
+Etab:CreateToggle({
+    Name = "Auto Farm",
+    CurrentValue = false,
+    Flag = "AutoFarm",
+    Callback = function(value)
+        autoFarm = value
+    end
+})
+
+Etab:CreateToggle({
+    Name = "Get already Knocked",
+    CurrentValue = false,
+    Flag = "GetKnocked",
+    Callback = function(value)
+        getknocked = value
+    end
+})
+
+Etab:CreateToggle({
+    Name = "Auto Escape",
+    CurrentValue = true,
+    Flag = "AutoEscape",
+    Callback = function(value)
+        autoescape = value
+    end
+})
+
+Etab:CreateToggle({
+    Name = "Party Room Priority",
+    CurrentValue = false,
+    Flag = "PartyRoomPriority",
+    Callback = function(value)
+        partyRoomPriority = value
+    end
+})
+
+Etab:CreateSlider({
+    Name = "Safe Spot Transparency",
+    Range = {0, 1},
+    Increment = 0.1,
+    Suffix = "",
+    CurrentValue = 0,
+    Flag = "SafeSpotTransparency",
+    Callback = function(value)
+        partTransparency = value
+        safeSpot.Transparency = value
+    end
+})
+
+-- PROMPT FINDER
 
 local function getdoorProxPrompt()
     table.clear(totalPrompts)
@@ -297,12 +353,14 @@ local function getdoorProxPrompt()
         end
     end
 
-    -- Party rooms first
+    -- PARTY ROOMS FIRST
+
     for _, v in ipairs(partyPrompts) do
         table.insert(totalPrompts, v)
     end
 
-    -- Other rooms afterward
+    -- NORMAL ROOMS AFTERWARD
+
     for _, v in ipairs(normalPrompts) do
         table.insert(totalPrompts, v)
     end
@@ -310,10 +368,14 @@ local function getdoorProxPrompt()
     return totalPrompts
 end
 
+-- CHARACTER
+
 local function getRoot()
     local character = player.Character or player.CharacterAdded:Wait()
     return character:WaitForChild("HumanoidRootPart")
 end
+
+-- TELEPORT
 
 local function teleportTo(part)
     if not part then
@@ -328,44 +390,66 @@ local function teleportTo(part)
     end
 end
 
+-- PROMPT ACTIVATION
+
 local function activatePrompt(prompt)
     if prompt and prompt.Parent and prompt.Enabled then
         fireproximityprompt(prompt)
     end
 end
 
-while running do
-    if autoescape and exitopen.Value == true then
-        teleportTo(escape)
-        task.wait(0.5)
+-- AUTO FARM LOOP
 
-    else
+task.spawn(function()
+    while true do
+        if not autoFarm then
+            task.wait(0.2)
+            continue
+        end
+
+        -- AUTO ESCAPE
+
+        if autoescape and exitopen.Value == true then
+            teleportTo(escape)
+            task.wait(0.5)
+            continue
+        end
+
         local prompts = getdoorProxPrompt()
 
         for _, prompt in ipairs(prompts) do
-            if not running then
+
+            if not autoFarm then
                 break
             end
 
-            -- Check escape before processing another door
+            -- CHECK EXIT
+
             if autoescape and exitopen.Value == true then
                 break
             end
 
-            local door = prompt.Parent and prompt.Parent.Parent
+            if not prompt.Parent or not prompt.Enabled then
+                continue
+            end
 
-            if door and prompt.Enabled then
-                -- Teleport to door
+            local door = prompt.Parent.Parent
+
+            if door then
+                -- TELEPORT TO DOOR
+
                 teleportTo(door)
 
                 task.wait(0.2)
 
-                -- Activate prompt
+                -- ACTIVATE PROMPT
+
                 activatePrompt(prompt)
 
                 task.wait(0.2)
 
-                -- Return to safe spot
+                -- RETURN TO SAFE SPOT
+
                 teleportTo(safeSpot)
 
                 task.wait(5)
@@ -374,5 +458,6 @@ while running do
 
         task.wait(0.5)
     end
-end
+end)
+
 end
