@@ -357,6 +357,7 @@ if game.PlaceId == 129861507977954 then
     end
 end
 
+
 -- =========================================================
 -- DING DONG DITCH
 -- =========================================================
@@ -387,7 +388,7 @@ if game.PlaceId == 92551591080135 then
 
     local totalPrompts = {}
 
-    -- Stop an older copy if the script is executed again.
+    -- CLEAN UP PREVIOUS INSTANCE
 
     if shared.DingDongDitchState then
         shared.DingDongDitchState.running = false
@@ -417,6 +418,14 @@ if game.PlaceId == 92551591080135 then
     safeSpot.Parent = workspace
 
     runState.safeSpot = safeSpot
+
+    -- AUTOMATIC TRANSPARENCY UPDATE
+
+    local function updateSafeSpotTransparency()
+        if safeSpot and safeSpot.Parent then
+            safeSpot.Transparency = partTransparency
+        end
+    end
 
     -- RAYFIELD UI
 
@@ -470,10 +479,7 @@ if game.PlaceId == 92551591080135 then
 
         Callback = function(value)
             partTransparency = value
-
-            if safeSpot and safeSpot.Parent then
-                safeSpot.Transparency = value
-            end
+            updateSafeSpotTransparency()
         end
     })
 
@@ -486,7 +492,9 @@ if game.PlaceId == 92551591080135 then
         local normalPrompts = {}
 
         for _, prompt in ipairs(houses:GetDescendants()) do
-            if prompt:IsA("ProximityPrompt") and prompt.Name == "KnockPrompt" then
+            if prompt:IsA("ProximityPrompt")
+                and prompt.Name == "KnockPrompt" then
+
                 local knocked = prompt:GetAttribute("Knocked") == true
                 local party = prompt:GetAttribute("Party") == true
 
@@ -515,7 +523,6 @@ if game.PlaceId == 92551591080135 then
 
     local function getRoot()
         local character = player.Character or player.CharacterAdded:Wait()
-
         return character:WaitForChild("HumanoidRootPart")
     end
 
@@ -553,6 +560,9 @@ if game.PlaceId == 92551591080135 then
 
     task.spawn(function()
         while runState.running do
+            -- Keep transparency synchronized
+            updateSafeSpotTransparency()
+
             if not autoFarm then
                 task.wait(0.2)
                 continue
@@ -571,6 +581,8 @@ if game.PlaceId == 92551591080135 then
                     break
                 end
 
+                updateSafeSpotTransparency()
+
                 if autoescape and exitopen.Value == true then
                     break
                 end
@@ -583,13 +595,12 @@ if game.PlaceId == 92551591080135 then
 
                 if door then
                     teleportTo(door)
-
                     task.wait(0.2)
 
                     activatePrompt(prompt)
-
                     task.wait(0.2)
 
+                    updateSafeSpotTransparency()
                     teleportTo(safeSpot)
 
                     task.wait(5)
@@ -600,3 +611,4 @@ if game.PlaceId == 92551591080135 then
         end
     end)
 end
+
