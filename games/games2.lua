@@ -365,10 +365,11 @@ end
 if game.PlaceId == 92551591080135 then
     _G.NotGames2 = false
 
-    local mTab = Window:CreateTab("main", "compass")
+    local HotelTab = Window:CreateTab("Hotel", "compass")
+    local neighborhoodTab = Window:CreateTab("neighborhood", "compass")
 
     local player = Players.LocalPlayer
-    local houses = workspace:WaitForChild("Map"):WaitForChild("Houses")
+    local houses = workspace:WaitForChild("Map", 9e9):WaitForChild("Houses", 9e9)
 
     local getknocked = false
     local autoescape = true
@@ -377,14 +378,14 @@ if game.PlaceId == 92551591080135 then
 
     local partTransparency = 0
 
-    local matchInfo = ReplicatedStorage:WaitForChild("MatchInfo")
-    local exitopen = matchInfo:WaitForChild("ExitOpen")
+    local matchInfo = ReplicatedStorage:WaitForChild("MatchInfo", 9e9)
+    local exitopen = matchInfo:WaitForChild("ExitOpen", 9e9)
 
-    local escape = workspace
-        :WaitForChild("Map")
-        :WaitForChild("Environment")
-        :WaitForChild("NorthStairs")
-        :WaitForChild("StreetDoor")
+    local escapeHotel = workspace
+        :WaitForChild("Map", 9e9)
+        :WaitForChild("Environment", 9e9)
+        :WaitForChild("NorthStairs", 9e9)
+        :WaitForChild("StreetDoor", 9e9)
 
     local totalPrompts = {}
 
@@ -393,7 +394,7 @@ if game.PlaceId == 92551591080135 then
     if shared.DingDongDitchState then
         shared.DingDongDitchState.running = false
 
-        local oldSafeSpot = shared.DingDongDitchState.safeSpot
+        local oldSafeSpot = shared.DingDongDitchState.safeSpotHotel
 
         if oldSafeSpot and oldSafeSpot.Parent then
             oldSafeSpot:Destroy()
@@ -402,34 +403,36 @@ if game.PlaceId == 92551591080135 then
 
     local runState = {
         running = true,
-        safeSpot = nil
+        safeSpotHotel = nil
     }
 
     shared.DingDongDitchState = runState
 
     -- SAFE SPOT
 
-    local safeSpot = Instance.new("Part")
-    safeSpot.Name = "safe"
-    safeSpot.Size = Vector3.new(1000, 1, 1000)
-    safeSpot.Anchored = true
-    safeSpot.CFrame = CFrame.new(0, 200, 0)
-    safeSpot.Transparency = partTransparency
-    safeSpot.Parent = workspace
-
-    runState.safeSpot = safeSpot
+    if escapeHotel then
+        local safeSpotHotel = Instance.new("Part")
+        safeSpotHotel.Name = "safeHotel"
+        safeSpotHotel.Size = Vector3.new(1000, 1, 1000)
+        safeSpotHotel.Anchored = true
+        safeSpotHotel.CFrame = CFrame.new(0, 200, 0)
+        safeSpotHotel.Transparency = partTransparency
+        safeSpotHotel.Parent = workspace
+    end
+        
+    runState.safeSpotHotel = safeSpotHotel
 
     -- AUTOMATIC TRANSPARENCY UPDATE
 
     local function updateSafeSpotTransparency()
-        if safeSpot and safeSpot.Parent then
-            safeSpot.Transparency = partTransparency
+        if safeSpotHotel and safeSpotHotel.Parent then
+            safeSpotHotel.Transparency = partTransparency
         end
     end
 
     -- RAYFIELD UI
 
-    mTab:CreateToggle({
+    HotelTab:CreateToggle({
         Name = "Auto Farm",
         CurrentValue = false,
         Flag = "AutoFarm",
@@ -439,7 +442,7 @@ if game.PlaceId == 92551591080135 then
         end
     })
 
-    mTab:CreateToggle({
+    HotelTab:CreateToggle({
         Name = "Get already Knocked",
         CurrentValue = false,
         Flag = "GetKnocked",
@@ -449,7 +452,7 @@ if game.PlaceId == 92551591080135 then
         end
     })
 
-    mTab:CreateToggle({
+    HotelTab:CreateToggle({
         Name = "Auto Escape",
         CurrentValue = true,
         Flag = "AutoEscape",
@@ -459,7 +462,7 @@ if game.PlaceId == 92551591080135 then
         end
     })
 
-    mTab:CreateToggle({
+    HotelTab:CreateToggle({
         Name = "Party Room Priority",
         CurrentValue = false,
         Flag = "PartyRoomPriority",
@@ -469,7 +472,7 @@ if game.PlaceId == 92551591080135 then
         end
     })
 
-    mTab:CreateSlider({
+    HotelTab:CreateSlider({
         Name = "Safe Spot Transparency",
         Range = {0, 1},
         Increment = 0.1,
@@ -557,58 +560,60 @@ if game.PlaceId == 92551591080135 then
     end
 
     -- AUTO FARM LOOP
-
-    task.spawn(function()
-        while runState.running do
-            -- Keep transparency synchronized
-            updateSafeSpotTransparency()
-
-            if not autoFarm then
-                task.wait(0.2)
-                continue
-            end
-
-            if autoescape and exitopen.Value == true then
-                teleportTo(escape)
-                task.wait(0.5)
-                continue
-            end
-
-            local prompts = getdoorProxPrompt()
-
-            for _, prompt in ipairs(prompts) do
-                if not runState.running or not autoFarm then
-                    break
-                end
-
+    local function hotel()
+        task.spawn(function()
+            while runState.running do
+                -- Keep transparency synchronized
                 updateSafeSpotTransparency()
-
-                if autoescape and exitopen.Value == true then
-                    break
-                end
-
-                if not prompt.Parent or not prompt.Enabled then
+    
+                if not autoFarm then
+                    task.wait(0.2)
                     continue
                 end
-
-                local door = prompt.Parent.Parent
-
-                if door then
-                    teleportTo(door)
-                    task.wait(0.2)
-
-                    activatePrompt(prompt)
-                    task.wait(0.2)
-
-                    updateSafeSpotTransparency()
-                    teleportTo(safeSpot)
-
-                    task.wait(5)
+    
+                if autoescape and exitopen.Value == true then
+                    teleportTo(escapeHotel)
+                    task.wait(0.5)
+                    continue
                 end
+    
+                local prompts = getdoorProxPrompt()
+    
+                for _, prompt in ipairs(prompts) do
+                    if not runState.running or not autoFarm then
+                        break
+                    end
+    
+                    updateSafeSpotTransparency()
+    
+                    if autoescape and exitopen.Value == true then
+                        break
+                    end
+    
+                    if not prompt.Parent or not prompt.Enabled then
+                        continue
+                    end
+    
+                    local door = prompt.Parent.Parent
+    
+                    if door then
+                        teleportTo(door)
+                        task.wait(0.2)
+    
+                        activatePrompt(prompt)
+                        task.wait(0.2)
+    
+                        updateSafeSpotTransparency()
+                        teleportTo(safeSpotHotel)
+    
+                        task.wait(5)
+                    end
+                end
+    
+                task.wait(0.5)
             end
-
-            task.wait(0.5)
-        end
-    end)
+        end)
+    end
 end
+
 
