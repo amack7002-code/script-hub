@@ -1,3 +1,4 @@
+
 local WindUI = loadstring(game:HttpGet(
     "https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"
 ))()
@@ -5,7 +6,7 @@ local WindUI = loadstring(game:HttpGet(
 local Window = WindUI:CreateWindow({
     Title = "My Super Hub",
     Icon = "door-open",
-    Author = "by .ftgs and .ftgs",
+    Author = "by .ftgs",
     Folder = "MySuperHub",
     Size = UDim2.fromOffset(580, 460),
     Theme = "Dark",
@@ -16,52 +17,56 @@ local Tab = Window:Tab({
     Icon = "download"
 })
 
+local loading = false
+
+local function loadScript(url)
+    if loading then
+        return
+    end
+
+    loading = true
+
+    local success, result = pcall(function()
+        local source = game:HttpGet(url)
+        assert(type(source) == "string" and #source > 0, "Script returned empty source")
+
+        local func, compileError = loadstring(source)
+        assert(func, compileError or "Failed to compile script")
+
+        return func()
+    end)
+
+    if not success then
+        warn("[My Super Hub] Failed to load script:")
+        warn(result)
+        loading = false
+        return
+    end
+
+    task.wait(0.2)
+
+    -- Destroy WindUI after successful loading
+    if Window.Destroy then
+        Window:Destroy()
+    elseif WindUI.Destroy then
+        WindUI:Destroy()
+    end
+end
+
 Tab:Button({
     Title = "Load Main",
     Callback = function()
-
-        local success, err = pcall(function()
-            loadstring(game:HttpGet(
-                "https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/main.lua"
-            ))()
-        end)
-
-        if not success then
-            warn(err)
-        end
-
-        task.wait(0.2)
-
-        -- destroy WindUI
-        if Window.Destroy then
-            Window:Destroy()
-        elseif WindUI.Destroy then
-            WindUI:Destroy()
-        end
+        loadScript(
+            "https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/main.lua"
+        )
     end
 })
 
 Tab:Button({
     Title = "Load Games",
     Callback = function()
-
-        local success, err = pcall(function()
-            loadstring(game:HttpGet(
-                "https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/Loader.lua"
-            ))()
-        end)
-
-        if not success then
-            warn(err)
-        end
-
-        task.wait(0.2)
-
-        -- destroy WindUI
-        if Window.Destroy then
-            Window:Destroy()
-        elseif WindUI.Destroy then
-            WindUI:Destroy()
-        end
+        loadScript(
+            "https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/Loader.lua"
+        )
     end
 })
