@@ -933,3 +933,55 @@ if game.PlaceId == 136169205786617 then
     })
 
 end
+
+--fake sick
+if game.PlaceId == 87746839382510 then
+    local Tab = Window:CreateTab("ESP", 4483362458)
+
+    local fs = workspace:WaitForChild("FS")
+
+    local function createEsp(personName)
+        local person = fs:FindFirstChild(personName)
+        if not person then return end
+
+        if person:FindFirstChild("ESP") then return end
+
+        local esp = Instance.new("Highlight")
+        esp.Name = "ESP"
+        esp.FillColor = Color3.fromRGB(255, 0, 0)
+        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+        esp.FillTransparency = 0.5
+        esp.OutlineTransparency = 0
+        esp.Parent = person
+    end
+
+    local function removeEsp(personName)
+        local person = fs:FindFirstChild(personName)
+        if not person then return end
+
+        local esp = person:FindFirstChild("ESP")
+        if esp then
+            esp:Destroy()
+        end
+    end
+
+    local function createToggle(personName)
+        Tab:CreateToggle({
+            Name = personName .. " ESP",
+            CurrentValue = false,
+            Flag = personName .. "ESP",
+            Callback = function(Value)
+                if Value then
+                    createEsp(personName)
+                else
+                    removeEsp(personName)
+                end
+            end
+        })
+    end
+
+    createToggle("Dad")
+    createToggle("Mom")
+    createToggle("Sis")
+
+end
