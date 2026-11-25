@@ -936,6 +936,7 @@ end
 
 --fake sick
 if game.PlaceId == 87746839382510 then
+    _G.NotGames2 = false
     local Tab = Window:CreateTab("ESP", 4483362458)
 
     local fs = workspace:WaitForChild("FS")
@@ -984,4 +985,116 @@ if game.PlaceId == 87746839382510 then
     createToggle("Mom")
     createToggle("Sis")
 
+end
+
+--creature crawler thing
+if game.PlaceId == 95651261712519 then
+    _G.NotGames2 = false
+     local Tab = Window:CreateTab("main", 4483362458)
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+
+    local plr = Players.LocalPlayer
+    local connection
+
+    Tab:CreateToggle({
+        Name = "Infinite Stamina",
+        CurrentValue = false,
+        Callback = function(Value)
+            if Value then
+                connection = RunService.Heartbeat:Connect(function()
+                    plr:SetAttribute("Stamina", 100)
+                end)
+            else
+                if connection then
+                    connection:Disconnect()
+                    connection = nil
+                end
+            end
+        end
+    })
+
+end
+
+-- Into the hive
+if game.PlaceId == 127112779460977 then
+    _G.NotGames2 = false
+	local Players = game:GetService("Players")
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+	local player = Players.LocalPlayer
+
+	-- Gen 1 syntax: CreateTab(name, icon)
+	local GTab = window:CreateTab("Gameplay", 93364949241311)
+
+	local ESPEnabled = false
+	local AutoMineEnabled = false
+	local FOLDER_NAME = "HighlightFolder" -- Change this to the target folder name in Workspace
+
+	local activeHighlights = {}
+	local childAddedConn
+
+	local function clearHighlights()
+		if childAddedConn then
+			childAddedConn:Disconnect()
+			childAddedConn = nil
+		end
+
+		for _, highlight in ipairs(activeHighlights) do
+			if highlight then
+				highlight:Destroy()
+			end
+		end
+		table.clear(activeHighlights)
+	end
+
+	local function addHighlight(target)
+		if not ESPEnabled then
+			return
+		end
+		if not target:IsA("BasePart") and not target:IsA("Model") then
+			return
+		end
+		if target:FindFirstChildOfClass("Highlight") then
+			return
+		end
+
+		local highlight = Instance.new("Highlight")
+		highlight.FillColor = Color3.fromRGB(255, 255, 0)
+		highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+		highlight.FillTransparency = 0.5
+		highlight.OutlineTransparency = 0
+		highlight.Adornee = target
+		highlight.Parent = target
+
+		table.insert(activeHighlights, highlight)
+	end
+
+	-- Bug ESP Toggle
+	GTab:CreateToggle({
+		Name = "Bug ESP",
+		CurrentValue = false,
+		Flag = "BugESP_INTOTHEHIVE",
+		Callback = function(Value)
+			ESPEnabled = Value
+
+			if Value then
+				local folder = workspace:FindFirstChild(FOLDER_NAME)
+				if not folder then
+					return
+				end
+
+				for _, child in ipairs(folder:GetChildren()) do
+					addHighlight(child)
+				end
+
+				childAddedConn = folder.ChildAdded:Connect(addHighlight)
+			else
+				clearHighlights()
+			end
+		end,
+	})
+
+
+    --might have more stuff  on priv hub but feel free to add more stuff here if you want by forking the repo and making a pull request
 end

@@ -14272,6 +14272,7 @@ Rayfield:Notify({
 })
 end
 --discord.com/api/webhooks/1131878821554797632/0g1r7k6J8X5Z9n3x4y5z6a7b8c9d0e1f2g3h4i5j6k7l8m9n0o1p2q3r4s5t6u7v8w9x0y1z2
+--haha you thought this was a logger 
 
 --bean
 if game.PlaceId == 102028012486873 then
