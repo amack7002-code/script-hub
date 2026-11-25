@@ -1098,3 +1098,157 @@ if game.PlaceId == 127112779460977 then
 
     --might have more stuff  on priv hub but feel free to add more stuff here if you want by forking the repo and making a pull request
 end
+
+
+--feed a mei mei
+if game.PlaceId == 127655305190243 then
+    local Tab = window:CreateTab("main", 93364949241311)
+
+    local RunService = game:GetService("RunService")
+
+    local click = workspace.MeiMeiStuff.MeiMei.Body.PetClick
+    local connection
+
+    Tab:CreateToggle({
+        Name = "Auto Pet Click",
+        CurrentValue = false,
+        Flag = "AutoPetClick",
+        Callback = function(Value)
+            if Value then
+                connection = RunService.RenderStepped:Connect(function()
+                    fireclickdetector(click)
+                end)
+            else
+                if connection then
+                    connection:Disconnect()
+                    connection = nil
+                end
+            end
+        end
+    })
+
+    local packages = workspace.MeiMeiStuff.Packages
+local connection
+local enabled = false
+
+Tab:CreateToggle({
+    Name = "Auto Package Click",
+    CurrentValue = false,
+    Flag = "AutoPackageClick",
+
+    Callback = function(Value)
+        enabled = Value
+
+        if Value then
+            for _, v in ipairs(packages:GetDescendants()) do
+                if v:IsA("ClickDetector") then
+                    fireclickdetector(v)
+                end
+            end
+
+            connection = packages.DescendantAdded:Connect(function(v)
+                if enabled and v:IsA("ClickDetector") then
+                    fireclickdetector(v)
+                end
+            end)
+        else
+            if connection then
+                connection:Disconnect()
+                connection = nil
+            end
+        end
+    end
+})
+
+
+local packages = workspace.MeiMeiStuff.Poops
+
+local enabled = false
+local active = {}
+local connection
+
+Tab:CreateToggle({
+    Name = "Auto Poop Collect",
+    CurrentValue = false,
+    Flag = "AutoPoopCollect",
+
+    Callback = function(Value)
+        enabled = Value
+
+        if Value then
+            local function clickBox(v)
+                if not enabled or not v:IsA("ClickDetector") or active[v] then
+                    return
+                end
+
+                active[v] = true
+
+                task.spawn(function()
+                    while enabled and v.Parent and v:IsDescendantOf(packages) do
+                        fireclickdetector(v)
+                        task.wait(0.1)
+                    end
+
+                    active[v] = nil
+                end)
+            end
+
+            for _, v in ipairs(packages:GetDescendants()) do
+                clickBox(v)
+            end
+
+            connection = packages.DescendantAdded:Connect(function(v)
+                clickBox(v)
+            end)
+        else
+            if connection then
+                connection:Disconnect()
+                connection = nil
+            end
+
+            table.clear(active)
+        end
+    end
+})
+
+local bowl = workspace.MeiMeiStuff.FoodArea.FoodBowl
+
+local enabled = false
+local running = false
+
+local function getBowl()
+    for _, v in ipairs(bowl:GetChildren()) do
+        if v:IsA("ClickDetector") then
+            return v
+        end
+    end
+end
+
+Tab:CreateToggle({
+    Name = "Auto Feed",
+    CurrentValue = false,
+    Flag = "AutoFeed",
+
+    Callback = function(Value)
+        enabled = Value
+
+        if Value and not running then
+            running = true
+
+            task.spawn(function()
+                while enabled do
+                    local click = getBowl()
+
+                    if click then
+                        fireclickdetector(click)
+                    end
+
+                    task.wait(0.1)
+                end
+
+                running = false
+            end)
+        end
+    end
+})
+end
