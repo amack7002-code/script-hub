@@ -72,14 +72,6 @@ HomeTab:CreateButton({
     end
 })
 
--- AI SMART Inf Yield (Fixed URL)
-HomeTab:CreateButton({
-    Name = "AI SMART Inf Yield (might not work)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/BokX1/InfiniteYieldWithAI/refs/heads/main/InfiniteYieldWithAI.lua"))()
-    end
-})
-
 -- Dex
 HomeTab:CreateButton({
     Name = "Dex",
@@ -118,14 +110,6 @@ HomeTab:CreateButton({
     Name = "JasonSpy",
     Callback = function()
         loadstring(game:HttpGet("https://pastebin.com/raw/8Pa2QRY8"))()
-    end
-})
-
--- Cobalt
-HomeTab:CreateButton({
-    Name = "Cobalt (rspy)",
-    Callback = function()
-        loadstring(game:HttpGet("https://github.com/notpoiu/cobalt/releases/latest/download/Cobalt.luau"))()
     end
 })
 
