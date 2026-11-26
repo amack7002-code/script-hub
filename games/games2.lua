@@ -1252,3 +1252,117 @@ Tab:CreateToggle({
     end
 })
 end
+
+--stay alive
+if game.PlaceId == 73274756083320 then
+    local Tab = window:CreateTab("main", 93364949241311)
+    local monsters = workspace:WaitForChild("Monster")
+
+local ESPEnabled = false
+local childAddedConn
+local activeHighlights = {}
+
+local function createEsp(v)
+    if not ESPEnabled then return end
+    if activeHighlights[v] then return end
+    if v:FindFirstChild("esp") then return end
+
+    local esp = Instance.new("Highlight")
+    esp.Name = "esp"
+    esp.FillColor = Color3.fromRGB(255, 0, 0)
+    esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+    esp.Parent = v
+
+    activeHighlights[v] = esp
+end
+
+local function clearEsp()
+    if childAddedConn then
+        childAddedConn:Disconnect()
+        childAddedConn = nil
+    end
+
+    for v, esp in pairs(activeHighlights) do
+        if esp then
+            esp:Destroy()
+        end
+        activeHighlights[v] = nil
+    end
+end
+
+Tab:CreateToggle({
+    Name = "Monster ESP",
+    CurrentValue = false,
+    Flag = "MonsterESP",
+
+    Callback = function(Value)
+        ESPEnabled = Value
+
+        if Value then
+            for _, v in ipairs(monsters:GetChildren()) do
+                createEsp(v)
+            end
+
+            childAddedConn = monsters.ChildAdded:Connect(function(v)
+                createEsp(v)
+            end)
+        else
+            clearEsp()
+        end
+    end
+})
+
+end
+
+--siren head: the forest
+if game.PlaceId == 7881326119 then
+local CC = workspace:WaitForChild("Cartoon Cat")
+local SH = workspace:WaitForChild("Siren Head")
+
+local function createEsp(v)
+    if v:FindFirstChild("esp") then return end
+
+    local esp = Instance.new("Highlight")
+    esp.Name = "esp"
+    esp.FillColor = Color3.fromRGB(255, 0, 0)
+    esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+    esp.Parent = v
+
+    return esp
+end
+
+local function removeEsp(v)
+    local esp = v:FindFirstChild("esp")
+    if esp then
+        esp:Destroy()
+    end
+end
+
+Tab:CreateToggle({
+    Name = "Cartoon Cat ESP",
+    CurrentValue = false,
+    Flag = "CartoonCatESP",
+
+    Callback = function(Value)
+        if Value then
+            createEsp(CC)
+        else
+            removeEsp(CC)
+        end
+    end
+})
+
+Tab:CreateToggle({
+    Name = "Siren Head ESP",
+    CurrentValue = false,
+    Flag = "SirenHeadESP",
+
+    Callback = function(Value)
+        if Value then
+            createEsp(SH)
+        else
+            removeEsp(SH)
+        end
+    end
+})
+end
