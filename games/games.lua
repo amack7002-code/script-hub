@@ -20056,7 +20056,7 @@ end
 end
 
 -- Not Games 1: runs only when none of the game blocks above matched
-if _G.NotGames1 then
+if _G.NotGames1 or _G.NotGames2 then
     local placeId = tostring(game.PlaceId)
     local GAMES2_URL = "https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/games/games2.lua"
 
