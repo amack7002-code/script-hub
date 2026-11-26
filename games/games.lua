@@ -20056,17 +20056,11 @@ end
 end
 
 -- Not Games 1: runs only when none of the game blocks above matched
-if _G.NotGames1 or _G.Ganes2 then -- global var ar so detected but idc
+if _G.NotGames1 then
     local placeId = tostring(game.PlaceId)
-
-    -- Direct raw link to games2 (must return Lua text, e.g. a raw.githubusercontent.com URL)
     local GAMES2_URL = "https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/games/games2.lua"
 
     local function downloadGames2()
-        if GAMES2_URL == "" then
-            return false, "GAMES2_URL is empty"
-        end
-
         local ok, source = pcall(function()
             return game:HttpGet(GAMES2_URL, true)
         end)
@@ -20095,7 +20089,13 @@ if _G.NotGames1 or _G.Ganes2 then -- global var ar so detected but idc
     if loaded then
         print("[publicHub] NotGames1: games2 loaded for PlaceId " .. placeId)
     else
-        warn("[publicHub] NotGames1: games2 not loaded (" .. why .. ")")
+        warn("[publicHub] NotGames1: games2 not loaded (" .. tostring(why) .. ")")
+
+        local Window = getgenv().RayfieldWindow
+        if not Window then
+            warn("[publicHub] NotGames1: RayfieldWindow not found")
+            return
+        end
 
         local ok = pcall(function()
             local NotTab = Window:CreateTab("Not Games1", 4483362458)
