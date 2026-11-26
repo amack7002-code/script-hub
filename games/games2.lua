@@ -1102,6 +1102,7 @@ end
 
 --feed a mei mei
 if game.PlaceId == 127655305190243 then
+    _G.NotGames2 = false
     local Tab = window:CreateTab("main", 93364949241311)
 
     local RunService = game:GetService("RunService")
@@ -1255,6 +1256,7 @@ end
 
 --stay alive
 if game.PlaceId == 73274756083320 then
+    _G.NotGames2 = false
     local Tab = window:CreateTab("main", 93364949241311)
     local monsters = workspace:WaitForChild("Monster")
 
@@ -1316,9 +1318,11 @@ end
 
 --siren head: the forest
 if game.PlaceId == 7881326119 then
+    _G.NotGames2 = false
      local Tab = window:CreateTab("main", 93364949241311)
 local CC = workspace:WaitForChild("Cartoon Cat")
 local SH = workspace:WaitForChild("Siren Head")
+local LH = workspace:WaitForChild("Long Horse")
 
 local function createEsp(v)
     if v:FindFirstChild("esp") then return end
@@ -1363,6 +1367,20 @@ Tab:CreateToggle({
             createEsp(SH)
         else
             removeEsp(SH)
+        end
+    end
+})
+
+Tab:CreateToggle({
+    Name = "Long Horse ESP",
+    CurrentValue = false,
+    Flag = "LongHorseESP",
+
+    Callback = function(Value)
+        if Value then
+            createEsp(LH)
+        else
+            removeEsp(LH)
         end
     end
 })
