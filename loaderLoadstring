@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/amack7002-code/script-hub/refs/heads/main/Loader.lua"))
