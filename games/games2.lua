@@ -1316,6 +1316,7 @@ end
 
 --siren head: the forest
 if game.PlaceId == 7881326119 then
+     local Tab = window:CreateTab("main", 93364949241311)
 local CC = workspace:WaitForChild("Cartoon Cat")
 local SH = workspace:WaitForChild("Siren Head")
 
@@ -1365,4 +1366,59 @@ Tab:CreateToggle({
         end
     end
 })
+
+local scrap = {}
+local scrapHighlights = {}
+
+local function getScrap()
+    table.clear(scrap)
+
+    for _, v in ipairs(workspace.Game.Scrap:GetChildren()) do
+        table.insert(scrap, v)
+    end
+end
+
+local function createScrapEsp(v)
+    if scrapHighlights[v] or v:FindFirstChild("esp") then
+        return
+    end
+
+    local esp = Instance.new("Highlight")
+    esp.Name = "esp"
+    esp.FillColor = Color3.fromRGB(255, 255, 0)
+    esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+    esp.Parent = v
+
+    scrapHighlights[v] = esp
+end
+
+local function removeScrapEsp()
+    for v, esp in pairs(scrapHighlights) do
+        if esp then
+            esp:Destroy()
+        end
+
+        scrapHighlights[v] = nil
+    end
+end
+
+Tab:CreateToggle({
+    Name = "Scrap ESP",
+    CurrentValue = false,
+    Flag = "ScrapESP",
+
+    Callback = function(Value)
+        if Value then
+            getScrap()
+
+            for _, v in ipairs(scrap) do
+                createScrapEsp(v)
+            end
+        else
+            removeScrapEsp()
+        end
+    end
+})
+
+
 end
