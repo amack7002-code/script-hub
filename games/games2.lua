@@ -928,7 +928,7 @@ if game.PlaceId == 136169205786617 then
                 end
             end)
 
-            Section:NewToggle("ESP Chests", "Find chests for exploit", function(state))
+            --Section:NewToggle("ESP Chests", "Find chests for exploit", function(state))
         end
     })
 
@@ -1320,123 +1320,123 @@ end
 if game.PlaceId == 7881326119 then
     _G.NotGames2 = false
      local Tab = window:CreateTab("main", 93364949241311)
-local CC = workspace:WaitForChild("Cartoon Cat")
-local SH = workspace:WaitForChild("Siren Head")
-local LH = workspace:WaitForChild("Long Horse")
+    local CC = workspace:WaitForChild("Cartoon Cat")
+    local SH = workspace:WaitForChild("Siren Head")
+    local LH = workspace:WaitForChild("Long Horse")
 
-local function createEsp(v)
-    if v:FindFirstChild("esp") then return end
+    local function createEsp(v)
+        if v:FindFirstChild("esp") then return end
 
-    local esp = Instance.new("Highlight")
-    esp.Name = "esp"
-    esp.FillColor = Color3.fromRGB(255, 0, 0)
-    esp.OutlineColor = Color3.fromRGB(255, 255, 255)
-    esp.Parent = v
+        local esp = Instance.new("Highlight")
+        esp.Name = "esp"
+        esp.FillColor = Color3.fromRGB(255, 0, 0)
+        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+        esp.Parent = v
 
-    return esp
-end
-
-local function removeEsp(v)
-    local esp = v:FindFirstChild("esp")
-    if esp then
-        esp:Destroy()
-    end
-end
-
-Tab:CreateToggle({
-    Name = "Cartoon Cat ESP",
-    CurrentValue = false,
-    Flag = "CartoonCatESP",
-
-    Callback = function(Value)
-        if Value then
-            createEsp(CC)
-        else
-            removeEsp(CC)
-        end
-    end
-})
-
-Tab:CreateToggle({
-    Name = "Siren Head ESP",
-    CurrentValue = false,
-    Flag = "SirenHeadESP",
-
-    Callback = function(Value)
-        if Value then
-            createEsp(SH)
-        else
-            removeEsp(SH)
-        end
-    end
-})
-
-Tab:CreateToggle({
-    Name = "Long Horse ESP",
-    CurrentValue = false,
-    Flag = "LongHorseESP",
-
-    Callback = function(Value)
-        if Value then
-            createEsp(LH)
-        else
-            removeEsp(LH)
-        end
-    end
-})
-
-local scrap = {}
-local scrapHighlights = {}
-
-local function getScrap()
-    table.clear(scrap)
-
-    for _, v in ipairs(workspace.Game.Scrap:GetChildren()) do
-        table.insert(scrap, v)
-    end
-end
-
-local function createScrapEsp(v)
-    if scrapHighlights[v] or v:FindFirstChild("esp") then
-        return
+        return esp
     end
 
-    local esp = Instance.new("Highlight")
-    esp.Name = "esp"
-    esp.FillColor = Color3.fromRGB(255, 255, 0)
-    esp.OutlineColor = Color3.fromRGB(255, 255, 255)
-    esp.Parent = v
-
-    scrapHighlights[v] = esp
-end
-
-local function removeScrapEsp()
-    for v, esp in pairs(scrapHighlights) do
+    local function removeEsp(v)
+        local esp = v:FindFirstChild("esp")
         if esp then
             esp:Destroy()
         end
-
-        scrapHighlights[v] = nil
     end
-end
 
-Tab:CreateToggle({
-    Name = "Scrap ESP",
-    CurrentValue = false,
-    Flag = "ScrapESP",
+    Tab:CreateToggle({
+        Name = "Cartoon Cat ESP",
+        CurrentValue = false,
+        Flag = "CartoonCatESP",
 
-    Callback = function(Value)
-        if Value then
-            getScrap()
-
-            for _, v in ipairs(scrap) do
-                createScrapEsp(v)
+        Callback = function(Value)
+            if Value then
+                createEsp(CC)
+            else
+                removeEsp(CC)
             end
-        else
-            removeScrapEsp()
+        end
+    })
+
+    Tab:CreateToggle({
+        Name = "Siren Head ESP",
+        CurrentValue = false,
+        Flag = "SirenHeadESP",
+
+        Callback = function(Value)
+            if Value then
+                createEsp(SH)
+            else
+                removeEsp(SH)
+            end
+        end
+    })
+
+    Tab:CreateToggle({
+        Name = "Long Horse ESP",
+        CurrentValue = false,
+        Flag = "LongHorseESP",
+
+        Callback = function(Value)
+            if Value then
+                createEsp(LH)
+            else
+                removeEsp(LH)
+            end
+        end
+    })
+
+    local scrap = {}
+    local scrapHighlights = {}
+
+    local function getScrap()
+        table.clear(scrap)
+
+        for _, v in ipairs(workspace.Game.Scrap:GetChildren()) do
+            table.insert(scrap, v)
         end
     end
-})
+
+    local function createScrapEsp(v)
+        if scrapHighlights[v] or v:FindFirstChild("esp") then
+            return
+        end
+
+        local esp = Instance.new("Highlight")
+        esp.Name = "esp"
+        esp.FillColor = Color3.fromRGB(255, 255, 0)
+        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+        esp.Parent = v
+
+        scrapHighlights[v] = esp
+    end
+
+    local function removeScrapEsp()
+        for v, esp in pairs(scrapHighlights) do
+            if esp then
+                esp:Destroy()
+            end
+
+            scrapHighlights[v] = nil
+        end
+    end
+
+    Tab:CreateToggle({
+        Name = "Scrap ESP",
+        CurrentValue = false,
+        Flag = "ScrapESP",
+
+        Callback = function(Value)
+            if Value then
+                getScrap()
+
+                for _, v in ipairs(scrap) do
+                    createScrapEsp(v)
+                end
+            else
+                removeScrapEsp()
+            end
+        end
+    })
 
 
 end
