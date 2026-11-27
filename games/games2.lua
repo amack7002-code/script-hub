@@ -1480,6 +1480,8 @@ end
 --house of guilt 
 --ts game so bad its making me so bad
 if game.PlaceId == 8 then --game name need real one
+            _G.NotGames2 = false
+     local Tab = window:CreateTab("main", 93364949241311)
     while task.wait(1) do
     local guilt = workspace.Guilt
     end
@@ -1528,33 +1530,74 @@ end
 
 --you vs hulk
 if game.PlaceId == 101527854251487 then
+            _G.NotGames2 = false
+     local Tab = window:CreateTab("main", 93364949241311)
     local function getHulk()
-    for _, v in pairs(Players:GetPlayers()) do
-        if v.Team and v.Team.Name == "Hulk" then
-            return v.Character
+        for _, v in ipairs(Players:GetPlayers()) do
+            if v.Team and v.Team.Name == "Hulk" then
+                return v.Character
+            end
         end
     end
+
+    local function removeHulkEsp()
+        for _, v in ipairs(Players:GetPlayers()) do
+            if v.Character then
+                local esp = v.Character:FindFirstChild("esp")
+                if esp then
+                    esp:Destroy()
+                end
+            end
+        end
+    end
+
+    Tab:CreateToggle({
+        Name = "hulk ESP",
+        CurrentValue = false,
+        Flag = "hulkESP",
+
+        Callback = function(Value)
+            if Value then
+                local hulk = getHulk()
+
+                if hulk and not hulk:FindFirstChild("esp") then
+                    local esp = Instance.new("Highlight")
+                    esp.Name = "esp"
+                    esp.FillColor = Color3.fromRGB(255, 0, 0)
+                    esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+                    esp.Parent = hulk
+                end
+            else
+                removeHulkEsp()
+            end
+        end
+    })
 end
 
-local hulk = getHulk()
+-- survive an anomaly
+if game.PlaceId == 112154382241395 then
+                _G.NotGames2 = false
+     local Tab = window:CreateTab("main", 93364949241311)
 
-Tab:CreateToggle({
-    Name = "locust ESP",
-    CurrentValue = false,
-    Flag = "locustyESP",
+    Tab:CreateButton({
+    Name = "Teleport to Platform",
+    Callback = function()
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
 
-    Callback = function(Value)
-        if Value then
-            if hulk and not hulk:FindFirstChild("esp") then
-                local esp = Instance.new("Highlight")
-                esp.Name = "esp"
-                esp.FillColor = Color3.fromRGB(255, 0, 0)
-                esp.OutlineColor = Color3.fromRGB(255, 255, 255)
-                esp.Parent = hulk
-            end
-        else
-           print("im too lazy to remove")
-        end
+        local part = Instance.new("Part")
+        part.Name = "TeleportPlatform"
+        part.Size = Vector3.new(9000, 1, 9000)
+        part.CFrame = CFrame.new(0, 100, 0)
+        part.Anchored = true
+        part.Transparency = 1
+        part.CanCollide = false
+        part.CanTouch = false
+        part.CanQuery = false
+        part.Parent = workspace
+
+        hrp.CFrame = part.CFrame
     end
 })
-
+end
