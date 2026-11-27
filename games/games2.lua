@@ -910,111 +910,111 @@ end
 
 --creature crawler thing
 if game.PlaceId == 95651261712519 then
-    _G.NotGames2 = false
-     local Tab = Window:CreateTab("main", 4483362458)
-    local Players = game:GetService("Players")
-    local RunService = game:GetService("RunService")
+        _G.NotGames2 = false
+        local Tab = Window:CreateTab("main", 4483362458)
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
 
-    local plr = Players.LocalPlayer
-    local connection
+        local plr = Players.LocalPlayer
+        local connection
 
-    Tab:CreateToggle({
-        Name = "Infinite Stamina",
-        CurrentValue = false,
-        Callback = function(Value)
-            if Value then
-                connection = RunService.Heartbeat:Connect(function()
-                    plr:SetAttribute("Stamina", 100)
-                end)
-            else
-                if connection then
-                    connection:Disconnect()
-                    connection = nil
+        Tab:CreateToggle({
+            Name = "Infinite Stamina",
+            CurrentValue = false,
+            Callback = function(Value)
+                if Value then
+                    connection = RunService.Heartbeat:Connect(function()
+                        plr:SetAttribute("Stamina", 100)
+                    end)
+                else
+                    if connection then
+                        connection:Disconnect()
+                        connection = nil
+                    end
                 end
             end
-        end
-    })
+        })
 
 end
 
 -- Into the hive
 if game.PlaceId == 127112779460977 then
-    _G.NotGames2 = false
-	local Players = game:GetService("Players")
-	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        _G.NotGames2 = false
+        local Players = game:GetService("Players")
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-	local player = Players.LocalPlayer
+        local player = Players.LocalPlayer
 
-	-- Gen 1 syntax: CreateTab(name, icon)
-	local GTab = window:CreateTab("Gameplay", 93364949241311)
+        -- Gen 1 syntax: CreateTab(name, icon)
+        local GTab = window:CreateTab("Gameplay", 93364949241311)
 
-	local ESPEnabled = false
-	local AutoMineEnabled = false
-	local FOLDER_NAME = "HighlightFolder" -- Change this to the target folder name in Workspace
+        local ESPEnabled = false
+        local AutoMineEnabled = false
+        local FOLDER_NAME = "HighlightFolder" -- Change this to the target folder name in Workspace
 
-	local activeHighlights = {}
-	local childAddedConn
+        local activeHighlights = {}
+        local childAddedConn
 
-	local function clearHighlights()
-		if childAddedConn then
-			childAddedConn:Disconnect()
-			childAddedConn = nil
-		end
+        local function clearHighlights()
+            if childAddedConn then
+                childAddedConn:Disconnect()
+                childAddedConn = nil
+            end
 
-		for _, highlight in ipairs(activeHighlights) do
-			if highlight then
-				highlight:Destroy()
-			end
-		end
-		table.clear(activeHighlights)
-	end
+            for _, highlight in ipairs(activeHighlights) do
+                if highlight then
+                    highlight:Destroy()
+                end
+            end
+            table.clear(activeHighlights)
+        end
 
-	local function addHighlight(target)
-		if not ESPEnabled then
-			return
-		end
-		if not target:IsA("BasePart") and not target:IsA("Model") then
-			return
-		end
-		if target:FindFirstChildOfClass("Highlight") then
-			return
-		end
+        local function addHighlight(target)
+            if not ESPEnabled then
+                return
+            end
+            if not target:IsA("BasePart") and not target:IsA("Model") then
+                return
+            end
+            if target:FindFirstChildOfClass("Highlight") then
+                return
+            end
 
-		local highlight = Instance.new("Highlight")
-		highlight.FillColor = Color3.fromRGB(255, 255, 0)
-		highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-		highlight.FillTransparency = 0.5
-		highlight.OutlineTransparency = 0
-		highlight.Adornee = target
-		highlight.Parent = target
+            local highlight = Instance.new("Highlight")
+            highlight.FillColor = Color3.fromRGB(255, 255, 0)
+            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+            highlight.FillTransparency = 0.5
+            highlight.OutlineTransparency = 0
+            highlight.Adornee = target
+            highlight.Parent = target
 
-		table.insert(activeHighlights, highlight)
-	end
+            table.insert(activeHighlights, highlight)
+        end
 
-	-- Bug ESP Toggle
-	GTab:CreateToggle({
-		Name = "Bug ESP",
-		CurrentValue = false,
-		Flag = "BugESP_INTOTHEHIVE",
-		Callback = function(Value)
-			ESPEnabled = Value
+        -- Bug ESP Toggle
+        GTab:CreateToggle({
+            Name = "Bug ESP",
+            CurrentValue = false,
+            Flag = "BugESP_INTOTHEHIVE",
+            Callback = function(Value)
+                ESPEnabled = Value
 
-			if Value then
-				local folder = workspace:FindFirstChild(FOLDER_NAME)
-				if not folder then
-					return
-				end
+                if Value then
+                    local folder = workspace:FindFirstChild(FOLDER_NAME)
+                    if not folder then
+                        return
+                    end
 
-				for _, child in ipairs(folder:GetChildren()) do
-					addHighlight(child)
-				end
+                    for _, child in ipairs(folder:GetChildren()) do
+                        addHighlight(child)
+                    end
 
-				childAddedConn = folder.ChildAdded:Connect(addHighlight)
-			else
-				clearHighlights()
-			end
-		end,
-	})
+                    childAddedConn = folder.ChildAdded:Connect(addHighlight)
+                else
+                    clearHighlights()
+                end
+            end,
+        })
 
 
     --might have more stuff  on priv hub but feel free to add more stuff here if you want by forking the repo and making a pull request
@@ -1023,22 +1023,55 @@ end
 
 --feed a mei mei
 if game.PlaceId == 127655305190243 then
-    _G.NotGames2 = false
-    local Tab = window:CreateTab("main", 93364949241311)
+        _G.NotGames2 = false
+        local Tab = window:CreateTab("main", 93364949241311)
 
-    local RunService = game:GetService("RunService")
+        local RunService = game:GetService("RunService")
 
-    local click = workspace.MeiMeiStuff.MeiMei.Body.PetClick
+        local click = workspace.MeiMeiStuff.MeiMei.Body.PetClick
+        local connection
+
+        Tab:CreateToggle({
+            Name = "Auto Pet Click",
+            CurrentValue = false,
+            Flag = "AutoPetClick",
+            Callback = function(Value)
+                if Value then
+                    connection = RunService.RenderStepped:Connect(function()
+                        fireclickdetector(click)
+                    end)
+                else
+                    if connection then
+                        connection:Disconnect()
+                        connection = nil
+                    end
+                end
+            end
+        })
+
+        local packages = workspace.MeiMeiStuff.Packages
     local connection
+    local enabled = false
 
     Tab:CreateToggle({
-        Name = "Auto Pet Click",
+        Name = "Auto Package Click",
         CurrentValue = false,
-        Flag = "AutoPetClick",
+        Flag = "AutoPackageClick",
+
         Callback = function(Value)
+            enabled = Value
+
             if Value then
-                connection = RunService.RenderStepped:Connect(function()
-                    fireclickdetector(click)
+                for _, v in ipairs(packages:GetDescendants()) do
+                    if v:IsA("ClickDetector") then
+                        fireclickdetector(v)
+                    end
+                end
+
+                connection = packages.DescendantAdded:Connect(function(v)
+                    if enabled and v:IsA("ClickDetector") then
+                        fireclickdetector(v)
+                    end
                 end)
             else
                 if connection then
@@ -1049,130 +1082,97 @@ if game.PlaceId == 127655305190243 then
         end
     })
 
-    local packages = workspace.MeiMeiStuff.Packages
-local connection
-local enabled = false
 
-Tab:CreateToggle({
-    Name = "Auto Package Click",
-    CurrentValue = false,
-    Flag = "AutoPackageClick",
+    local packages = workspace.MeiMeiStuff.Poops
 
-    Callback = function(Value)
-        enabled = Value
+    local enabled = false
+    local active = {}
+    local connection
 
-        if Value then
-            for _, v in ipairs(packages:GetDescendants()) do
-                if v:IsA("ClickDetector") then
-                    fireclickdetector(v)
+    Tab:CreateToggle({
+        Name = "Auto Poop Collect",
+        CurrentValue = false,
+        Flag = "AutoPoopCollect",
+
+        Callback = function(Value)
+            enabled = Value
+
+            if Value then
+                local function clickBox(v)
+                    if not enabled or not v:IsA("ClickDetector") or active[v] then
+                        return
+                    end
+
+                    active[v] = true
+
+                    task.spawn(function()
+                        while enabled and v.Parent and v:IsDescendantOf(packages) do
+                            fireclickdetector(v)
+                            task.wait(0.1)
+                        end
+
+                        active[v] = nil
+                    end)
                 end
+
+                for _, v in ipairs(packages:GetDescendants()) do
+                    clickBox(v)
+                end
+
+                connection = packages.DescendantAdded:Connect(function(v)
+                    clickBox(v)
+                end)
+            else
+                if connection then
+                    connection:Disconnect()
+                    connection = nil
+                end
+
+                table.clear(active)
             end
+        end
+    })
 
-            connection = packages.DescendantAdded:Connect(function(v)
-                if enabled and v:IsA("ClickDetector") then
-                    fireclickdetector(v)
-                end
-            end)
-        else
-            if connection then
-                connection:Disconnect()
-                connection = nil
+    local bowl = workspace.MeiMeiStuff.FoodArea.FoodBowl
+
+    local enabled = false
+    local running = false
+
+    local function getBowl()
+        for _, v in ipairs(bowl:GetChildren()) do
+            if v:IsA("ClickDetector") then
+                return v
             end
         end
     end
-})
 
+    Tab:CreateToggle({
+        Name = "Auto Feed",
+        CurrentValue = false,
+        Flag = "AutoFeed",
 
-local packages = workspace.MeiMeiStuff.Poops
+        Callback = function(Value)
+            enabled = Value
 
-local enabled = false
-local active = {}
-local connection
-
-Tab:CreateToggle({
-    Name = "Auto Poop Collect",
-    CurrentValue = false,
-    Flag = "AutoPoopCollect",
-
-    Callback = function(Value)
-        enabled = Value
-
-        if Value then
-            local function clickBox(v)
-                if not enabled or not v:IsA("ClickDetector") or active[v] then
-                    return
-                end
-
-                active[v] = true
+            if Value and not running then
+                running = true
 
                 task.spawn(function()
-                    while enabled and v.Parent and v:IsDescendantOf(packages) do
-                        fireclickdetector(v)
+                    while enabled do
+                        local click = getBowl()
+
+                        if click then
+                            fireclickdetector(click)
+                        end
+
                         task.wait(0.1)
                     end
 
-                    active[v] = nil
+                    running = false
                 end)
             end
-
-            for _, v in ipairs(packages:GetDescendants()) do
-                clickBox(v)
-            end
-
-            connection = packages.DescendantAdded:Connect(function(v)
-                clickBox(v)
-            end)
-        else
-            if connection then
-                connection:Disconnect()
-                connection = nil
-            end
-
-            table.clear(active)
         end
-    end
-})
-
-local bowl = workspace.MeiMeiStuff.FoodArea.FoodBowl
-
-local enabled = false
-local running = false
-
-local function getBowl()
-    for _, v in ipairs(bowl:GetChildren()) do
-        if v:IsA("ClickDetector") then
-            return v
-        end
-    end
-end
-
-Tab:CreateToggle({
-    Name = "Auto Feed",
-    CurrentValue = false,
-    Flag = "AutoFeed",
-
-    Callback = function(Value)
-        enabled = Value
-
-        if Value and not running then
-            running = true
-
-            task.spawn(function()
-                while enabled do
-                    local click = getBowl()
-
-                    if click then
-                        fireclickdetector(click)
-                    end
-
-                    task.wait(0.1)
-                end
-
-                running = false
-            end)
-        end
-    end
-})
+    })
 end
 
 --stay alive
@@ -1181,59 +1181,59 @@ if game.PlaceId == 73274756083320 then
     local Tab = window:CreateTab("main", 93364949241311)
     local monsters = workspace:WaitForChild("Monster")
 
-local ESPEnabled = false
-local childAddedConn
-local activeHighlights = {}
+    local ESPEnabled = false
+    local childAddedConn
+    local activeHighlights = {}
 
-local function createEsp(v)
-    if not ESPEnabled then return end
-    if activeHighlights[v] then return end
-    if v:FindFirstChild("esp") then return end
+    local function createEsp(v)
+        if not ESPEnabled then return end
+        if activeHighlights[v] then return end
+        if v:FindFirstChild("esp") then return end
 
-    local esp = Instance.new("Highlight")
-    esp.Name = "esp"
-    esp.FillColor = Color3.fromRGB(255, 0, 0)
-    esp.OutlineColor = Color3.fromRGB(255, 255, 255)
-    esp.Parent = v
+        local esp = Instance.new("Highlight")
+        esp.Name = "esp"
+        esp.FillColor = Color3.fromRGB(255, 0, 0)
+        esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+        esp.Parent = v
 
-    activeHighlights[v] = esp
-end
-
-local function clearEsp()
-    if childAddedConn then
-        childAddedConn:Disconnect()
-        childAddedConn = nil
+        activeHighlights[v] = esp
     end
 
-    for v, esp in pairs(activeHighlights) do
-        if esp then
-            esp:Destroy()
+    local function clearEsp()
+        if childAddedConn then
+            childAddedConn:Disconnect()
+            childAddedConn = nil
         end
-        activeHighlights[v] = nil
-    end
-end
 
-Tab:CreateToggle({
-    Name = "Monster ESP",
-    CurrentValue = false,
-    Flag = "MonsterESP",
-
-    Callback = function(Value)
-        ESPEnabled = Value
-
-        if Value then
-            for _, v in ipairs(monsters:GetChildren()) do
-                createEsp(v)
+        for v, esp in pairs(activeHighlights) do
+            if esp then
+                esp:Destroy()
             end
-
-            childAddedConn = monsters.ChildAdded:Connect(function(v)
-                createEsp(v)
-            end)
-        else
-            clearEsp()
+            activeHighlights[v] = nil
         end
     end
-})
+
+    Tab:CreateToggle({
+        Name = "Monster ESP",
+        CurrentValue = false,
+        Flag = "MonsterESP",
+
+        Callback = function(Value)
+            ESPEnabled = Value
+
+            if Value then
+                for _, v in ipairs(monsters:GetChildren()) do
+                    createEsp(v)
+                end
+
+                childAddedConn = monsters.ChildAdded:Connect(function(v)
+                    createEsp(v)
+                end)
+            else
+                clearEsp()
+            end
+        end
+    })
 
 end
 
@@ -1361,3 +1361,200 @@ if game.PlaceId == 7881326119 then
 
 
 end
+
+--mouse
+if game.PlaceId == 89440018933049 then
+    _G.NotGames2 = false
+     local Tab = window:CreateTab("main", 93364949241311)
+
+local mickey = workspace:WaitForChild("MickeyVisual")
+
+local function createEsp(v)
+    if not v or v:FindFirstChild("esp") then
+        return
+    end
+
+    local esp = Instance.new("Highlight")
+    esp.Name = "esp"
+    esp.FillColor = Color3.fromRGB(255, 0, 0)
+    esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+    esp.Adornee = v
+    esp.Parent = v
+
+    return esp
+end
+
+local function removeEsp(v)
+    if not v then return end
+
+    local esp = v:FindFirstChild("esp")
+    if esp then
+        esp:Destroy()
+    end
+end
+
+Tab:CreateToggle({
+    Name = "Mickey ESP",
+    CurrentValue = false,
+    Flag = "MickeyESP",
+
+    Callback = function(Value)
+        if Value then
+            createEsp(mickey)
+        else
+            removeEsp(mickey)
+        end
+    end
+})
+
+Tab:CreateButton({
+    Name = "Go to safe spot",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+
+        hrp.CFrame = CFrame.new(0, 71, 628)
+    end,
+})
+
+Tab:CreateButton({
+    Name = "Instant opens stuff",
+    Callback = function()
+        for _, v in ipairs(game:GetDescendants()) do
+            if v:IsA("ProximityPrompt") then
+                v.HoldDuration = 0
+            end
+        end
+    end,
+})
+
+end
+
+--locust dead air
+if game.PlaceId == 107330821943384 then
+        _G.NotGames2 = false
+     local Tab = window:CreateTab("main", 93364949241311)
+
+     local L = workspace.MONSTER
+
+     local function createEsp(v)
+    if not v or v:FindFirstChild("esp") then
+        return
+    end
+
+    local esp = Instance.new("Highlight")
+    esp.Name = "esp"
+    esp.FillColor = Color3.fromRGB(255, 0, 0)
+    esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+    esp.Adornee = v
+    esp.Parent = v
+
+    return esp
+end
+
+local function removeEsp(v)
+    if not v then return end
+
+    local esp = v:FindFirstChild("esp")
+    if esp then
+        esp:Destroy()
+    end
+end
+
+Tab:CreateToggle({
+    Name = "locust ESP",
+    CurrentValue = false,
+    Flag = "locustyESP",
+
+    Callback = function(Value)
+        if Value then
+            createEsp(L)
+        else
+            removeEsp(L)
+        end
+    end
+})
+end
+
+--house of guilt 
+--ts game so bad its making me so bad
+if game.PlaceId == 8 then --game name need real one
+    while task.wait(1) do
+    local guilt = workspace.Guilt
+    end
+    local Tab = window:CreateTab("main", 93364949241311)
+
+         local function createEsp(v)
+            while task.wait() do
+    if not v or v:FindFirstChild("esp") then
+        return
+    end
+
+    local esp = Instance.new("Highlight")
+    esp.Name = "esp"
+    esp.FillColor = Color3.fromRGB(255, 0, 0)
+    esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+    esp.Adornee = v
+    esp.Parent = v
+
+    return esp
+end
+end
+
+local function removeEsp(v)
+    if not v then return end
+
+    local esp = v:FindFirstChild("esp")
+    if esp then
+        esp:Destroy()
+    end
+end
+
+Tab:CreateToggle({
+    Name = "locust ESP",
+    CurrentValue = false,
+    Flag = "locustyESP",
+
+    Callback = function(Value)
+        if Value then
+            createEsp(guilt)
+        else
+            removeEsp(guilt)
+        end
+    end
+})
+end
+
+--you vs hulk
+if game.PlaceId == 101527854251487 then
+    local function getHulk()
+    for _, v in pairs(Players:GetPlayers()) do
+        if v.Team and v.Team.Name == "Hulk" then
+            return v.Character
+        end
+    end
+end
+
+local hulk = getHulk()
+
+Tab:CreateToggle({
+    Name = "locust ESP",
+    CurrentValue = false,
+    Flag = "locustyESP",
+
+    Callback = function(Value)
+        if Value then
+            if hulk and not hulk:FindFirstChild("esp") then
+                local esp = Instance.new("Highlight")
+                esp.Name = "esp"
+                esp.FillColor = Color3.fromRGB(255, 0, 0)
+                esp.OutlineColor = Color3.fromRGB(255, 255, 255)
+                esp.Parent = hulk
+            end
+        else
+           print("im too lazy to remove")
+        end
+    end
+})
+
